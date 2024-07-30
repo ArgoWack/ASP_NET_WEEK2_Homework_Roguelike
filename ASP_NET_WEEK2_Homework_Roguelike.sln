@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.10.35027.167
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ASP_NET_WEEK2_Homework_Roguelike", "ASP_NET_WEEK2_Homework_Roguelike\ASP_NET_WEEK2_Homework_Roguelike.csproj", "{C017023C-F9E7-4C74-B3B2-7F25434F1153}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C017023C-F9E7-4C74-B3B2-7F25434F1153}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C017023C-F9E7-4C74-B3B2-7F25434F1153}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C017023C-F9E7-4C74-B3B2-7F25434F1153}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C017023C-F9E7-4C74-B3B2-7F25434F1153}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {A5D556CF-9480-4434-836E-DE2561C42BD1}
+	EndGlobalSection
+EndGlobal
