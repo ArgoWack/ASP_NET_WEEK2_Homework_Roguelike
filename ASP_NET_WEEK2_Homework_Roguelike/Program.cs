@@ -21,7 +21,7 @@ using static System.Console;
 /////// 3) nic się nie dzieje
 /////// 4) spotkanie postaci (losowanie z puli postaci)
 
-MenuActionService actionService = new MenuActionService();t
+MenuActionService actionService = new MenuActionService();
 actionService = Initialize(actionService);
 
 WriteLine("Welcome to Roguelike game");
