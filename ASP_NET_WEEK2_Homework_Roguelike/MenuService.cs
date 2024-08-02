@@ -3,19 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ASP_NET_WEEK2_Homework_Roguelike.Items;
 using static System.Console;
 
 namespace ASP_NET_WEEK2_Homework_Roguelike
 {
-    internal class ItemService
+    internal class MenuService
     {
-        public List<Item> Items { get; set; }
-
-        public ItemService() 
-        {
-            //Item = new List<Item>();
-        }
-
+        List<MenuAction> MenuAction = new List<MenuAction>();
         public ConsoleKeyInfo AddNewItemView(MenuActionService actionService)
         {
             WriteLine("Please Select item type");
@@ -28,13 +23,12 @@ namespace ASP_NET_WEEK2_Homework_Roguelike
             var operation = ReadKey();
             return operation;
         }
-        /*
-        public int AddNewItem(char itemType)
+        
+        public int AddNewMenu(char itemType)
         {
             int itemTypeId;
             Int32.TryParse(itemType.ToString(), out itemTypeId);
-            Item item = new Item();
-            item.TypeId = itemTypeId;
+            MenuAction MenuAction = new MenuAction();
             WriteLine("Please enter id for new Item");
             var id = ReadLine();
 
@@ -43,12 +37,12 @@ namespace ASP_NET_WEEK2_Homework_Roguelike
             WriteLine("Please enter id for new Item");
             var name = ReadLine();
 
-            item.Id = itemId;
-            item.Name = name;
+            MenuAction.Id = itemId;
+            MenuAction.Name = name;
 
-            Items.Add(item);
+            //MenuAction.AddNewAction(MenuAction);
             return itemId;
         }
-        */
+        
     }
 }
