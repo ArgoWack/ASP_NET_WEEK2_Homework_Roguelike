@@ -34,9 +34,14 @@ for (int i = 0; i < mainMenu.Count; i++)
 }
 
 var operation = ReadKey();
+
+//ItemService itemService = new ItemService();
+
 switch(operation.KeyChar)
 {
     case '1':
+        //var keyInfo=itemService.AddNewItemView(actionService);
+       // var id=itemService.AddNewItem(keyInfo.KeyChar);
         break;
     case '2':
         break;
@@ -55,5 +60,10 @@ switch(operation.KeyChar)
     actionService.AddNewAction(2, "Continue", "Main");
     actionService.AddNewAction(3, "Game description", "Main");
     actionService.AddNewAction(4, "Quit game", "Main");
+
+    actionService.AddNewAction(1, "Clothing", "AddNewItemMenu");
+    actionService.AddNewAction(2, "Electronics", "AddNewItemMenu");
+    actionService.AddNewAction(3, "Grocery", "AddNewItemMenu");
+
     return actionService;
 }
