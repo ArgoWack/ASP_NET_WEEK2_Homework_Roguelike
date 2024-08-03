@@ -101,9 +101,12 @@ static MenuActionService Initialize(MenuActionService actionService)
     actionService.AddNewAction(3, "Game description", "Main");
     actionService.AddNewAction(4, "Quit game", "Main");
 
-    //actionService.AddNewAction(1, "Clothing", "AddNewItemMenu");
-    //actionService.AddNewAction(2, "Electronics", "AddNewItemMenu");
-    //actionService.AddNewAction(3, "Grocery", "AddNewItemMenu");
+    //actionService.AddNewAction(q, "Save and quit to main menu", "InGameMenu");
+    //actionService.AddNewAction(e, "Open inventory", "InGameMenu");
+    //actionService.AddNewAction(a, "Move left", "InGameMenu");
+    //actionService.AddNewAction(w, "Move straight", "InGameMenu");
+    //actionService.AddNewAction(s, "Move back", "InGameMenu");
+    //actionService.AddNewAction(d, "Move right", "InGameMenu");
 
     return actionService;
 }
