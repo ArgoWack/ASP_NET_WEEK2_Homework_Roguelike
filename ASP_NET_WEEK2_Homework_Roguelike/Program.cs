@@ -5,10 +5,10 @@ using System.Runtime.CompilerServices;
 using static System.Console;
 using static System.Net.Mime.MediaTypeNames;
 
-string description = "It's simple roguelike game. With the following hotkeys:" +
-    "Q - Save&Quit" +
-    "E - Opens Inventory" +
-    "A/W/S/D - movement";
+string description = " \n It's simple roguelike game. With the following hotkeys:" +
+    "\n Q - Save&Quit" +
+    "\n E - Opens Inventory" +
+    "\n A/W/S/D - movement";
 //yet to be written
 
 
@@ -33,12 +33,12 @@ string description = "It's simple roguelike game. With the following hotkeys:" +
 /////// 4) spotkanie postaci (losowanie z puli postaci)
 
 var operation = ReadKey();
+WriteLine("Welcome to Roguelike game");
 do
 {
         MenuActionService actionService = new MenuActionService();
     actionService = Initialize(actionService);
 
-    WriteLine("Welcome to Roguelike game");
     WriteLine("What would like to do?");
 
     var mainMenu = actionService.GetMenuActionsByMenuName("Main");
@@ -93,6 +93,66 @@ do
 }
 while (operation.KeyChar =='3');
 
+do
+{
+    MenuActionService actionService = new MenuActionService();
+    actionService = Initialize(actionService);
+
+    WriteLine(" \n What would like to do: a/w/s/d/e/q?");
+
+    var mainMenu = actionService.GetMenuActionsByMenuName("InGameMenu");
+    for (int i = 0; i < mainMenu.Count; i++)
+    {
+        WriteLine($"{(char)mainMenu[i].Id}. {mainMenu[i].Name}");
+    }
+
+    operation = ReadKey();
+
+    PlayerCharacter playerCharacter = new PlayerCharacter();
+
+
+    switch (operation.KeyChar)
+    {
+        case 'a':
+
+            break;
+        case 'w':
+
+            break;
+        case 's':
+
+            break;
+        case 'd':
+
+            break;
+        case 'e':
+            char choice;
+            do
+            {
+                playerCharacter.CheckInventory();
+                WriteLine(" \n  If you would like to use some item print 'e', if you want to leave print 'l'");
+                char.TryParse(ReadLine(), out choice);
+                if (choice == 'e')
+                {
+                    WriteLine(" \n Print ID of itme you'd like to use");
+                    int id;
+                    Int32.TryParse(ReadLine(), out id);
+                    playerCharacter.EquipItem(id);
+                }
+            }
+            while (choice != 'l');
+
+            break;
+        case 'q':
+            // Quitting the game
+            Environment.Exit(0);
+            break;
+        default:
+            WriteLine("Wrong input");
+            break;
+    }
+}
+while (operation.KeyChar != 'q');
 
 static MenuActionService Initialize(MenuActionService actionService)
 {
@@ -101,12 +161,12 @@ static MenuActionService Initialize(MenuActionService actionService)
     actionService.AddNewAction(3, "Game description", "Main");
     actionService.AddNewAction(4, "Quit game", "Main");
 
-    //actionService.AddNewAction(q, "Save and quit to main menu", "InGameMenu");
-    //actionService.AddNewAction(e, "Open inventory", "InGameMenu");
-    //actionService.AddNewAction(a, "Move left", "InGameMenu");
-    //actionService.AddNewAction(w, "Move straight", "InGameMenu");
-    //actionService.AddNewAction(s, "Move back", "InGameMenu");
-    //actionService.AddNewAction(d, "Move right", "InGameMenu");
+    actionService.AddNewAction('q', "Save and quit to main menu", "InGameMenu");
+    actionService.AddNewAction('e', "Open inventory", "InGameMenu");
+    actionService.AddNewAction('a', "Move left", "InGameMenu");
+    actionService.AddNewAction('w', "Move straight", "InGameMenu");
+    actionService.AddNewAction('s', "Move back", "InGameMenu");
+    actionService.AddNewAction('d', "Move right", "InGameMenu");
 
     return actionService;
 }

@@ -78,7 +78,16 @@ namespace ASP_NET_WEEK2_Homework_Roguelike
 
         public float CheckAttack()
         {
-            return (EquippedHelmet.Attack+ EquippedArmor.Attack+ EquippedShield.Attack+ EquippedGloves.Attack+ EquippedTrousers.Attack+ EquippedBoots.Attack+ EquippedAmulet.Attack+ EquippedSwordOneHanded.Attack+ EquippedSwordTwoHanded.Attack)*Speed;
+            // since the slot may be empty in case of null returns 0 for given slot
+            return ((EquippedHelmet?.Attack ?? 0) +
+                    (EquippedArmor?.Attack ?? 0) +
+                    (EquippedShield?.Attack ?? 0) +
+                    (EquippedGloves?.Attack ?? 0) +
+                    (EquippedTrousers?.Attack ?? 0) +
+                    (EquippedBoots?.Attack ?? 0) +
+                    (EquippedAmulet?.Attack ?? 0) +
+                    (EquippedSwordOneHanded?.Attack ?? 0) +
+                    (EquippedSwordTwoHanded?.Attack ?? 0)) * Speed;
         }
         private void UpdateDefense()
         {
@@ -86,11 +95,26 @@ namespace ASP_NET_WEEK2_Homework_Roguelike
         }
         public float CheckDefense()
         {
-            return (EquippedHelmet.Defense + EquippedArmor.Defense + EquippedShield.Defense + EquippedGloves.Defense + EquippedTrousers.Defense + EquippedBoots.Defense + EquippedAmulet.Defense + EquippedSwordOneHanded.Defense + EquippedSwordTwoHanded.Defense)*Speed;
+            return ((EquippedHelmet?.Defense ?? 0) +
+                    (EquippedArmor?.Defense ?? 0) +
+                    (EquippedShield?.Defense ?? 0) +
+                    (EquippedGloves?.Defense ?? 0) +
+                    (EquippedTrousers?.Defense ?? 0) +
+                    (EquippedBoots?.Defense ?? 0) +
+                    (EquippedAmulet?.Defense ?? 0) +
+                    (EquippedSwordOneHanded?.Defense ?? 0) +
+                    (EquippedSwordTwoHanded?.Defense ?? 0)) * Speed;
         }
 
-        public void EquipItem(Item item)
+        public void EquipItem(int itemId)
         {
+            // Find the item in the inventory by ID
+            var item = Inventory.FirstOrDefault(i => i.ID == itemId);
+            if (item == null)
+            {
+                throw new InvalidOperationException("Item not found in inventory.");
+            }
+
             var itemType = item.GetType();
             var itemTypeAttribute = itemType.GetCustomAttribute<ItemTypeAttribute>();
 
@@ -179,9 +203,10 @@ namespace ASP_NET_WEEK2_Homework_Roguelike
 
         public void CheckInventory()
         {
+            WriteLine(" \n Here is your inventory: ");
             foreach (Item item in Inventory)
             {
-                WriteLine("This is: "+item.Name+"Defense: "+ item.Defense + "Attack: " + item.Attack + "Weight: " + item.Weight + "Money worth: "+item.MoneyWorth+"Description: "+item.Description);
+                WriteLine("This is: "+item.Name+" ID: "+item.ID+" Defense: "+ item.Defense + " Attack: " + item.Attack + " Weight: " + item.Weight + " Money worth: "+item.MoneyWorth+" Description: "+item.Description);
             }
         }
 

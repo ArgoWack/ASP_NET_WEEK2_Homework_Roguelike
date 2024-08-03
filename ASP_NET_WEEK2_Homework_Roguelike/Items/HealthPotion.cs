@@ -10,6 +10,7 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.ItemKinds
     [ItemType("HealthPotion")]
     public class HealthPotion : Item
     {
+        public int ID { get; set; }
         public string Name { get; set; }
         public int Weight { get; set; }
         public int Defense { get; set; }
