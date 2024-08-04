@@ -32,25 +32,12 @@ string description = " \n It's simple roguelike game. With the following hotkeys
 /////// 3) nic się nie dzieje
 /////// 4) spotkanie postaci (losowanie z puli postaci)
 
-var operation = ReadKey();
+ConsoleKeyInfo operation;
 WriteLine("Welcome to Roguelike game");
+PlayerCharacter playerCharacter = new PlayerCharacter();
 do
 {
-        MenuActionService actionService = new MenuActionService();
-    actionService = Initialize(actionService);
-
-    WriteLine("What would like to do?");
-
-    var mainMenu = actionService.GetMenuActionsByMenuName("Main");
-    for (int i = 0; i < mainMenu.Count; i++)
-    {
-        WriteLine($"{mainMenu[i].Id}. {mainMenu[i].Name}");
-    }
-
-         operation = ReadKey();
-
-    PlayerCharacter playerCharacter = new PlayerCharacter();
-
+    operation = WriteMenuAndParseChar<int>("Main", " What would like to do?");
 
     switch (operation.KeyChar)
     {
@@ -95,21 +82,7 @@ while (operation.KeyChar =='3');
 
 do
 {
-    MenuActionService actionService = new MenuActionService();
-    actionService = Initialize(actionService);
-
-    WriteLine(" \n What would like to do: a/w/s/d/e/q?");
-
-    var mainMenu = actionService.GetMenuActionsByMenuName("InGameMenu");
-    for (int i = 0; i < mainMenu.Count; i++)
-    {
-        WriteLine($"{(char)mainMenu[i].Id}. {mainMenu[i].Name}");
-    }
-
-    operation = ReadKey();
-
-    PlayerCharacter playerCharacter = new PlayerCharacter();
-
+    operation = WriteMenuAndParseChar<char>("InGameMenu", " \n What would like to do: a/w/s/d/e/q?");
 
     switch (operation.KeyChar)
     {
@@ -129,12 +102,15 @@ do
             char choice;
             do
             {
+                // choice = WriteMenuAndParseChar<char>("InventoryMenu", " What would like to do?");
+
                 playerCharacter.CheckInventory();
-                WriteLine(" \n  If you would like to use some item print 'e', if you want to leave print 'l'");
+                WriteLine(" \n Write:  \ne. Use some item \nl. Leave inventory");
+
                 char.TryParse(ReadLine(), out choice);
                 if (choice == 'e')
                 {
-                    WriteLine(" \n Print ID of itme you'd like to use");
+                    WriteLine(" \n Write ID of itme you'd like to use");
                     int id;
                     Int32.TryParse(ReadLine(), out id);
                     playerCharacter.EquipItem(id);
@@ -168,5 +144,34 @@ static MenuActionService Initialize(MenuActionService actionService)
     actionService.AddNewAction('s', "Move back", "InGameMenu");
     actionService.AddNewAction('d', "Move right", "InGameMenu");
 
+    actionService.AddNewAction('e', "Use some item", "InventoryMenu");
+    actionService.AddNewAction('l', "Leave inventory", "InventoryMenu");
+
     return actionService;
+}
+
+static ConsoleKeyInfo WriteMenuAndParseChar<T>(string menuKind, string WriteLineText)
+{
+    MenuActionService actionService = new MenuActionService();
+    actionService = Initialize(actionService);
+
+    WriteLine(WriteLineText);
+
+    var menu = actionService.GetMenuActionsByMenuName(menuKind);
+    for (int i = 0; i < menu.Count; i++)
+    {
+        if (typeof(T) == typeof(int))
+        {
+            WriteLine($"{Convert.ToInt32(menu[i].Id)}. {menu[i].Name}");
+        }
+        else if (typeof(T) == typeof(char))
+        {
+            WriteLine($"{(char)menu[i].Id}. {menu[i].Name}");
+        }
+        else
+        {
+            throw new InvalidOperationException("Unsupported type.");
+        }
+    }
+    return ReadKey(true);
 }

@@ -20,11 +20,6 @@ namespace ASP_NET_WEEK2_Homework_Roguelike
             MenuAction menuAction = new MenuAction() { Id = id, Name = name, MenuName = menuName };
             menuActions.Add(menuAction);
         }
-        public void AddNewAction(string ids, string name, string menuName)
-        {
-            MenuAction menuAction = new MenuAction() { Ids = ids, Name = name, MenuName = menuName };
-            menuActions.Add(menuAction);
-        }
 
         public List<MenuAction> GetMenuActionsByMenuName(string menuName)
         {
