@@ -14,6 +14,21 @@ namespace ASP_NET_WEEK2_Homework_Roguelike
 {
     public class PlayerCharacter
     {
+        private int currentX;
+        private int currentY;
+
+        public int CurrentX
+        {
+            get => currentX;
+            set => currentX = value;
+        }
+
+        public int CurrentY
+        {
+            get => currentY;
+            set => currentY = value;
+        }
+
         private List<Item> inventory;
         public List<Item> Inventory
         {
@@ -55,7 +70,16 @@ namespace ASP_NET_WEEK2_Homework_Roguelike
             Weight = 0;
             Attack = 0;
             Defense = 0;
+            CurrentX = 0; // Starting X position
+            CurrentY = 0; // Starting Y position
         }
+
+        public void Move(string direction, Map map)
+        {
+            Room currentRoom = map.MovePlayer(ref currentX, ref currentY, direction);
+            // logic after movement to be written
+        }
+
         private void UpdateWeight()
         {
             Weight = CheckWeight();
@@ -210,22 +234,28 @@ namespace ASP_NET_WEEK2_Homework_Roguelike
             }
         }
 
-        public void SaveGame(string filePath)
+        public void SaveGame(string filePath, Map map)
         {
+            var gameState = new GameState
+            {
+                PlayerCharacter = this,
+                Map = map
+            };
+
             var options = new JsonSerializerOptions
             {
-                WriteIndented = true 
+                WriteIndented = true
             };
-            string jsonString = JsonSerializer.Serialize(this, options);
+            string jsonString = JsonSerializer.Serialize(gameState, options);
             File.WriteAllText(filePath, jsonString);
         }
 
-        public static PlayerCharacter LoadGame(string filePath)
+        public static GameState LoadGame(string filePath)
         {
             if (File.Exists(filePath))
             {
                 string jsonString = File.ReadAllText(filePath);
-                return JsonSerializer.Deserialize<PlayerCharacter>(jsonString);
+                return JsonSerializer.Deserialize<GameState>(jsonString);
             }
             else
             {

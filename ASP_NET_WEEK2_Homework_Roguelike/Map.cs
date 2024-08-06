@@ -17,6 +17,18 @@ namespace ASP_NET_WEEK2_Homework_Roguelike
             roomsToDiscover = new List<RoomToDiscover>();
         }
 
+        public void InitializeStartingRoom()
+        {
+            Room startingRoom = new Room(0, 0);
+
+            startingRoom.Exits["north"] = null;
+            startingRoom.Exits["south"] = null;
+            startingRoom.Exits["east"] = null;
+            startingRoom.Exits["west"] = null;
+
+            AddDiscoveredRoom(startingRoom);
+        }
+
         public void AddDiscoveredRoom(Room room)
         {
             discoveredRooms[(room.X, room.Y)] = room;

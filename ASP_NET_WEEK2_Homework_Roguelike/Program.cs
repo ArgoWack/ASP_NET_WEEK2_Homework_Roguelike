@@ -35,6 +35,7 @@ string description = " \n It's simple roguelike game. With the following hotkeys
 ConsoleKeyInfo operation;
 WriteLine("Welcome to Roguelike game");
 PlayerCharacter playerCharacter = new PlayerCharacter();
+Map map = new Map();
 do
 {
     operation = WriteMenuAndParseChar<int>("Main", " What would like to do?");
@@ -46,11 +47,12 @@ do
             WriteLine("Write Character Name");
             playerCharacter.Name = ReadLine();
             ReadKey();
-
-
+            map.InitializeStartingRoom();
+            playerCharacter.CurrentX = 0;
+            playerCharacter.CurrentY = 0;
 
             // Save and exit
-            playerCharacter.SaveGame("savefile.json");
+            playerCharacter.SaveGame("savefile.json",map);
 
             break;
         case '2':
@@ -58,7 +60,9 @@ do
 
             try
             {
-                PlayerCharacter loadedPlayer = PlayerCharacter.LoadGame("savefile.json");
+                var gameState = PlayerCharacter.LoadGame("savefile.json");
+                playerCharacter = gameState.PlayerCharacter;
+                map = gameState.Map;
             }
             catch (FileNotFoundException ex)
             {
@@ -87,16 +91,16 @@ do
     switch (operation.KeyChar)
     {
         case 'a':
-
+            TryMovePlayer(playerCharacter, map, "west");
             break;
         case 'w':
-
+            TryMovePlayer(playerCharacter, map, "north");
             break;
         case 's':
-
+            TryMovePlayer(playerCharacter, map, "south");
             break;
         case 'd':
-
+            TryMovePlayer(playerCharacter, map, "east");
             break;
         case 'e':
             char choice;
@@ -120,6 +124,7 @@ do
             break;
         case 'q':
             // Quitting the game
+            playerCharacter.SaveGame("savefile.json", map);
             Environment.Exit(0);
             break;
         default:
@@ -128,6 +133,23 @@ do
     }
 }
 while (operation.KeyChar != 'q');
+
+static void TryMovePlayer(PlayerCharacter player, Map map, string direction)
+{
+    int currentX = player.CurrentX;
+    int currentY = player.CurrentY;
+    Room currentRoom = map.GetDiscoveredRoom(currentX, currentY);
+
+    if (currentRoom != null && currentRoom.Exits.ContainsKey(direction))
+    {
+        player.Move(direction, map);
+        WriteLine($"Moved {direction}. Current position: ({player.CurrentX}, {player.CurrentY})");
+    }
+    else
+    {
+        WriteLine("You cannot move in that direction. There is no room.");
+    }
+}
 
 static MenuActionService Initialize(MenuActionService actionService)
 {
