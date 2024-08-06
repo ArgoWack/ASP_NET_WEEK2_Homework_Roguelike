@@ -117,7 +117,6 @@ do
                 }
             }
             while (choice != 'l');
-
             break;
         case 'q':
             // Quitting the game
