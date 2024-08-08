@@ -102,6 +102,9 @@ do
         case 'd':
             TryMovePlayer(playerCharacter, map, "east");
             break;
+        case 'm':
+            map.DisplayMap(playerCharacter);
+            break;
         case 'e':
             char choice;
             do
@@ -164,6 +167,7 @@ static MenuActionService Initialize(MenuActionService actionService)
     actionService.AddNewAction('w', "Move straight", "InGameMenu");
     actionService.AddNewAction('s', "Move back", "InGameMenu");
     actionService.AddNewAction('d', "Move right", "InGameMenu");
+    actionService.AddNewAction('m', "Show map", "InGameMenu");
 
     actionService.AddNewAction('e', "Use some item", "InventoryMenu");
     actionService.AddNewAction('l', "Leave inventory", "InventoryMenu");
