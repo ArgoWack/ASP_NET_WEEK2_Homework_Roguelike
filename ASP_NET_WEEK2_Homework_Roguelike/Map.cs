@@ -1,8 +1,10 @@
-﻿using System;
+﻿using ASP_NET_WEEK2_Homework_Roguelike.Events;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static System.Console;
 
 namespace ASP_NET_WEEK2_Homework_Roguelike
 {
@@ -59,7 +61,7 @@ namespace ASP_NET_WEEK2_Homework_Roguelike
                 }
             }
 
-            // Usuń pokój z listy roomsToDiscover, jeśli został odkryty
+            // removes roomsToDiscover from list if discoverd
             roomsToDiscover.RemoveAll(r => r.X == room.X && r.Y == room.Y);
         }
 
@@ -79,6 +81,18 @@ namespace ASP_NET_WEEK2_Homework_Roguelike
             (int newX, int newY) = GetCoordinatesInDirection(currentX, currentY, direction);
 
             Room newRoom = new Room(newX, newY);
+
+            // Adds random event to a new room
+            RandomEvent randomEvent = EventGenerator.GenerateEvent();
+            if (randomEvent != null)
+            {
+                newRoom.EventStatus = randomEvent.GetType().Name;  //EventStatus
+            }
+            else
+            {
+                newRoom.EventStatus = "none";
+            }
+
             AddDiscoveredRoom(newRoom);
 
             // Generate random exits for the new room
@@ -94,7 +108,6 @@ namespace ASP_NET_WEEK2_Homework_Roguelike
 
             return newRoom;
         }
-
         private void GenerateRandomExits(Room room)
         {
             var directions = new[] { "north", "south", "east", "west" };
@@ -179,29 +192,29 @@ namespace ASP_NET_WEEK2_Homework_Roguelike
                     {
                         if (player.CurrentX == x && player.CurrentY == y)
                         {
-                            Console.Write("P");
+                            Write("P");
                         }
                         else
                         {
-                            Console.Write("+");
+                            Write("+");
                         }
                     }
                     else
                     {
-                        Console.Write(" ");
+                        Write(" ");
                     }
 
                     // Draw horizontal connection
                     if (x < maxX && discoveredRooms.TryGetValue((x, y), out Room currentRoom) && currentRoom.Exits.ContainsKey("east"))
                     {
-                        Console.Write("-");
+                        Write("-");
                     }
                     else
                     {
-                        Console.Write(" ");
+                        Write(" ");
                     }
                 }
-                Console.WriteLine();
+                WriteLine();
 
                 // Draw vertical connections
                 if (y > minY)
@@ -210,20 +223,20 @@ namespace ASP_NET_WEEK2_Homework_Roguelike
                     {
                         if (discoveredRooms.TryGetValue((x, y), out Room room) && room.Exits.ContainsKey("south"))
                         {
-                            Console.Write("|");
+                            Write("|");
                         }
                         else
                         {
-                            Console.Write(" ");
+                            Write(" ");
                         }
 
                         // Space between columns
                         if (x < maxX)
                         {
-                            Console.Write(" ");
+                            Write(" ");
                         }
                     }
-                    Console.WriteLine();
+                    WriteLine();
                 }
             }
         }

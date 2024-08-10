@@ -80,6 +80,12 @@ namespace ASP_NET_WEEK2_Homework_Roguelike
             // logic after movement to be written
         }
 
+        public void MovePlayer(string direction, Map map)
+        {
+            Room newRoom = map.MovePlayer(ref currentX, ref currentY, direction);
+            WriteLine($"Moved {direction}. Current position: ({CurrentX}, {CurrentY})");
+        }
+
         private void UpdateWeight()
         {
             Weight = CheckWeight();

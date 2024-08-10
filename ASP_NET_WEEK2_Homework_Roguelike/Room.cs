@@ -20,6 +20,7 @@ namespace ASP_NET_WEEK2_Homework_Roguelike
             Y = y;
             Exits = new Dictionary<string, Room>();
             IsExplored = false;
+            EventStatus = "none";
         }
     }
 }

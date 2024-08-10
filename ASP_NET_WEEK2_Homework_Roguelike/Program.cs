@@ -1,4 +1,5 @@
 ﻿using ASP_NET_WEEK2_Homework_Roguelike;
+using ASP_NET_WEEK2_Homework_Roguelike.Events;
 using System.Diagnostics;
 using System.Numerics;
 using System.Runtime.CompilerServices;
@@ -145,14 +146,25 @@ static void TryMovePlayer(PlayerCharacter player, Map map, string direction)
 
     if (currentRoom != null && currentRoom.Exits.ContainsKey(direction))
     {
-        player.Move(direction, map);
-        WriteLine($"Moved {direction}. Current position: ({player.CurrentX}, {player.CurrentY})");
+        player.MovePlayer(direction, map);
+
+        Room newRoom = map.GetDiscoveredRoom(player.CurrentX, player.CurrentY);
+
+        // Handle event in the new room
+        if (newRoom.EventStatus != "none")
+        {
+            RandomEvent roomEvent = EventGenerator.GenerateEvent(newRoom.EventStatus);
+            roomEvent?.Execute(player, newRoom);
+            newRoom.EventStatus = "none";
+        }
     }
     else
     {
         WriteLine("You cannot move in that direction. There is no room.");
     }
 }
+
+
 
 static MenuActionService Initialize(MenuActionService actionService)
 {
