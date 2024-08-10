@@ -67,19 +67,13 @@ namespace ASP_NET_WEEK2_Homework_Roguelike
         public PlayerCharacter()
         {
             Inventory = new List<Item>();
+            Level = 1;
             Weight = 0;
             Attack = 0;
             Defense = 0;
             CurrentX = 0; // Starting X position
             CurrentY = 0; // Starting Y position
         }
-
-        public void Move(string direction, Map map)
-        {
-            Room currentRoom = map.MovePlayer(ref currentX, ref currentY, direction);
-            // logic after movement to be written
-        }
-
         public void MovePlayer(string direction, Map map)
         {
             Room newRoom = map.MovePlayer(ref currentX, ref currentY, direction);
@@ -194,6 +188,8 @@ namespace ASP_NET_WEEK2_Homework_Roguelike
                 {
                     property.SetValue(this, null);
                     UpdateWeight();
+                    UpdateDefense();
+                    UpdateAttack();
                 }
                 else
                 {
