@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Reflection;
 using ASP_NET_WEEK2_Homework_Roguelike.Items;
-
+using static System.Console;
 namespace ASP_NET_WEEK2_Homework_Roguelike.ItemKinds
 {
     public static class ItemFactory
@@ -46,8 +46,16 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.ItemKinds
                 if (property.PropertyType == typeof(int))
                 {
                     var baseValue = (int)typeof(ItemBaseStats).GetProperty(property.Name)?.GetValue(baseStats);
-                    var finalValue = GenerateStat(baseValue, out percentage);
-                    property.SetValue(item, finalValue);
+                    if (baseValue != 0)
+                    {
+                        var finalValue = GenerateStat(baseValue, out percentage);
+                        WriteLine($" {property.Name} = {finalValue}");
+                        property.SetValue(item, finalValue);
+                    }
+                    else
+                    {
+                        WriteLine($"Base value for {property.Name} is 0");
+                    }
                 }
             }
 
