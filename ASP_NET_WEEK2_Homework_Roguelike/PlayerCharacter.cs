@@ -74,6 +74,50 @@ namespace ASP_NET_WEEK2_Homework_Roguelike
             CurrentX = 0; // Starting X position
             CurrentY = 0; // Starting Y position
         }
+
+        public void DisplayCharacterStats()
+        {
+
+            var equippedItems = new Dictionary<string, Item>
+            {
+            { "Amulet", EquippedAmulet },
+            { "Armor", EquippedArmor },
+            { "Boots", EquippedBoots },
+            { "Gloves", EquippedGloves },
+            { "Helmet", EquippedHelmet },
+            { "Shield", EquippedShield },
+            { "SwordOneHanded", EquippedSwordOneHanded },
+            { "SwordTwoHanded", EquippedSwordTwoHanded },
+            { "Trousers", EquippedTrousers }
+            };
+
+            WriteLine($@"
+                Character name: {Name}
+                Attack: {Attack}
+                Defense: {Defense}
+                Speed: {Speed}
+                Weight: {Weight}
+                Money: {Money}
+                Health: {Health}
+                Level: {Level}
+                Experience: {Experience}");
+
+            foreach (var equippedItem in equippedItems)
+            {
+                if (equippedItem.Value != null)
+                {
+                    WriteLine($@"
+                    Equipped {equippedItem.Key}: {equippedItem.Value.Name ?? "None"} 
+                      ID: {equippedItem.Value.ID}, Defense: {equippedItem.Value.Defense}, Attack: {equippedItem.Value.Attack}, Weight: {equippedItem.Value.Weight}, Money worth: {equippedItem.Value.MoneyWorth}, Description: {equippedItem.Value.Description}");
+                }
+                else
+                {
+                    WriteLine($@"
+                    Equipped {equippedItem.Key}: None");
+                }
+            }
+        }
+
         public void MovePlayer(string direction, Map map)
         {
             Room newRoom = map.MovePlayer(ref currentX, ref currentY, direction);

@@ -108,24 +108,7 @@ do
             map.DisplayMap(playerCharacter);
             break;
         case 'p':
-            WriteLine(" \n Character name: " + playerCharacter.Name
-                + "\n Attack: " + playerCharacter.Attack
-                + "\n Defense: " + playerCharacter.Defense
-                + "\n Speed: " + playerCharacter.Speed
-                + "\n Weight: " + playerCharacter.Weight
-                + "\n Money: " + playerCharacter.Money
-                + "\n Health: " + playerCharacter.Health
-                + "\n Level: " + playerCharacter.Level
-                + "\n Experience: " + playerCharacter.Experience
-            + "\n Equipped Amulet: " + playerCharacter.EquippedAmulet + " ID: " + playerCharacter.EquippedAmulet.ID + " Defense: " + playerCharacter.EquippedAmulet.Defense + " Attack: " + playerCharacter.EquippedAmulet.Attack + " Weight: " + playerCharacter.EquippedAmulet.Weight + " Money worth: " + playerCharacter.EquippedAmulet.MoneyWorth + " Description: " + playerCharacter.EquippedAmulet.Description
-            + "\n Equipped Armor: " + playerCharacter.EquippedArmor + " ID: " + playerCharacter.EquippedArmor.ID + " Defense: " + playerCharacter.EquippedArmor.Defense + " Attack: " + playerCharacter.EquippedArmor.Attack + " Weight: " + playerCharacter.EquippedArmor.Weight + " Money worth: " + playerCharacter.EquippedArmor.MoneyWorth + " Description: " + playerCharacter.EquippedArmor.Description
-            + "\n Equipped Boots: " + playerCharacter.EquippedBoots + " ID: " + playerCharacter.EquippedBoots.ID + " Defense: " + playerCharacter.EquippedBoots.Defense + " Attack: " + playerCharacter.EquippedBoots.Attack + " Weight: " + playerCharacter.EquippedBoots.Weight + " Money worth: " + playerCharacter.EquippedBoots.MoneyWorth + " Description: " + playerCharacter.EquippedBoots.Description
-            + "\n Equipped Gloves: " + playerCharacter.EquippedGloves + " ID: " + playerCharacter.EquippedGloves.ID + " Defense: " + playerCharacter.EquippedGloves.Defense + " Attack: " + playerCharacter.EquippedGloves.Attack + " Weight: " + playerCharacter.EquippedGloves.Weight + " Money worth: " + playerCharacter.EquippedGloves.MoneyWorth + " Description: " + playerCharacter.EquippedGloves.Description
-            + "\n Equipped Helmet: " + playerCharacter.EquippedHelmet + " ID: " + playerCharacter.EquippedHelmet.ID + " Defense: " + playerCharacter.EquippedHelmet.Defense + " Attack: " + playerCharacter.EquippedHelmet.Attack + " Weight: " + playerCharacter.EquippedHelmet.Weight + " Money worth: " + playerCharacter.EquippedHelmet.MoneyWorth + " Description: " + playerCharacter.EquippedHelmet.Description
-            + "\n Equipped Shield: " + playerCharacter.EquippedShield + " ID: " + playerCharacter.EquippedShield.ID + " Defense: " + playerCharacter.EquippedShield.Defense + " Attack: " + playerCharacter.EquippedShield.Attack + " Weight: " + playerCharacter.EquippedShield.Weight + " Money worth: " + playerCharacter.EquippedShield.MoneyWorth + " Description: " + playerCharacter.EquippedShield.Description
-            + "\n Equipped Equipped SwordOneHanded: " + playerCharacter.EquippedSwordOneHanded + " ID: " + playerCharacter.EquippedSwordOneHanded.ID + " Defense: " + playerCharacter.EquippedSwordOneHanded.Defense + " Attack: " + playerCharacter.EquippedSwordOneHanded.Attack + " Weight: " + playerCharacter.EquippedSwordOneHanded.Weight + " Money worth: " + playerCharacter.EquippedSwordOneHanded.MoneyWorth + " Description: " + playerCharacter.EquippedSwordOneHanded.Description
-            + "\n Equipped Equipped SwordTwoHanded: " + playerCharacter.EquippedSwordTwoHanded + " ID: " + playerCharacter.EquippedSwordTwoHanded.ID + " Defense: " + playerCharacter.EquippedSwordTwoHanded.Defense + " Attack: " + playerCharacter.EquippedSwordTwoHanded.Attack + " Weight: " + playerCharacter.EquippedSwordTwoHanded.Weight + " Money worth: " + playerCharacter.EquippedSwordTwoHanded.MoneyWorth + " Description: " + playerCharacter.EquippedSwordTwoHanded.Description
-            + "\n Equipped Equipped Trousers: " + playerCharacter.EquippedTrousers + " ID: " + playerCharacter.EquippedTrousers.ID + " Defense: " + playerCharacter.EquippedTrousers.Defense + " Attack: " + playerCharacter.EquippedTrousers.Attack + " Weight: " + playerCharacter.EquippedTrousers.Weight + " Money worth: " + playerCharacter.EquippedTrousers.MoneyWorth + " Description: " + playerCharacter.EquippedTrousers.Description);
+            playerCharacter.DisplayCharacterStats();
             break;
         case 'e':
             char choice;
