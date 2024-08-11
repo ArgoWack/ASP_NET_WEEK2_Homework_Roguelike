@@ -34,12 +34,12 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Events
             {
                 player.Inventory.Add(item);
                 WriteLine($"You have taken the item: {item.Name}.");
+                room.EventStatus = "none";
             }
             else
             {
                 WriteLine($"You have left the item: {item.Name}.");
             }
-            room.EventStatus = "none"; // Update event status to "none" after the event is executed
         }
 
         private string GetRandomItemType()

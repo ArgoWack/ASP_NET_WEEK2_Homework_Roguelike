@@ -10,8 +10,8 @@ namespace ASP_NET_WEEK2_Homework_Roguelike
 {
     public class Map
     {
-        private Dictionary<(int, int), Room> discoveredRooms;
-        private List<RoomToDiscover> roomsToDiscover;
+        public Dictionary<(int, int), Room> discoveredRooms;
+        public List<RoomToDiscover> roomsToDiscover;
 
         public Map()
         {

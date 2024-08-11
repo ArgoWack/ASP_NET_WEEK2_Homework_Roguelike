@@ -22,5 +22,7 @@ namespace ASP_NET_WEEK2_Homework_Roguelike
             IsExplored = false;
             EventStatus = "none";
         }
+        //For serialization
+        public Room() { }
     }
 }

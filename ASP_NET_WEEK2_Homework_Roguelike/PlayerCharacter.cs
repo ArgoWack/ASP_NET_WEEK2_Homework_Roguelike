@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using static System.Console;
 using System.Text.Json;
 using System.IO;
+using System.Text.Json.Serialization;
 
 namespace ASP_NET_WEEK2_Homework_Roguelike
 {
@@ -28,6 +29,7 @@ namespace ASP_NET_WEEK2_Homework_Roguelike
             get => currentY;
             set => currentY = value;
         }
+        public Map CurrentMap { get; set; }
 
         private List<Item> inventory;
         public List<Item> Inventory
@@ -74,6 +76,7 @@ namespace ASP_NET_WEEK2_Homework_Roguelike
             Defense = 0;
             CurrentX = 0; // Starting X position
             CurrentY = 0; // Starting Y position
+            CurrentMap = new Map(); // Initialize the map
         }
 
         public void DisplayCharacterStats()
@@ -246,6 +249,39 @@ namespace ASP_NET_WEEK2_Homework_Roguelike
                 throw new InvalidOperationException("Item type not supported");
             }
         }
+
+        public void DiscardItem(int itemId)
+        {
+            var item = Inventory.FirstOrDefault(i => i.ID == itemId);
+
+            if (item == null)
+            {
+                WriteLine("Item not found in inventory.");
+                return;
+            }
+
+            // Remove the item from inventory
+            Inventory.Remove(item);
+
+            // Check if the item was equipped and unequip it if necessary
+            if (EquippedAmulet?.ID == itemId) EquippedAmulet = null;
+            if (EquippedArmor?.ID == itemId) EquippedArmor = null;
+            if (EquippedBoots?.ID == itemId) EquippedBoots = null;
+            if (EquippedGloves?.ID == itemId) EquippedGloves = null;
+            if (EquippedHelmet?.ID == itemId) EquippedHelmet = null;
+            if (EquippedShield?.ID == itemId) EquippedShield = null;
+            if (EquippedSwordOneHanded?.ID == itemId) EquippedSwordOneHanded = null;
+            if (EquippedSwordTwoHanded?.ID == itemId) EquippedSwordTwoHanded = null;
+            if (EquippedTrousers?.ID == itemId) EquippedTrousers = null;
+
+            // Recalculate stats
+            UpdateWeight();
+            UpdateAttack();
+            UpdateDefense();
+
+            WriteLine($"Item '{item.Name}' has been discarded.");
+        }
+
         public void HealByPotion(HealthPotion HealthPotion)
         {
             Heal(HealthPotion.MoneyWorth);
@@ -278,23 +314,28 @@ namespace ASP_NET_WEEK2_Homework_Roguelike
             WriteLine(" \n Here is your inventory: ");
             foreach (Item item in Inventory)
             {
-                WriteLine("This is: "+item.Name+" ID: "+item.ID+" Defense: "+ item.Defense + " Attack: " + item.Attack + " Weight: " + item.Weight + " Money worth: "+item.MoneyWorth+" Description: "+item.Description);
+                WriteLine("This is: " + item.Name + " ID: " + item.ID + " Defense: " + item.Defense + " Attack: " + item.Attack + " Weight: " + item.Weight + " Money worth: " + item.MoneyWorth + " Description: " + item.Description);
             }
         }
 
-        public void SaveGame(string filePath, Map map)
+        public void SaveGame(string filePath)
         {
+            // Create a new GameState object with the current player and map
             var gameState = new GameState
             {
                 PlayerCharacter = this,
-                Map = map
+                Map = CurrentMap
             };
 
             var options = new JsonSerializerOptions
             {
-                WriteIndented = true
+                WriteIndented = true,
+                ReferenceHandler = ReferenceHandler.Preserve, // Handles object cycles
+                Converters = { new ItemConverter(), new MapConverter() } // Register custom converters
             };
+
             string jsonString = JsonSerializer.Serialize(gameState, options);
+
             File.WriteAllText(filePath, jsonString);
         }
 
@@ -303,7 +344,22 @@ namespace ASP_NET_WEEK2_Homework_Roguelike
             if (File.Exists(filePath))
             {
                 string jsonString = File.ReadAllText(filePath);
-                return JsonSerializer.Deserialize<GameState>(jsonString);
+
+                var options = new JsonSerializerOptions
+                {
+                    ReferenceHandler = ReferenceHandler.Preserve, // Handles object cycles
+                    Converters = { new ItemConverter(), new MapConverter() } // Register custom converters
+                };
+
+                var gameState = JsonSerializer.Deserialize<GameState>(jsonString, options);
+
+                if (gameState != null)
+                {
+                    // Ensure that the CurrentMap property is correctly set for the PlayerCharacter
+                    gameState.PlayerCharacter.CurrentMap = gameState.Map;
+                }
+
+                return gameState;
             }
             else
             {

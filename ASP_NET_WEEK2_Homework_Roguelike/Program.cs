@@ -38,6 +38,7 @@ ConsoleKeyInfo operation;
 WriteLine("Welcome to Roguelike game");
 PlayerCharacter playerCharacter = new PlayerCharacter();
 Map map = new Map();
+playerCharacter.CurrentMap = map;
 do
 {
     operation = WriteMenuAndParseChar<int>("Main", " What would like to do?");
@@ -54,7 +55,7 @@ do
             playerCharacter.CurrentY = 0;
 
             // Save and exit
-            playerCharacter.SaveGame("savefile.json",map);
+            playerCharacter.SaveGame("savefile.json");
 
             break;
         case '2':
@@ -65,6 +66,9 @@ do
                 var gameState = PlayerCharacter.LoadGame("savefile.json");
                 playerCharacter = gameState.PlayerCharacter;
                 map = gameState.Map;
+
+                //updating map
+                playerCharacter.CurrentMap = map;
             }
             catch (FileNotFoundException ex)
             {
@@ -114,10 +118,8 @@ do
             char choice;
             do
             {
-                // choice = WriteMenuAndParseChar<char>("InventoryMenu", " What would like to do?");
-
                 playerCharacter.CheckInventory();
-                WriteLine(" \n Write:  \ne. Use some item \nl. Leave inventory");
+                WriteLine(" \n Write:  \ne. Use some item \nd. Discard some item  \nl. Leave inventory");
 
                 char.TryParse(ReadLine(), out choice);
                 if (choice == 'e')
@@ -127,12 +129,19 @@ do
                     Int32.TryParse(ReadLine(), out id);
                     playerCharacter.EquipItem(id);
                 }
+                if (choice == 'd')
+                {
+                    WriteLine(" \n Write ID of itme you'd like to discard");
+                    int id;
+                    Int32.TryParse(ReadLine(), out id);
+                    playerCharacter.DiscardItem(id);
+                }
             }
             while (choice != 'l');
             break;
         case 'q':
             // Quitting the game
-            playerCharacter.SaveGame("savefile.json", map);
+            playerCharacter.SaveGame("savefile.json");
             Environment.Exit(0);
             break;
         default:
@@ -159,7 +168,6 @@ static void TryMovePlayer(PlayerCharacter player, Map map, string direction)
         {
             RandomEvent roomEvent = EventGenerator.GenerateEvent(newRoom.EventStatus);
             roomEvent?.Execute(player, newRoom);
-            newRoom.EventStatus = "none";
         }
     }
     else
@@ -187,6 +195,7 @@ static MenuActionService Initialize(MenuActionService actionService)
     actionService.AddNewAction('m', "Show map", "InGameMenu");
 
     actionService.AddNewAction('e', "Use some item", "InventoryMenu");
+    actionService.AddNewAction('d', "Discard item", "InventoryMenu");
     actionService.AddNewAction('l', "Leave inventory", "InventoryMenu");
 
     return actionService;

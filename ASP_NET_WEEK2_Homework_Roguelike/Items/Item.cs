@@ -1,8 +1,11 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 
 namespace ASP_NET_WEEK2_Homework_Roguelike.Items
 {
@@ -15,5 +18,6 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Items
         public int Attack { get; set; }
         public int MoneyWorth { get; set; }
         public string Description { get; set; }
+        public string ItemType => GetType().Name;
     }
 }

@@ -21,5 +21,7 @@ namespace ASP_NET_WEEK2_Homework_Roguelike
             BlockedDirections = new HashSet<string>();
 
         }
+        //for serialization
+        public RoomToDiscover() { }
     }
 }
