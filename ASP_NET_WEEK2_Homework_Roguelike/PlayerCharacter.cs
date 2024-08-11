@@ -68,6 +68,7 @@ namespace ASP_NET_WEEK2_Homework_Roguelike
         {
             Inventory = new List<Item>();
             Level = 1;
+            Health = HealthLimit;
             Weight = 0;
             Attack = 0;
             Defense = 0;
@@ -266,6 +267,7 @@ namespace ASP_NET_WEEK2_Homework_Roguelike
             {
                 Experience += amount - Level * 100;
                 Level++;
+                Health = HealthLimit;
                 UpdateAttack();
                 UpdateDefense();
             }
