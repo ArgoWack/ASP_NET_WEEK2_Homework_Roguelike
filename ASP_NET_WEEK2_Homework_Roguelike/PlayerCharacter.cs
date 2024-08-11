@@ -121,7 +121,6 @@ namespace ASP_NET_WEEK2_Homework_Roguelike
                 }
             }
         }
-
         public void MovePlayer(string direction, Map map)
         {
             Room newRoom = map.MovePlayer(ref currentX, ref currentY, direction);
@@ -214,6 +213,8 @@ namespace ASP_NET_WEEK2_Homework_Roguelike
                 {
                     property.SetValue(this, item);
                     UpdateWeight();
+                    UpdateAttack();
+                    UpdateDefense();
                 }
                 else
                 {
@@ -320,7 +321,6 @@ namespace ASP_NET_WEEK2_Homework_Roguelike
 
         public void SaveGame(string filePath)
         {
-            // Create a new GameState object with the current player and map
             var gameState = new GameState
             {
                 PlayerCharacter = this,
@@ -330,8 +330,8 @@ namespace ASP_NET_WEEK2_Homework_Roguelike
             var options = new JsonSerializerOptions
             {
                 WriteIndented = true,
-                ReferenceHandler = ReferenceHandler.Preserve, // Handles object cycles
-                Converters = { new ItemConverter(), new MapConverter() } // Register custom converters
+                ReferenceHandler = ReferenceHandler.Preserve,
+                Converters = { new ItemConverter(), new MapConverter() }
             };
 
             string jsonString = JsonSerializer.Serialize(gameState, options);
@@ -347,16 +347,18 @@ namespace ASP_NET_WEEK2_Homework_Roguelike
 
                 var options = new JsonSerializerOptions
                 {
-                    ReferenceHandler = ReferenceHandler.Preserve, // Handles object cycles
-                    Converters = { new ItemConverter(), new MapConverter() } // Register custom converters
+                    ReferenceHandler = ReferenceHandler.Preserve,
+                    Converters = { new ItemConverter(), new MapConverter() }
                 };
 
                 var gameState = JsonSerializer.Deserialize<GameState>(jsonString, options);
 
                 if (gameState != null)
                 {
-                    // Ensure that the CurrentMap property is correctly set for the PlayerCharacter
                     gameState.PlayerCharacter.CurrentMap = gameState.Map;
+
+                    // Restore the LastGeneratedItemId
+                    ItemFactory.LastGeneratedItemId = gameState.PlayerCharacter.Inventory.Max(i => i.ID);
                 }
 
                 return gameState;

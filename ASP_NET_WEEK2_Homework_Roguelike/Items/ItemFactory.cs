@@ -22,7 +22,7 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.ItemKinds
         }
 
         private static readonly Random _random = new Random();
-        private static int _itemCount = 0; // Static counter for item IDs
+        public static int LastGeneratedItemId { get; set; } = 0; // Moved this to a public static property
 
         public static ItemQuality GetQuality(double percentage)
         {
@@ -65,7 +65,7 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.ItemKinds
                 var quality = GetQuality(percentage);
                 item.Name = $"{quality} {itemTypeAttribute.Kind}";
             }
-            item.ID = ++_itemCount;
+            item.ID = ++LastGeneratedItemId; // Now managed directly within ItemFactory
             return item;
         }
 
