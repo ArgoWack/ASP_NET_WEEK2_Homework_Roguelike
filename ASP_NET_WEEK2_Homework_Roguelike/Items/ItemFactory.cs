@@ -22,7 +22,7 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.ItemKinds
         }
 
         private static readonly Random _random = new Random();
-        public static int LastGeneratedItemId { get; set; } = 0; // Moved this to a public static property
+        public static int LastGeneratedItemId { get; set; } = 0;
 
         public static ItemQuality GetQuality(double percentage)
         {
@@ -65,8 +65,40 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.ItemKinds
                 var quality = GetQuality(percentage);
                 item.Name = $"{quality} {itemTypeAttribute.Kind}";
             }
-            item.ID = ++LastGeneratedItemId; // Now managed directly within ItemFactory
+            item.ID = ++LastGeneratedItemId;
             return item;
+        }
+
+        public static Item GenerateItem(Type itemType, int weight, int defense, int attack, int moneyWorth)
+        {
+            var item = (Item)Activator.CreateInstance(itemType);
+            item.Weight = weight;
+            item.Defense = defense;
+            item.Attack = attack;
+            item.MoneyWorth = moneyWorth;
+
+            var percentage = CalculatePercentage(attack, defense, weight, itemType);
+            var quality = GetQuality(percentage);
+
+            var itemTypeAttribute = itemType.GetCustomAttribute<ItemTypeAttribute>();
+            if (itemTypeAttribute != null)
+            {
+                item.Name = $"{quality} {itemTypeAttribute.Kind}";
+            }
+
+            item.ID = ++LastGeneratedItemId;
+            return item;
+        }
+
+        private static double CalculatePercentage(int attack, int defense, int weight, Type itemType)
+        {
+            var baseStats = ItemStats.BaseStats[itemType];
+            double attackPercentage = baseStats.Attack != 0 ? (double)(attack - baseStats.Attack) / baseStats.Attack : 0;
+            double defensePercentage = baseStats.Defense != 0 ? (double)(defense - baseStats.Defense) / baseStats.Defense : 0;
+            double weightPercentage = baseStats.Weight != 0 ? (double)(weight - baseStats.Weight) / baseStats.Weight : 0;
+
+            // Simple average of the three percentages
+            return (attackPercentage + defensePercentage + weightPercentage) / 3;
         }
 
         private static int GenerateStat(int baseValue, out double percentage)
