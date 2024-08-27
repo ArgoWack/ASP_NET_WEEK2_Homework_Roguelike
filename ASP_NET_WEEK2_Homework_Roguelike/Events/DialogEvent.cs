@@ -97,8 +97,38 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Events
         private void ExecuteMerchantEvent(PlayerCharacter player)
         {
             WriteLine("A merchant approaches you and shows his stock.");
-            // Implement item buying/selling logic here
-            // showing the player a list of items to buy or sell
+
+            string choice;
+            do
+            {
+                WriteLine("\nWrite: \nb. Buy health potion for 40 \ns. Sell an item \nl. Leave");
+                choice = ReadLine().ToLower();
+
+                if (choice == "b")
+                {
+                    player.BuyHealthPotion();
+                }
+                else if (choice == "s")
+                {
+                    player.CheckInventory();
+                    WriteLine("Enter the ID of the item you want to sell:");
+                    if (int.TryParse(ReadLine(), out int itemId))
+                    {
+                        player.SellItem(itemId);
+                    }
+                    else
+                    {
+                        WriteLine("Invalid item ID.");
+                    }
+                }
+                else if (choice != "l")
+                {
+                    WriteLine("Invalid choice. Please choose 'b', 's', or 'l'.");
+                }
+
+            } while (choice != "l");
+
+            WriteLine("The merchant nods and moves on.");
         }
     }
 }

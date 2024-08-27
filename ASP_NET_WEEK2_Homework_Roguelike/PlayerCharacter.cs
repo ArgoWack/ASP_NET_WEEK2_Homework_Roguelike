@@ -397,5 +397,41 @@ namespace ASP_NET_WEEK2_Homework_Roguelike
         {
             defenseModifier += amount;
         }
+
+        public void SellItem(int itemId)
+        {
+            var item = Inventory.FirstOrDefault(i => i.ID == itemId);
+            if (item == null)
+            {
+                WriteLine("Item not found in inventory.");
+                return;
+            }
+
+            Money += item.MoneyWorth;
+            Inventory.Remove(item);
+
+            UpdateWeight();
+            UpdateAttack();
+            UpdateDefense();
+
+            WriteLine($"You sold {item.Name} for {item.MoneyWorth} coins.");
+        }
+
+        public void BuyHealthPotion()
+        {
+
+            if (Money < 40)
+            {
+                WriteLine("You don't have enough money to buy a health potion.");
+                return;
+            }
+
+            Money -= 40;
+            var healthPotion = ItemFactory.GenerateItem<HealthPotion>();
+            Inventory.Add(healthPotion);
+
+            UpdateWeight();
+            WriteLine($"You bought a health potion for {40} coins.");
+        }
     }
 }
