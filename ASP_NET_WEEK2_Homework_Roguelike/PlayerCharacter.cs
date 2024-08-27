@@ -96,7 +96,7 @@ namespace ASP_NET_WEEK2_Homework_Roguelike
             CurrentMap = new Map(); // Initialize the map
 
             // Initialize base stats
-            baseSpeed = 100 + Level * 10;
+            baseSpeed = Level * 10;
             baseAttack = 0;
             baseDefense = 0;
 
@@ -104,6 +104,10 @@ namespace ASP_NET_WEEK2_Homework_Roguelike
             speedModifier = 0;
             attackModifier = 0;
             defenseModifier = 0;
+
+            UpdateAttack();
+            UpdateDefense();
+            UpdateWeight();
         }
 
         public void DisplayCharacterStats()
@@ -372,6 +376,10 @@ namespace ASP_NET_WEEK2_Homework_Roguelike
                 {
                     gameState.PlayerCharacter.CurrentMap = gameState.Map;
                     ItemFactory.LastGeneratedItemId = gameState.PlayerCharacter.Inventory.Max(i => i.ID);
+
+                    gameState.PlayerCharacter.UpdateAttack();
+                    gameState.PlayerCharacter.UpdateDefense();
+                    gameState.PlayerCharacter.UpdateWeight();
                 }
 
                 return gameState;
