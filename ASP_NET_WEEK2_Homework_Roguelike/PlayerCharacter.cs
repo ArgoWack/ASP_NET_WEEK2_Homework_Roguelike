@@ -10,6 +10,9 @@ using static System.Console;
 using System.Text.Json;
 using System.IO;
 using System.Text.Json.Serialization;
+using System.Collections;
+using System.Reflection.Emit;
+using System.Xml.Linq;
 
 namespace ASP_NET_WEEK2_Homework_Roguelike
 {
@@ -17,6 +20,19 @@ namespace ASP_NET_WEEK2_Homework_Roguelike
     {
         private int currentX;
         private int currentY;
+
+        // Base stats
+        private float baseSpeed;
+        private float baseAttack;
+        private float baseDefense;
+
+        // Modifiers (buffs/debuffs)
+        private float speedModifier;
+        private float attackModifier;
+        private float defenseModifier;
+
+        // Other properties...
+        private List<Item> inventory;
 
         public int CurrentX
         {
@@ -29,9 +45,9 @@ namespace ASP_NET_WEEK2_Homework_Roguelike
             get => currentY;
             set => currentY = value;
         }
+
         public Map CurrentMap { get; set; }
 
-        private List<Item> inventory;
         public List<Item> Inventory
         {
             get => inventory;
@@ -48,10 +64,6 @@ namespace ASP_NET_WEEK2_Homework_Roguelike
         public int Health { get; set; }
         public int Weight { get; private set; }
         public int Money { get; set; }
-        public int HealthLimit => 100 + Level * 10;
-        public float Speed => Weight / 100 + Level * 10;
-        public float Attack { get; private set; }
-        public float Defense { get; private set; }
         public int Level { get; set; }
         public int Experience { get; set; }
 
@@ -65,6 +77,12 @@ namespace ASP_NET_WEEK2_Homework_Roguelike
         public SwordOneHanded EquippedSwordOneHanded { get; set; }
         public SwordTwoHanded EquippedSwordTwoHanded { get; set; }
 
+        public int HealthLimit => 100 + Level * 10;
+
+        // Updated Speed, Attack, and Defense properties with base values and modifiers
+        public float Speed => (baseSpeed + speedModifier) / (Weight / 100 + 1);
+        public float Attack => (baseAttack + attackModifier) * Speed;
+        public float Defense => (baseDefense + defenseModifier) * Speed;
 
         public PlayerCharacter()
         {
@@ -72,18 +90,26 @@ namespace ASP_NET_WEEK2_Homework_Roguelike
             Level = 1;
             Health = HealthLimit;
             Weight = 0;
-            Attack = 0;
-            Defense = 0;
-            CurrentX = 0; // Starting X position
-            CurrentY = 0; // Starting Y position
+            Money = 0;
+            currentX = 0; // Starting X position
+            currentY = 0; // Starting Y position
             CurrentMap = new Map(); // Initialize the map
+
+            // Initialize base stats
+            baseSpeed = 100 + Level * 10;
+            baseAttack = 0;
+            baseDefense = 0;
+
+            // Initialize modifiers
+            speedModifier = 0;
+            attackModifier = 0;
+            defenseModifier = 0;
         }
 
         public void DisplayCharacterStats()
         {
-
             var equippedItems = new Dictionary<string, Item>
-            {
+        {
             { "Amulet", EquippedAmulet },
             { "Armor", EquippedArmor },
             { "Boots", EquippedBoots },
@@ -93,34 +119,35 @@ namespace ASP_NET_WEEK2_Homework_Roguelike
             { "SwordOneHanded", EquippedSwordOneHanded },
             { "SwordTwoHanded", EquippedSwordTwoHanded },
             { "Trousers", EquippedTrousers }
-            };
+        };
 
             WriteLine($@"
-                Character name: {Name}
-                Attack: {Attack}
-                Defense: {Defense}
-                Speed: {Speed}
-                Weight: {Weight}
-                Money: {Money}
-                Health: {Health}
-                Level: {Level}
-                Experience: {Experience}");
+            Character name: {Name}
+            Attack: {Attack}
+            Defense: {Defense}
+            Speed: {Speed}
+            Weight: {Weight}
+            Money: {Money}
+            Health: {Health}
+            Level: {Level}
+            Experience: {Experience}");
 
             foreach (var equippedItem in equippedItems)
             {
                 if (equippedItem.Value != null)
                 {
                     WriteLine($@"
-                    Equipped {equippedItem.Key}: {equippedItem.Value.Name ?? "None"} 
-                      ID: {equippedItem.Value.ID}, Defense: {equippedItem.Value.Defense}, Attack: {equippedItem.Value.Attack}, Weight: {equippedItem.Value.Weight}, Money worth: {equippedItem.Value.MoneyWorth}, Description: {equippedItem.Value.Description}");
+                Equipped {equippedItem.Key}: {equippedItem.Value.Name ?? "None"} 
+                  ID: {equippedItem.Value.ID}, Defense: {equippedItem.Value.Defense}, Attack: {equippedItem.Value.Attack}, Weight: {equippedItem.Value.Weight}, Money worth: {equippedItem.Value.MoneyWorth}, Description: {equippedItem.Value.Description}");
                 }
                 else
                 {
                     WriteLine($@"
-                    Equipped {equippedItem.Key}: None");
+                Equipped {equippedItem.Key}: None");
                 }
             }
         }
+
         public void MovePlayer(string direction, Map map)
         {
             Room newRoom = map.MovePlayer(ref currentX, ref currentY, direction);
@@ -144,12 +171,11 @@ namespace ASP_NET_WEEK2_Homework_Roguelike
 
         private void UpdateAttack()
         {
-            Attack = CheckAttack();
+            baseAttack = CheckAttack();
         }
 
         public float CheckAttack()
         {
-            // since the slot may be empty in case of null returns 0 for given slot
             return ((EquippedHelmet?.Attack ?? 0) +
                     (EquippedArmor?.Attack ?? 0) +
                     (EquippedShield?.Attack ?? 0) +
@@ -158,12 +184,14 @@ namespace ASP_NET_WEEK2_Homework_Roguelike
                     (EquippedBoots?.Attack ?? 0) +
                     (EquippedAmulet?.Attack ?? 0) +
                     (EquippedSwordOneHanded?.Attack ?? 0) +
-                    (EquippedSwordTwoHanded?.Attack ?? 0)) * Speed;
+                    (EquippedSwordTwoHanded?.Attack ?? 0));
         }
+
         private void UpdateDefense()
         {
-            Defense = CheckDefense();
+            baseDefense = CheckDefense();
         }
+
         public float CheckDefense()
         {
             return ((EquippedHelmet?.Defense ?? 0) +
@@ -174,12 +202,11 @@ namespace ASP_NET_WEEK2_Homework_Roguelike
                     (EquippedBoots?.Defense ?? 0) +
                     (EquippedAmulet?.Defense ?? 0) +
                     (EquippedSwordOneHanded?.Defense ?? 0) +
-                    (EquippedSwordTwoHanded?.Defense ?? 0)) * Speed;
+                    (EquippedSwordTwoHanded?.Defense ?? 0));
         }
 
         public void EquipItem(int itemId)
         {
-            // Find the item in the inventory by ID
             var item = Inventory.FirstOrDefault(i => i.ID == itemId);
             if (item == null)
             {
@@ -191,23 +218,18 @@ namespace ASP_NET_WEEK2_Homework_Roguelike
 
             if (itemTypeAttribute != null)
             {
-                // Special handling for swords and shields
                 if (item is SwordTwoHanded)
                 {
-                    // Unequip one-handed sword and shield
                     UnequipItem(typeof(SwordOneHanded));
                     UnequipItem(typeof(Shield));
                 }
                 else if (item is SwordOneHanded || item is Shield)
                 {
-                    // Unequip two-handed sword
                     UnequipItem(typeof(SwordTwoHanded));
                 }
 
-                // Unequip the currently equipped item of the same type
                 UnequipItem(itemType);
 
-                // Equip the new item
                 var property = GetType().GetProperty($"Equipped{itemTypeAttribute.Kind}");
                 if (property != null)
                 {
@@ -261,10 +283,8 @@ namespace ASP_NET_WEEK2_Homework_Roguelike
                 return;
             }
 
-            // Remove the item from inventory
             Inventory.Remove(item);
 
-            // Check if the item was equipped and unequip it if necessary
             if (EquippedAmulet?.ID == itemId) EquippedAmulet = null;
             if (EquippedArmor?.ID == itemId) EquippedArmor = null;
             if (EquippedBoots?.ID == itemId) EquippedBoots = null;
@@ -275,7 +295,6 @@ namespace ASP_NET_WEEK2_Homework_Roguelike
             if (EquippedSwordTwoHanded?.ID == itemId) EquippedSwordTwoHanded = null;
             if (EquippedTrousers?.ID == itemId) EquippedTrousers = null;
 
-            // Recalculate stats
             UpdateWeight();
             UpdateAttack();
             UpdateDefense();
@@ -283,26 +302,23 @@ namespace ASP_NET_WEEK2_Homework_Roguelike
             WriteLine($"Item '{item.Name}' has been discarded.");
         }
 
-        public void HealByPotion(HealthPotion HealthPotion)
+        public void HealByPotion(HealthPotion healthPotion)
         {
-            Heal(HealthPotion.MoneyWorth);
-            Inventory.Remove(HealthPotion);
+            Heal(healthPotion.MoneyWorth);
+            Inventory.Remove(healthPotion);
         }
+
         public void Heal(int amount)
         {
-            if (Health + amount <= HealthLimit)
-                Health += amount;
-            else
-                Health = HealthLimit;
+            Health = Math.Min(Health + amount, HealthLimit);
         }
 
         public void GetExperience(int amount)
         {
-            if (Experience + amount > Level * 100)
-                Experience += amount;
-            else
+            Experience += amount;
+            while (Experience >= Level * 100)
             {
-                Experience += amount - Level * 100;
+                Experience -= Level * 100;
                 Level++;
                 Health = HealthLimit;
                 UpdateAttack();
@@ -315,7 +331,7 @@ namespace ASP_NET_WEEK2_Homework_Roguelike
             WriteLine(" \n Here is your inventory: ");
             foreach (Item item in Inventory)
             {
-                WriteLine("This is: " + item.Name + " ID: " + item.ID + " Defense: " + item.Defense + " Attack: " + item.Attack + " Weight: " + item.Weight + " Money worth: " + item.MoneyWorth + " Description: " + item.Description);
+                WriteLine($"This is: {item.Name} ID: {item.ID} Defense: {item.Defense} Attack: {item.Attack} Weight: {item.Weight} Money worth: {item.MoneyWorth} Description: {item.Description}");
             }
         }
 
@@ -335,7 +351,6 @@ namespace ASP_NET_WEEK2_Homework_Roguelike
             };
 
             string jsonString = JsonSerializer.Serialize(gameState, options);
-
             File.WriteAllText(filePath, jsonString);
         }
 
@@ -356,8 +371,6 @@ namespace ASP_NET_WEEK2_Homework_Roguelike
                 if (gameState != null)
                 {
                     gameState.PlayerCharacter.CurrentMap = gameState.Map;
-
-                    // Restore the LastGeneratedItemId
                     ItemFactory.LastGeneratedItemId = gameState.PlayerCharacter.Inventory.Max(i => i.ID);
                 }
 
@@ -367,6 +380,22 @@ namespace ASP_NET_WEEK2_Homework_Roguelike
             {
                 throw new FileNotFoundException("Save file not found.");
             }
+        }
+
+        // Methods to apply buffs/debuffs
+        public void ModifySpeed(float amount)
+        {
+            speedModifier += amount;
+        }
+
+        public void ModifyAttack(float amount)
+        {
+            attackModifier += amount;
+        }
+
+        public void ModifyDefense(float amount)
+        {
+            defenseModifier += amount;
         }
     }
 }
