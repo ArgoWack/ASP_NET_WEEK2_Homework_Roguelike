@@ -5,34 +5,11 @@ using System.Diagnostics;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using static System.Console;
-using static System.Net.Mime.MediaTypeNames;
 
 string description = " \n It's simple roguelike game. With the following hotkeys:" +
     "\n Q - Save&Quit" +
     "\n E - Opens Inventory" +
     "\n A/W/S/D - movement";
-//yet to be written
-
-
-// Przywitanie użytkownika
-// Pojawienie się main menu
-////a. Nowa gra
-////b. Kontynuuj
-////c. Opis gry
-////d. Wyjdź z gry
-//////a Stworzenie nowej postaci z domyślnymi statystykami
-//////a1. Ruch A/W/S/D
-//////a2. E - sprawdzenie ekwipunku
-//////a3. Q - zapis i wyjście
-//////b Wczytanie statusu poprzedniej postaci
-//////b1. Ruch A/W/S/D
-//////b2. E - sprawdzenie ekwipunku
-//////b3. Q - zapis i wyjście
-/////// a1/b1 Losowanie zdarzeń
-/////// 1) znalezienie przedmiotu (losowanie z puli przedmiotów)
-/////// 2) wydarzenie (losowanie z puli wydarzeń)
-/////// 3) nic się nie dzieje
-/////// 4) spotkanie postaci (losowanie z puli postaci)
 
 ConsoleKeyInfo operation;
 WriteLine("Welcome to Roguelike game \n");
@@ -79,7 +56,7 @@ do
                 WriteLine($"{i + 1}. {characterName}");
             }
 
-            WriteLine("Enter the number of the character you want to load:");
+            WriteLine("\n Enter the number of the character you want to load:");
             if (int.TryParse(ReadLine(), out int selectedIndex) && selectedIndex > 0 && selectedIndex <= saveFiles.Length)
             {
                 var selectedFile = saveFiles[selectedIndex - 1];
@@ -102,7 +79,7 @@ do
             }
             else
             {
-                WriteLine("Invalid selection. Returning to main menu.");
+                WriteLine("\nInvalid selection. Returning to main menu.\n");
             }
             break;
 
@@ -117,7 +94,7 @@ do
             break;
 
         default:
-            WriteLine("Wrong input");
+            WriteLine("\nWrong input\n");
             break;
     }
 
@@ -163,7 +140,7 @@ do
                         }
                         else
                         {
-                            WriteLine("Invalid ID.");
+                            WriteLine("\nInvalid ID.\n");
                         }
                     }
                     if (choice == 'd')
@@ -175,7 +152,7 @@ do
                         }
                         else
                         {
-                            WriteLine("Invalid ID.");
+                            WriteLine("\nInvalid ID.\n");
                         }
                     }
                 }

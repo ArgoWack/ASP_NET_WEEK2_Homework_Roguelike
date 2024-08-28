@@ -214,7 +214,8 @@ namespace ASP_NET_WEEK2_Homework_Roguelike
             var item = Inventory.FirstOrDefault(i => i.ID == itemId);
             if (item == null)
             {
-                throw new InvalidOperationException("Item not found in inventory.");
+                WriteLine("Item not found in inventory.");
+                return;
             }
 
             var itemType = item.GetType();
@@ -222,34 +223,42 @@ namespace ASP_NET_WEEK2_Homework_Roguelike
 
             if (itemTypeAttribute != null)
             {
-                if (item is SwordTwoHanded)
+                try
                 {
-                    UnequipItem(typeof(SwordOneHanded));
-                    UnequipItem(typeof(Shield));
-                }
-                else if (item is SwordOneHanded || item is Shield)
-                {
-                    UnequipItem(typeof(SwordTwoHanded));
-                }
+                    if (item is SwordTwoHanded)
+                    {
+                        UnequipItem(typeof(SwordOneHanded));
+                        UnequipItem(typeof(Shield));
+                    }
+                    else if (item is SwordOneHanded || item is Shield)
+                    {
+                        UnequipItem(typeof(SwordTwoHanded));
+                    }
 
-                UnequipItem(itemType);
+                    UnequipItem(itemType);
 
-                var property = GetType().GetProperty($"Equipped{itemTypeAttribute.Kind}");
-                if (property != null)
-                {
-                    property.SetValue(this, item);
-                    UpdateWeight();
-                    UpdateAttack();
-                    UpdateDefense();
+                    var property = GetType().GetProperty($"Equipped{itemTypeAttribute.Kind}");
+                    if (property != null)
+                    {
+                        property.SetValue(this, item);
+                        UpdateWeight();
+                        UpdateAttack();
+                        UpdateDefense();
+                        WriteLine($"You have equipped {item.Name}.");
+                    }
+                    else
+                    {
+                        WriteLine($"No equipped property found for {itemTypeAttribute.Kind}");
+                    }
                 }
-                else
+                catch (InvalidOperationException ex)
                 {
-                    throw new InvalidOperationException($"No equipped property found for {itemTypeAttribute.Kind}");
+                    WriteLine($"Error equipping item: {ex.Message}");
                 }
             }
             else
             {
-                throw new InvalidOperationException("Item type not supported");
+                WriteLine("Item type not supported.");
             }
         }
 
@@ -258,22 +267,30 @@ namespace ASP_NET_WEEK2_Homework_Roguelike
             var itemTypeAttribute = itemType.GetCustomAttribute<ItemTypeAttribute>();
             if (itemTypeAttribute != null)
             {
-                var property = GetType().GetProperty($"Equipped{itemTypeAttribute.Kind}");
-                if (property != null)
+                try
                 {
-                    property.SetValue(this, null);
-                    UpdateWeight();
-                    UpdateDefense();
-                    UpdateAttack();
+                    var property = GetType().GetProperty($"Equipped{itemTypeAttribute.Kind}");
+                    if (property != null)
+                    {
+                        property.SetValue(this, null);
+                        UpdateWeight();
+                        UpdateDefense();
+                        UpdateAttack();
+                        WriteLine($"You have unequipped {itemTypeAttribute.Kind}.");
+                    }
+                    else
+                    {
+                        WriteLine($"No equipped property found for {itemTypeAttribute.Kind}");
+                    }
                 }
-                else
+                catch (InvalidOperationException ex)
                 {
-                    throw new InvalidOperationException($"No equipped property found for {itemTypeAttribute.Kind}");
+                    WriteLine($"Error unequipping item: {ex.Message}");
                 }
             }
             else
             {
-                throw new InvalidOperationException("Item type not supported");
+                WriteLine("Item type not supported.");
             }
         }
 
