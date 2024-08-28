@@ -35,121 +35,163 @@ string description = " \n It's simple roguelike game. With the following hotkeys
 /////// 4) spotkanie postaci (losowanie z puli postaci)
 
 ConsoleKeyInfo operation;
-WriteLine("Welcome to Roguelike game");
+WriteLine("Welcome to Roguelike game \n");
 PlayerCharacter playerCharacter = new PlayerCharacter();
 Map map = new Map();
 playerCharacter.CurrentMap = map;
+bool inGame = false;
+
 do
 {
-    operation = WriteMenuAndParseChar<int>("Main", " What would like to do?");
+    operation = WriteMenuAndParseChar<int>("Main", "What would you like to do?");
 
     switch (operation.KeyChar)
     {
         case '1':
             // Creating New Character
-            WriteLine("Write Character Name");
+            WriteLine("\n Write Character Name");
             playerCharacter.Name = ReadLine();
             ReadKey();
             map.InitializeStartingRoom();
             playerCharacter.CurrentX = 0;
             playerCharacter.CurrentY = 0;
 
-            // Save and exit
-            playerCharacter.SaveGame("savefile.json");
-
+            // Save and continue to game loop
+            playerCharacter.SaveGame();
+            inGame = true; // Set the flag to true to enter the in-game loop
             break;
+
         case '2':
             // Continuing the previous game
+            var saveFiles = Directory.GetFiles(Directory.GetCurrentDirectory(), "*_savefile.json");
 
-            try
+            if (saveFiles.Length == 0)
             {
-                var gameState = PlayerCharacter.LoadGame("savefile.json");
-                playerCharacter = gameState.PlayerCharacter;
-                map = gameState.Map;
-
-                //updating map
-                playerCharacter.CurrentMap = map;
+                WriteLine("No saved games found.");
+                break;
             }
-            catch (FileNotFoundException ex)
+
+            WriteLine("\n Available saved games:");
+            for (int i = 0; i < saveFiles.Length; i++)
             {
-                WriteLine(ex.Message);
+                var fileName = Path.GetFileNameWithoutExtension(saveFiles[i]);
+                var characterName = fileName.Replace("_savefile", "");
+                WriteLine($"{i + 1}. {characterName}");
+            }
+
+            WriteLine("Enter the number of the character you want to load:");
+            if (int.TryParse(ReadLine(), out int selectedIndex) && selectedIndex > 0 && selectedIndex <= saveFiles.Length)
+            {
+                var selectedFile = saveFiles[selectedIndex - 1];
+                var characterName = Path.GetFileNameWithoutExtension(selectedFile).Replace("_savefile", "");
+
+                try
+                {
+                    var gameState = PlayerCharacter.LoadGame(characterName);
+                    playerCharacter = gameState.PlayerCharacter;
+                    map = gameState.Map;
+
+                    // Updating map
+                    playerCharacter.CurrentMap = map;
+                    inGame = true; // Set the flag to true to enter the in-game loop
+                }
+                catch (FileNotFoundException ex)
+                {
+                    WriteLine(ex.Message);
+                }
+            }
+            else
+            {
+                WriteLine("Invalid selection. Returning to main menu.");
             }
             break;
+
         case '3':
             // Displaying description of game and controls
-            WriteLine(description);
+            WriteLine(description +"\n");
             break;
+
         case '4':
             // Quitting the game
             Environment.Exit(0);
             break;
+
         default:
             WriteLine("Wrong input");
             break;
     }
-}
-while (operation.KeyChar =='3');
 
-do
-{
-    operation = WriteMenuAndParseChar<char>("InGameMenu", " \n What would like to do: a/w/s/d/e/q?");
-
-    switch (operation.KeyChar)
+    // Enter the in-game menu only if a game is started or loaded
+    while (inGame)
     {
-        case 'a':
-            TryMovePlayer(playerCharacter, map, "west");
-            break;
-        case 'w':
-            TryMovePlayer(playerCharacter, map, "north");
-            break;
-        case 's':
-            TryMovePlayer(playerCharacter, map, "south");
-            break;
-        case 'd':
-            TryMovePlayer(playerCharacter, map, "east");
-            break;
-        case 'm':
-            map.DisplayMap(playerCharacter);
-            break;
-        case 'p':
-            playerCharacter.DisplayCharacterStats();
-            break;
-        case 'e':
-            char choice;
-            do
-            {
-                playerCharacter.CheckInventory();
-                WriteLine(" \n Write:  \ne. Use some item \nd. Discard some item  \nl. Leave inventory");
+        operation = WriteMenuAndParseChar<char>("InGameMenu", "\nWhat would you like to do: a/w/s/d/e/q? \n");
 
-                char.TryParse(ReadLine(), out choice);
-                if (choice == 'e')
+        switch (operation.KeyChar)
+        {
+            case 'a':
+                TryMovePlayer(playerCharacter, map, "west");
+                break;
+            case 'w':
+                TryMovePlayer(playerCharacter, map, "north");
+                break;
+            case 's':
+                TryMovePlayer(playerCharacter, map, "south");
+                break;
+            case 'd':
+                TryMovePlayer(playerCharacter, map, "east");
+                break;
+            case 'm':
+                map.DisplayMap(playerCharacter);
+                break;
+            case 'p':
+                playerCharacter.DisplayCharacterStats();
+                break;
+            case 'e':
+                char choice;
+                do
                 {
-                    WriteLine(" \n Write ID of itme you'd like to use");
-                    int id;
-                    Int32.TryParse(ReadLine(), out id);
-                    playerCharacter.EquipItem(id);
+                    playerCharacter.CheckInventory();
+                    WriteLine(" \n Write:  \ne. Use some item \nd. Discard some item  \nl. Leave inventory");
+
+                    char.TryParse(ReadLine(), out choice);
+                    if (choice == 'e')
+                    {
+                        WriteLine(" \n Write ID of the item you'd like to use");
+                        if (int.TryParse(ReadLine(), out int id))
+                        {
+                            playerCharacter.EquipItem(id);
+                        }
+                        else
+                        {
+                            WriteLine("Invalid ID.");
+                        }
+                    }
+                    if (choice == 'd')
+                    {
+                        WriteLine(" \n Write ID of the item you'd like to discard");
+                        if (int.TryParse(ReadLine(), out int id))
+                        {
+                            playerCharacter.DiscardItem(id);
+                        }
+                        else
+                        {
+                            WriteLine("Invalid ID.");
+                        }
+                    }
                 }
-                if (choice == 'd')
-                {
-                    WriteLine(" \n Write ID of itme you'd like to discard");
-                    int id;
-                    Int32.TryParse(ReadLine(), out id);
-                    playerCharacter.DiscardItem(id);
-                }
-            }
-            while (choice != 'l');
-            break;
-        case 'q':
-            // Quitting the game
-            playerCharacter.SaveGame("savefile.json");
-            Environment.Exit(0);
-            break;
-        default:
-            WriteLine("Wrong input");
-            break;
+                while (choice != 'l');
+                break;
+            case 'q':
+                // Save and return to main menu
+                playerCharacter.SaveGame();
+                inGame = false; // Set the flag to false to return to the main menu
+                break;
+            default:
+                WriteLine("\n Wrong input");
+                break;
+        }
     }
-}
-while (operation.KeyChar != 'q');
+} while (operation.KeyChar != '4'); // Exit only when 4 is chosen
 
 static void TryMovePlayer(PlayerCharacter player, Map map, string direction)
 {
@@ -172,7 +214,7 @@ static void TryMovePlayer(PlayerCharacter player, Map map, string direction)
     }
     else
     {
-        WriteLine("You cannot move in that direction. There is no room.");
+        WriteLine("\n You cannot move in that direction. There is no room.");
     }
 }
 

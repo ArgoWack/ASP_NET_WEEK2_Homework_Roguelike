@@ -184,6 +184,7 @@ namespace ASP_NET_WEEK2_Homework_Roguelike
             var minY = discoveredRooms.Keys.Min(k => k.Item2);
             var maxY = discoveredRooms.Keys.Max(k => k.Item2);
 
+            WriteLine();
             for (int y = maxY; y >= minY; y--)
             {
                 for (int x = minX; x <= maxX; x++)

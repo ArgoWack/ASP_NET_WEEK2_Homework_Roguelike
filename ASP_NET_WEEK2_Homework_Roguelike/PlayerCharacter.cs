@@ -339,8 +339,9 @@ namespace ASP_NET_WEEK2_Homework_Roguelike
             }
         }
 
-        public void SaveGame(string filePath)
+        public void SaveGame()
         {
+            string sanitizedFileName = $"{Name}_savefile.json".Replace(" ", "_").Replace(":", "_").Replace("/", "_");
             var gameState = new GameState
             {
                 PlayerCharacter = this,
@@ -355,14 +356,17 @@ namespace ASP_NET_WEEK2_Homework_Roguelike
             };
 
             string jsonString = JsonSerializer.Serialize(gameState, options);
-            File.WriteAllText(filePath, jsonString);
+            File.WriteAllText(sanitizedFileName, jsonString);
+            WriteLine($"\n Game saved as {sanitizedFileName} \n");
         }
 
-        public static GameState LoadGame(string filePath)
+        public static GameState LoadGame(string characterName)
         {
-            if (File.Exists(filePath))
+            string sanitizedFileName = $"{characterName}_savefile.json".Replace(" ", "_").Replace(":", "_").Replace("/", "_");
+
+            if (File.Exists(sanitizedFileName))
             {
-                string jsonString = File.ReadAllText(filePath);
+                string jsonString = File.ReadAllText(sanitizedFileName);
 
                 var options = new JsonSerializerOptions
                 {
@@ -375,18 +379,24 @@ namespace ASP_NET_WEEK2_Homework_Roguelike
                 if (gameState != null)
                 {
                     gameState.PlayerCharacter.CurrentMap = gameState.Map;
-                    ItemFactory.LastGeneratedItemId = gameState.PlayerCharacter.Inventory.Max(i => i.ID);
 
-                    gameState.PlayerCharacter.UpdateAttack();
-                    gameState.PlayerCharacter.UpdateDefense();
-                    gameState.PlayerCharacter.UpdateWeight();
+                    if (gameState.PlayerCharacter.Inventory.Any())
+                    {
+                        ItemFactory.LastGeneratedItemId = gameState.PlayerCharacter.Inventory.Max(i => i.ID);
+                    }
+                    else
+                    {
+                        ItemFactory.LastGeneratedItemId = 0;
+                    }
+
+                    WriteLine($"Game loaded from {sanitizedFileName} \n");
                 }
 
                 return gameState;
             }
             else
             {
-                throw new FileNotFoundException("Save file not found.");
+                throw new FileNotFoundException($"Save file for character '{characterName}' not found.");
             }
         }
 
