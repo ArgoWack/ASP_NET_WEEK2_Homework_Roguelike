@@ -22,6 +22,9 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.ItemKinds
         }
 
         private static readonly Random _random = new Random();
+
+        // Static property to keep track of the last generated item ID.
+        // This ensures each item has a unique ID.
         public static int LastGeneratedItemId { get; set; } = 0;
 
         public static ItemQuality GetQuality(double percentage)
@@ -41,6 +44,8 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.ItemKinds
             var item = new T();
             var percentage = 0.0;
 
+            // Loop through each property of the item type (e.g., Weight, Attack, Defense).
+
             foreach (var property in typeof(T).GetProperties())
             {
                 if (property.PropertyType == typeof(int))
@@ -59,6 +64,7 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.ItemKinds
                 }
             }
 
+            // Set the item name based on its quality and type
             var itemTypeAttribute = typeof(T).GetCustomAttribute<ItemTypeAttribute>();
             if (itemTypeAttribute != null)
             {
@@ -71,6 +77,7 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.ItemKinds
 
         public static Item GenerateItem(Type itemType, int weight, int defense, int attack, int moneyWorth)
         {
+            // Create an instance of the item type.
             var item = (Item)Activator.CreateInstance(itemType);
             item.Weight = weight;
             item.Defense = defense;

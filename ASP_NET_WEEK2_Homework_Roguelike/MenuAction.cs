@@ -8,7 +8,6 @@ namespace ASP_NET_WEEK2_Homework_Roguelike
 {
     internal class MenuAction
     {
-        public string Ids { get; set; }
         public int Id { get; set; }
         public string Name { get; set; }
         public string MenuName { get; set; }

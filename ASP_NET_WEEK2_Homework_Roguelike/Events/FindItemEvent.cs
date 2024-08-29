@@ -22,6 +22,7 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Events
                 "Armor" => ItemFactory.GenerateItem<Armor>(),
                 "Boots" => ItemFactory.GenerateItem<Boots>(),
                 "Helmet" => ItemFactory.GenerateItem<Helmet>(),
+                "Gloves" => ItemFactory.GenerateItem<Gloves>(),
                 "HealthPotion" => ItemFactory.GenerateItem<HealthPotion>(),
                 "Shield" => ItemFactory.GenerateItem<Shield>(),
                 "Trousers" => ItemFactory.GenerateItem<Trousers>(),
