@@ -1,6 +1,7 @@
 ﻿using ASP_NET_WEEK2_Homework_Roguelike;
 using ASP_NET_WEEK2_Homework_Roguelike.Events;
 using ASP_NET_WEEK2_Homework_Roguelike.Items;
+using ASP_NET_WEEK2_Homework_Roguelike.Controller;
 using System.Diagnostics;
 using System.Numerics;
 using System.Runtime.CompilerServices;
@@ -17,6 +18,7 @@ PlayerCharacter playerCharacter = new PlayerCharacter();
 Map map = new Map();
 playerCharacter.CurrentMap = map;
 bool inGame = false;
+PlayerCharacterController playerController = new PlayerCharacterController(playerCharacter);
 
 do
 {
@@ -35,7 +37,7 @@ do
 
             // Save and continue to game loop
             playerCharacter.SaveGame();
-            inGame = true; // Set the flag to true to enter the in-game loop
+            inGame = true;
             break;
 
         case '2':
@@ -70,7 +72,11 @@ do
 
                     // Updating map
                     playerCharacter.CurrentMap = map;
-                    inGame = true; // Set the flag to true to enter the in-game loop
+
+                    // Aktualizacja kontrolera po załadowaniu nowej postaci
+                    playerController = new PlayerCharacterController(playerCharacter);
+
+                    inGame = true;
                 }
                 catch (FileNotFoundException ex)
                 {
@@ -84,12 +90,10 @@ do
             break;
 
         case '3':
-            // Displaying description of game and controls
-            WriteLine(description +"\n");
+            WriteLine(description + "\n");
             break;
 
         case '4':
-            // Quitting the game
             Environment.Exit(0);
             break;
 
@@ -98,7 +102,6 @@ do
             break;
     }
 
-    // Enter the in-game menu only if a game is started or loaded
     while (inGame)
     {
         operation = WriteMenuAndParseChar<char>("InGameMenu", "\nWhat would you like to do: a/w/s/d/e/q? \n");
@@ -106,37 +109,36 @@ do
         switch (operation.KeyChar)
         {
             case 'a':
-                TryMovePlayer(playerCharacter, map, "west");
+                playerController.MovePlayer("west", map);
                 break;
             case 'w':
-                TryMovePlayer(playerCharacter, map, "north");
+                playerController.MovePlayer("north", map);
                 break;
             case 's':
-                TryMovePlayer(playerCharacter, map, "south");
+                playerController.MovePlayer("south", map);
                 break;
             case 'd':
-                TryMovePlayer(playerCharacter, map, "east");
+                playerController.MovePlayer("east", map);
                 break;
             case 'm':
                 map.DisplayMap(playerCharacter);
                 break;
             case 'p':
-                playerCharacter.DisplayCharacterStats();
+                playerController.ShowCharacterStats();
                 break;
             case 'e':
+                playerController.ShowInventory();
                 char choice;
                 do
                 {
-                    playerCharacter.CheckInventory();
                     WriteLine(" \n Write:  \ne. Use some item \nd. Discard some item  \nl. Leave inventory");
-
                     char.TryParse(ReadLine(), out choice);
                     if (choice == 'e')
                     {
                         WriteLine(" \n Write ID of the item you'd like to use");
                         if (int.TryParse(ReadLine(), out int id))
                         {
-                            playerCharacter.EquipItem(id);
+                            playerController.EquipItem(id);
                         }
                         else
                         {
@@ -148,7 +150,7 @@ do
                         WriteLine(" \n Write ID of the item you'd like to discard");
                         if (int.TryParse(ReadLine(), out int id))
                         {
-                            playerCharacter.DiscardItem(id);
+                            playerController.DiscardItem(id);
                         }
                         else
                         {
@@ -159,9 +161,8 @@ do
                 while (choice != 'l');
                 break;
             case 'q':
-                // Save and return to main menu
                 playerCharacter.SaveGame();
-                inGame = false; // Set the flag to false to return to the main menu
+                inGame = false;
                 break;
             default:
                 WriteLine("\n Wrong input");
@@ -194,8 +195,6 @@ static void TryMovePlayer(PlayerCharacter player, Map map, string direction)
         WriteLine("\n You cannot move in that direction. There is no room.");
     }
 }
-
-
 
 static MenuActionService Initialize(MenuActionService actionService)
 {

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ASP_NET_WEEK2_Homework_Roguelike.Controller;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection.Emit;
@@ -96,6 +97,8 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Events
 
         private void ExecuteMerchantEvent(PlayerCharacter player)
         {
+            var playerController = new PlayerCharacterController(player);
+
             WriteLine("A merchant approaches you and shows his stock.");
 
             string choice;
@@ -110,7 +113,8 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Events
                 }
                 else if (choice == "s")
                 {
-                    player.CheckInventory();
+                    playerController.ShowInventory();
+
                     WriteLine("Enter the ID of the item you want to sell:");
                     if (int.TryParse(ReadLine(), out int itemId))
                     {

@@ -1,18 +1,14 @@
-﻿using ASP_NET_WEEK2_Homework_Roguelike.ItemKinds;
-using ASP_NET_WEEK2_Homework_Roguelike.Items;
+﻿using ASP_NET_WEEK2_Homework_Roguelike.Items;
+using ASP_NET_WEEK2_Homework_Roguelike.ItemKinds;
+using ASP_NET_WEEK2_Homework_Roguelike.Events;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using static System.Console;
 using System.Text.Json;
 using System.IO;
+using static System.Console;
 using System.Text.Json.Serialization;
-using System.Collections;
-using System.Reflection.Emit;
-using System.Xml.Linq;
 
 namespace ASP_NET_WEEK2_Homework_Roguelike
 {
@@ -110,52 +106,6 @@ namespace ASP_NET_WEEK2_Homework_Roguelike
             UpdateWeight();
         }
 
-        public void DisplayCharacterStats()
-        {
-            UpdateWeight();
-            UpdateAttack();
-            UpdateDefense();
-
-            var equippedItems = new Dictionary<string, Item>
-        {
-            { "Amulet", EquippedAmulet },
-            { "Armor", EquippedArmor },
-            { "Boots", EquippedBoots },
-            { "Gloves", EquippedGloves },
-            { "Helmet", EquippedHelmet },
-            { "Shield", EquippedShield },
-            { "SwordOneHanded", EquippedSwordOneHanded },
-            { "SwordTwoHanded", EquippedSwordTwoHanded },
-            { "Trousers", EquippedTrousers }
-        };
-
-            WriteLine($@"
-            Character name: {Name}
-            Attack: {Attack}
-            Defense: {Defense}
-            Speed: {Speed}
-            Weight: {Weight}
-            Money: {Money}
-            Health: {Health}
-            Level: {Level}
-            Experience: {Experience}");
-
-            foreach (var equippedItem in equippedItems)
-            {
-                if (equippedItem.Value != null)
-                {
-                    WriteLine($@"
-                Equipped {equippedItem.Key}: {equippedItem.Value.Name ?? "None"} 
-                  ID: {equippedItem.Value.ID}, Defense: {equippedItem.Value.Defense}, Attack: {equippedItem.Value.Attack}, Weight: {equippedItem.Value.Weight}, Money worth: {equippedItem.Value.MoneyWorth}, Description: {equippedItem.Value.Description}");
-                }
-                else
-                {
-                    WriteLine($@"
-                Equipped {equippedItem.Key}: None");
-                }
-            }
-        }
-
         public void MovePlayer(string direction, Map map)
         {
             Room newRoom = map.MovePlayer(ref currentX, ref currentY, direction);
@@ -218,8 +168,7 @@ namespace ASP_NET_WEEK2_Homework_Roguelike
             var item = Inventory.FirstOrDefault(i => i.ID == itemId);
             if (item == null)
             {
-                WriteLine("Item not found in inventory.");
-                return;
+                throw new InvalidOperationException("Item not found in inventory.");
             }
 
             var itemType = item.GetType();
@@ -227,42 +176,34 @@ namespace ASP_NET_WEEK2_Homework_Roguelike
 
             if (itemTypeAttribute != null)
             {
-                try
+                if (item is SwordTwoHanded)
                 {
-                    if (item is SwordTwoHanded)
-                    {
-                        UnequipItem(typeof(SwordOneHanded));
-                        UnequipItem(typeof(Shield));
-                    }
-                    else if (item is SwordOneHanded || item is Shield)
-                    {
-                        UnequipItem(typeof(SwordTwoHanded));
-                    }
-
-                    UnequipItem(itemType);
-
-                    var property = GetType().GetProperty($"Equipped{itemTypeAttribute.Kind}");
-                    if (property != null)
-                    {
-                        property.SetValue(this, item);
-                        UpdateWeight();
-                        UpdateAttack();
-                        UpdateDefense();
-                        WriteLine($"You have equipped {item.Name}.");
-                    }
-                    else
-                    {
-                        WriteLine($"No equipped property found for {itemTypeAttribute.Kind}");
-                    }
+                    UnequipItem(typeof(SwordOneHanded));
+                    UnequipItem(typeof(Shield));
                 }
-                catch (InvalidOperationException ex)
+                else if (item is SwordOneHanded || item is Shield)
                 {
-                    WriteLine($"Error equipping item: {ex.Message}");
+                    UnequipItem(typeof(SwordTwoHanded));
+                }
+
+                UnequipItem(itemType);
+
+                var property = GetType().GetProperty($"Equipped{itemTypeAttribute.Kind}");
+                if (property != null)
+                {
+                    property.SetValue(this, item);
+                    UpdateWeight();
+                    UpdateAttack();
+                    UpdateDefense();
+                }
+                else
+                {
+                    throw new InvalidOperationException($"No equipped property found for {itemTypeAttribute.Kind}");
                 }
             }
             else
             {
-                WriteLine("Item type not supported.");
+                throw new InvalidOperationException("Item type not supported.");
             }
         }
 
@@ -301,11 +242,9 @@ namespace ASP_NET_WEEK2_Homework_Roguelike
         public void DiscardItem(int itemId)
         {
             var item = Inventory.FirstOrDefault(i => i.ID == itemId);
-
             if (item == null)
             {
-                WriteLine("Item not found in inventory.");
-                return;
+                throw new InvalidOperationException("Item not found in inventory.");
             }
 
             Inventory.Remove(item);
@@ -323,10 +262,7 @@ namespace ASP_NET_WEEK2_Homework_Roguelike
             UpdateWeight();
             UpdateAttack();
             UpdateDefense();
-
-            WriteLine($"Item '{item.Name}' has been discarded.");
         }
-
         public void HealByPotion(HealthPotion healthPotion)
         {
             Heal(healthPotion.MoneyWorth);
@@ -348,15 +284,6 @@ namespace ASP_NET_WEEK2_Homework_Roguelike
                 Health = HealthLimit;
                 UpdateAttack();
                 UpdateDefense();
-            }
-        }
-
-        public void CheckInventory()
-        {
-            WriteLine(" \n Here is your inventory: ");
-            foreach (Item item in Inventory)
-            {
-                WriteLine($"This is: {item.Name} ID: {item.ID} Defense: {item.Defense} Attack: {item.Attack} Weight: {item.Weight} Money worth: {item.MoneyWorth} Description: {item.Description}");
             }
         }
 
@@ -421,7 +348,6 @@ namespace ASP_NET_WEEK2_Homework_Roguelike
             }
         }
 
-        // Methods to apply buffs/debuffs
         public void ModifySpeed(float amount)
         {
             speedModifier += amount;
