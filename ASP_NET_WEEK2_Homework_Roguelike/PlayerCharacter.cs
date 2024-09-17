@@ -112,6 +112,10 @@ namespace ASP_NET_WEEK2_Homework_Roguelike
 
         public void DisplayCharacterStats()
         {
+            UpdateWeight();
+            UpdateAttack();
+            UpdateDefense();
+
             var equippedItems = new Dictionary<string, Item>
         {
             { "Amulet", EquippedAmulet },
