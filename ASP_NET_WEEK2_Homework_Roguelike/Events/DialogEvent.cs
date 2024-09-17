@@ -1,41 +1,36 @@
 ﻿using ASP_NET_WEEK2_Homework_Roguelike.Controller;
+using ASP_NET_WEEK2_Homework_Roguelike.View;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection.Emit;
-using System.Text;
-using System.Threading.Tasks;
 using static System.Console;
 
 namespace ASP_NET_WEEK2_Homework_Roguelike.Events
 {
     public class DialogEvent : RandomEvent
     {
-        public override void Execute(PlayerCharacter player, Room room)
+        public override void Execute(PlayerCharacter player, Room room, PlayerCharacterController controller)
         {
-            // Generate a random event type
             string eventType = GetRandomEventType();
+            controller.View.ShowEventEncounter(eventType);
 
             switch (eventType)
             {
                 case "WiseTraveler":
-                    ExecuteWiseTravelerEvent(player);
+                    controller.View.ShowEventOutcome(ExecuteWiseTravelerEvent(player));
                     break;
                 case "Monk":
-                    ExecuteMonkEvent(player);
+                    controller.View.ShowEventOutcome(ExecuteMonkEvent(player));
                     break;
                 case "Witch":
-                    ExecuteWitchEvent(player);
+                    controller.View.ShowEventOutcome(ExecuteWitchEvent(player));
                     break;
                 case "Merchant":
-                    ExecuteMerchantEvent(player);
+                    ExecuteMerchantEvent(player, controller);
                     break;
                 default:
-                    WriteLine("You encounter a mysterious stranger who says nothing and disappears.");
+                    controller.View.ShowEventOutcome("You encounter a mysterious stranger who says nothing and disappears.");
                     break;
             }
 
-            // Mark the event as completed
             room.EventStatus = "none";
         }
 
@@ -46,61 +41,47 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Events
             return eventTypes[random.Next(eventTypes.Length)];
         }
 
-        private void ExecuteWiseTravelerEvent(PlayerCharacter player)
+        private string ExecuteWiseTravelerEvent(PlayerCharacter player)
         {
-            WriteLine("You encounter a wise traveler who offers you advice.");
-
-            // Randomly select a buff to apply
             var random = new Random();
             int buffType = random.Next(4);
 
             switch (buffType)
             {
                 case 0:
-                    WriteLine("You have a meaningful conversation and gain wisdom.");
-                    WriteLine("You get 200 experience.");
                     player.Experience += 200;
-                    break;
+                    return "You have a meaningful conversation and gain wisdom. You get 200 experience.";
                 case 1:
-                    WriteLine("You are taught how to move swiftly.");
-                    WriteLine("Your speed improves by 5.");
                     player.ModifySpeed(5);
-                    break;
+                    return "You are taught how to move swiftly. Your speed improves by 5.";
                 case 2:
-                    WriteLine("You are taught how to attack better.");
-                    WriteLine("Your attack improves by 5.");
                     player.ModifyAttack(5);
-                    break;
+                    return "You are taught how to attack better. Your attack improves by 5.";
                 case 3:
-                    WriteLine("You are taught how to defend better.");
-                    WriteLine("Your defense improves by 5.");
                     player.ModifyDefense(5);
-                    break;
+                    return "You are taught how to defend better. Your defense improves by 5.";
+                default:
+                    return "";
             }
         }
 
-        private void ExecuteMonkEvent(PlayerCharacter player)
+        private string ExecuteMonkEvent(PlayerCharacter player)
         {
-            WriteLine("A monk approaches you and heals your wounds fully.");
-            player.Heal(1000); //assuming 1000 should be more than enaugh
+            player.Heal(1000); // assuming 1000 should be more than enough
+            return "A monk approaches you and heals your wounds fully.";
         }
 
-        private void ExecuteWitchEvent(PlayerCharacter player)
+        private string ExecuteWitchEvent(PlayerCharacter player)
         {
-            WriteLine("You got cursed by the witch.");
-            WriteLine("Your health gets drained to half, and your speed, attack, and defense get reduced by 2.");
             player.Health = player.Health / 2;
             player.ModifySpeed(-2);
             player.ModifyAttack(-2);
             player.ModifyDefense(-2);
+            return "You got cursed by the witch. Your health gets drained to half, and your speed, attack, and defense get reduced by 2.";
         }
 
-        private void ExecuteMerchantEvent(PlayerCharacter player)
+        private void ExecuteMerchantEvent(PlayerCharacter player, PlayerCharacterController controller)
         {
-            var playerController = new PlayerCharacterController(player);
-
-            WriteLine("A merchant approaches you and shows his stock.");
-
             string choice;
             do
             {
@@ -113,7 +94,7 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Events
                 }
                 else if (choice == "s")
                 {
-                    playerController.ShowInventory();
+                    controller.ShowInventory();
 
                     WriteLine("Enter the ID of the item you want to sell:");
                     if (int.TryParse(ReadLine(), out int itemId))

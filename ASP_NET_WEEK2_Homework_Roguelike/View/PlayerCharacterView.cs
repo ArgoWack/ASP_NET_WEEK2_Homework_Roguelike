@@ -39,17 +39,16 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.View
                 if (equippedItem.Value != null)
                 {
                     WriteLine($@"
-                Equipped {equippedItem.Key}: {equippedItem.Value.Name ?? "None"} 
-                  ID: {equippedItem.Value.ID}, Defense: {equippedItem.Value.Defense}, Attack: {equippedItem.Value.Attack}, Weight: {equippedItem.Value.Weight}, Money worth: {equippedItem.Value.MoneyWorth}, Description: {equippedItem.Value.Description}");
+                    Equipped {equippedItem.Key}: {equippedItem.Value.Name ?? "None"} 
+                    ID: {equippedItem.Value.ID}, Defense: {equippedItem.Value.Defense}, Attack: {equippedItem.Value.Attack}, Weight: {equippedItem.Value.Weight}, Money worth: {equippedItem.Value.MoneyWorth}, Description: {equippedItem.Value.Description}");
                 }
                 else
                 {
                     WriteLine($@"
-                Equipped {equippedItem.Key}: None");
+                    Equipped {equippedItem.Key}: None");
                 }
             }
         }
-
         public void DisplayInventory(PlayerCharacter player)
         {
             WriteLine(" \n Here is your inventory: ");
@@ -62,10 +61,25 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.View
         {
             WriteLine($"You have equipped {itemName}.");
         }
-
         public void ShowDiscardItemSuccess(string itemName)
         {
             WriteLine($"Item '{itemName}' has been discarded.");
+        }
+        public void ShowPlayerMovement(string direction, int currentX, int currentY)
+        {
+            WriteLine($"Moved {direction}. Current position: ({currentX}, {currentY})");
+        }
+        public void ShowEventEncounter(string eventType)
+        {
+            WriteLine($"You encounter a {eventType}!");
+        }
+        public void ShowEventOutcome(string outcome)
+        {
+            WriteLine(outcome);
+        }
+        public void ShowError(string message)
+        {
+            WriteLine($"Error: {message}");
         }
     }
 }

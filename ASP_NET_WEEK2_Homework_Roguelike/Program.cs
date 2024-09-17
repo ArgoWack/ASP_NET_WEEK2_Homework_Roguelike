@@ -109,69 +109,49 @@ do
         switch (operation.KeyChar)
         {
             case 'a':
-                playerController.MovePlayer("west", map);
+                TryMovePlayer(playerCharacter, map, "west", playerController);
                 break;
             case 'w':
-                playerController.MovePlayer("north", map);
+                TryMovePlayer(playerCharacter, map, "north", playerController);
                 break;
             case 's':
-                playerController.MovePlayer("south", map);
+                TryMovePlayer(playerCharacter, map, "south", playerController);
                 break;
             case 'd':
-                playerController.MovePlayer("east", map);
+                TryMovePlayer(playerCharacter, map, "east", playerController);
                 break;
             case 'm':
-                map.DisplayMap(playerCharacter);
+                map.DisplayMap(playerCharacter); // Display the map using map's method
                 break;
             case 'p':
-                playerController.ShowCharacterStats();
+                playerController.ShowCharacterStats(); // Show player stats using controller
                 break;
             case 'e':
-                playerController.ShowInventory();
-                char choice;
-                do
-                {
-                    WriteLine(" \n Write:  \ne. Use some item \nd. Discard some item  \nl. Leave inventory");
-                    char.TryParse(ReadLine(), out choice);
-                    if (choice == 'e')
-                    {
-                        WriteLine(" \n Write ID of the item you'd like to use");
-                        if (int.TryParse(ReadLine(), out int id))
-                        {
-                            playerController.EquipItem(id);
-                        }
-                        else
-                        {
-                            WriteLine("\nInvalid ID.\n");
-                        }
-                    }
-                    if (choice == 'd')
-                    {
-                        WriteLine(" \n Write ID of the item you'd like to discard");
-                        if (int.TryParse(ReadLine(), out int id))
-                        {
-                            playerController.DiscardItem(id);
-                        }
-                        else
-                        {
-                            WriteLine("\nInvalid ID.\n");
-                        }
-                    }
-                }
-                while (choice != 'l');
+                playerController.ShowInventory(); // Show inventory using controller
                 break;
             case 'q':
-                playerCharacter.SaveGame();
+                playerCharacter.SaveGame(); // Save the game and exit to main menu
                 inGame = false;
                 break;
             default:
                 WriteLine("\n Wrong input");
                 break;
         }
+
+        // Check if there is an event in the new room
+        Room currentRoom = map.GetDiscoveredRoom(playerCharacter.CurrentX, playerCharacter.CurrentY);
+        if (currentRoom != null && currentRoom.EventStatus != "none")
+        {
+            RandomEvent randomEvent = EventGenerator.GenerateEvent(currentRoom.EventStatus);
+            if (randomEvent != null)
+            {
+                playerController.HandleEvent(randomEvent, currentRoom); // Handle event using controller
+            }
+        }
     }
 } while (operation.KeyChar != '4'); // Exit only when 4 is chosen
 
-static void TryMovePlayer(PlayerCharacter player, Map map, string direction)
+static void TryMovePlayer(PlayerCharacter player, Map map, string direction, PlayerCharacterController controller)
 {
     int currentX = player.CurrentX;
     int currentY = player.CurrentY;
@@ -187,7 +167,7 @@ static void TryMovePlayer(PlayerCharacter player, Map map, string direction)
         if (newRoom.EventStatus != "none")
         {
             RandomEvent roomEvent = EventGenerator.GenerateEvent(newRoom.EventStatus);
-            roomEvent?.Execute(player, newRoom);
+            roomEvent?.Execute(player, newRoom, controller); 
         }
     }
     else
@@ -195,6 +175,7 @@ static void TryMovePlayer(PlayerCharacter player, Map map, string direction)
         WriteLine("\n You cannot move in that direction. There is no room.");
     }
 }
+
 
 static MenuActionService Initialize(MenuActionService actionService)
 {

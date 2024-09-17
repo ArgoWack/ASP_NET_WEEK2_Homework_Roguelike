@@ -109,7 +109,6 @@ namespace ASP_NET_WEEK2_Homework_Roguelike
         public void MovePlayer(string direction, Map map)
         {
             Room newRoom = map.MovePlayer(ref currentX, ref currentY, direction);
-            WriteLine($"Moved {direction}. Current position: ({CurrentX}, {CurrentY})");
         }
 
         private void UpdateWeight()

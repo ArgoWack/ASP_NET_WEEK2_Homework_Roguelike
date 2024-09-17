@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ASP_NET_WEEK2_Homework_Roguelike.Controller;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,6 +9,6 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Events
 {
     public abstract class RandomEvent
     {
-        public abstract void Execute(PlayerCharacter player, Room room);
+        public abstract void Execute(PlayerCharacter player, Room room, PlayerCharacterController controller);
     }
 }
