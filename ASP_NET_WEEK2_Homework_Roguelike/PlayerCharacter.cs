@@ -111,7 +111,7 @@ namespace ASP_NET_WEEK2_Homework_Roguelike
             Room newRoom = map.MovePlayer(ref currentX, ref currentY, direction);
         }
 
-        private void UpdateWeight()
+        public void UpdateWeight()
         {
             Weight = CheckWeight();
         }
@@ -126,7 +126,7 @@ namespace ASP_NET_WEEK2_Homework_Roguelike
             return totalWeight;
         }
 
-        private void UpdateAttack()
+        public void UpdateAttack()
         {
             baseAttack = CheckAttack();
         }
@@ -144,7 +144,7 @@ namespace ASP_NET_WEEK2_Homework_Roguelike
                     (EquippedSwordTwoHanded?.Attack ?? 0));
         }
 
-        private void UpdateDefense()
+        public void UpdateDefense()
         {
             baseDefense = CheckDefense();
         }

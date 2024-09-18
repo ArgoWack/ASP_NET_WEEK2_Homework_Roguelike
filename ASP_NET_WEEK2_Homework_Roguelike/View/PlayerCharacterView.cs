@@ -8,53 +8,60 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.View
 {
     public class PlayerCharacterView
     {
-        public void DisplayCharacterStats(PlayerCharacter player)
+        public void ShowCharacterStats(PlayerCharacter player)
         {
-            var equippedItems = new Dictionary<string, Item>
-            {
-                { "Amulet", player.EquippedAmulet },
-                { "Armor", player.EquippedArmor },
-                { "Boots", player.EquippedBoots },
-                { "Gloves", player.EquippedGloves },
-                { "Helmet", player.EquippedHelmet },
-                { "Shield", player.EquippedShield },
-                { "SwordOneHanded", player.EquippedSwordOneHanded },
-                { "SwordTwoHanded", player.EquippedSwordTwoHanded },
-                { "Trousers", player.EquippedTrousers }
-            };
-
             WriteLine($@"
-            Character name: {player.Name}
-            Attack: {player.Attack}
-            Defense: {player.Defense}
-            Speed: {player.Speed}
-            Weight: {player.Weight}
-            Money: {player.Money}
-            Health: {player.Health}
-            Level: {player.Level}
-            Experience: {player.Experience}");
+        Character name: {player.Name}
+        Attack: {player.Attack}
+        Defense: {player.Defense}
+        Speed: {player.Speed}
+        Weight: {player.Weight}
+        Money: {player.Money}
+        Health: {player.Health}
+        Level: {player.Level}
+        Experience: {player.Experience}
+        ");
+
+            var equippedItems = new Dictionary<string, Item>
+        {
+            { "Amulet", player.EquippedAmulet },
+            { "Armor", player.EquippedArmor },
+            { "Boots", player.EquippedBoots },
+            { "Gloves", player.EquippedGloves },
+            { "Helmet", player.EquippedHelmet },
+            { "Shield", player.EquippedShield },
+            { "SwordOneHanded", player.EquippedSwordOneHanded },
+            { "SwordTwoHanded", player.EquippedSwordTwoHanded },
+            { "Trousers", player.EquippedTrousers }
+        };
 
             foreach (var equippedItem in equippedItems)
             {
                 if (equippedItem.Value != null)
                 {
                     WriteLine($@"
-                    Equipped {equippedItem.Key}: {equippedItem.Value.Name ?? "None"} 
-                    ID: {equippedItem.Value.ID}, Defense: {equippedItem.Value.Defense}, Attack: {equippedItem.Value.Attack}, Weight: {equippedItem.Value.Weight}, Money worth: {equippedItem.Value.MoneyWorth}, Description: {equippedItem.Value.Description}");
+                Equipped {equippedItem.Key}: {equippedItem.Value.Name ?? "None"} 
+                  ID: {equippedItem.Value.ID}, Defense: {equippedItem.Value.Defense}, Attack: {equippedItem.Value.Attack}, Weight: {equippedItem.Value.Weight}, Money worth: {equippedItem.Value.MoneyWorth}, Description: {equippedItem.Value.Description}");
                 }
                 else
                 {
                     WriteLine($@"
-                    Equipped {equippedItem.Key}: None");
+                Equipped {equippedItem.Key}: None");
                 }
             }
         }
         public void DisplayInventory(PlayerCharacter player)
         {
-            WriteLine(" \n Here is your inventory: ");
+            WriteLine(" \nHere is your inventory: ");
+            if (!player.Inventory.Any())
+            {
+                WriteLine("Your inventory is empty.");
+                return;
+            }
+
             foreach (Item item in player.Inventory)
             {
-                WriteLine($"This is: {item.Name} ID: {item.ID} Defense: {item.Defense} Attack: {item.Attack} Weight: {item.Weight} Money worth: {item.MoneyWorth} Description: {item.Description}");
+                WriteLine($"Item: {item.Name} | ID: {item.ID} | Defense: {item.Defense} | Attack: {item.Attack} | Weight: {item.Weight} | Value: {item.MoneyWorth} coins");
             }
         }
         public void ShowEquipItemSuccess(string itemName)

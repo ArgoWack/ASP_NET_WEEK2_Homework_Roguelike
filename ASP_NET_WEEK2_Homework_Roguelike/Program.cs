@@ -123,7 +123,7 @@ do
                 map.DisplayMap(playerCharacter); // Display the map using map's method
                 break;
             case 'p':
-                playerController.ShowCharacterStats(); // Show player stats using controller
+                playerController.ShowCharacterStats();
                 break;
             case 'e':
                 char choice;
@@ -161,8 +161,8 @@ do
                 while (choice != 'l');
                 break;
             case 'q':
-                playerCharacter.SaveGame(); // Save the game and exit to main menu
-                inGame = false;
+                playerCharacter.SaveGame(); // Save the game
+                inGame = false; // Exit the game loop
                 break;
             default:
                 WriteLine("\n Wrong input");
