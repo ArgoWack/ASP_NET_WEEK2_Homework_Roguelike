@@ -81,5 +81,13 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.View
         {
             WriteLine($"Error: {message}");
         }
+        public void ShowBuyHealthPotionSuccess()
+        {
+            WriteLine("You bought a health potion for 40 coins.");
+        }
+        public void ShowSellItemSuccess(string itemName, int price)
+        {
+            WriteLine($"You sold {itemName} for {price} coins.");
+        }
     }
 }

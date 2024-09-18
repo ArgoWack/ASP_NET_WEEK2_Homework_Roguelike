@@ -54,16 +54,18 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Events
             {
                 WriteLine("You defeated the monster!");
                 RewardPlayer(player, monster, controller);
-                room.EventStatus = "none";
             }
 
             if (player.Health <= 0)
             {
-                // When lost the game closes giving 5s prior to read message
+                // Game over scenario
                 WriteLine("You have been defeated by the monster...");
                 Thread.Sleep(5000);
                 Environment.Exit(0);
             }
+
+            // Clear the event after execution
+            room.EventStatus = "none";
         }
 
         private Monster GenerateRandomMonster()

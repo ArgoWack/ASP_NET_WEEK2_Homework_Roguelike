@@ -205,7 +205,6 @@ namespace ASP_NET_WEEK2_Homework_Roguelike
                 throw new InvalidOperationException("Item type not supported.");
             }
         }
-
         public void UnequipItem(Type itemType)
         {
             var itemTypeAttribute = itemType.GetCustomAttribute<ItemTypeAttribute>();
@@ -241,6 +240,7 @@ namespace ASP_NET_WEEK2_Homework_Roguelike
         public void DiscardItem(int itemId)
         {
             var item = Inventory.FirstOrDefault(i => i.ID == itemId);
+
             if (item == null)
             {
                 throw new InvalidOperationException("Item not found in inventory.");
@@ -367,8 +367,7 @@ namespace ASP_NET_WEEK2_Homework_Roguelike
             var item = Inventory.FirstOrDefault(i => i.ID == itemId);
             if (item == null)
             {
-                WriteLine("Item not found in inventory.");
-                return;
+                throw new InvalidOperationException("Item not found in inventory.");
             }
 
             Money += item.MoneyWorth;
@@ -377,17 +376,13 @@ namespace ASP_NET_WEEK2_Homework_Roguelike
             UpdateWeight();
             UpdateAttack();
             UpdateDefense();
-
-            WriteLine($"You sold {item.Name} for {item.MoneyWorth} coins.");
         }
 
         public void BuyHealthPotion()
         {
-
             if (Money < 40)
             {
-                WriteLine("You don't have enough money to buy a health potion.");
-                return;
+                throw new InvalidOperationException("You don't have enough money to buy a health potion.");
             }
 
             Money -= 40;
@@ -395,7 +390,6 @@ namespace ASP_NET_WEEK2_Homework_Roguelike
             Inventory.Add(healthPotion);
 
             UpdateWeight();
-            WriteLine($"You bought a health potion for {40} coins.");
         }
     }
 }

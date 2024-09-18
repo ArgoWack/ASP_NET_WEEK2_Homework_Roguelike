@@ -73,7 +73,6 @@ do
                     // Updating map
                     playerCharacter.CurrentMap = map;
 
-                    // Aktualizacja kontrolera po załadowaniu nowej postaci
                     playerController = new PlayerCharacterController(playerCharacter);
 
                     inGame = true;
@@ -127,7 +126,39 @@ do
                 playerController.ShowCharacterStats(); // Show player stats using controller
                 break;
             case 'e':
-                playerController.ShowInventory(); // Show inventory using controller
+                char choice;
+                do
+                {
+                    playerController.ShowInventory(); 
+                    WriteLine(" \n Write:  \ne. Use some item \nd. Discard some item  \nl. Leave inventory");
+
+                    char.TryParse(ReadLine(), out choice);
+                    if (choice == 'e')
+                    {
+                        WriteLine(" \n Write ID of the item you'd like to use");
+                        if (int.TryParse(ReadLine(), out int id))
+                        {
+                            playerController.EquipItem(id);
+                        }
+                        else
+                        {
+                            WriteLine("\nInvalid ID.\n");
+                        }
+                    }
+                    else if (choice == 'd')
+                    {
+                        WriteLine(" \n Write ID of the item you'd like to discard");
+                        if (int.TryParse(ReadLine(), out int id))
+                        {
+                            playerController.DiscardItem(id);
+                        }
+                        else
+                        {
+                            WriteLine("\nInvalid ID.\n");
+                        }
+                    }
+                }
+                while (choice != 'l');
                 break;
             case 'q':
                 playerCharacter.SaveGame(); // Save the game and exit to main menu
@@ -167,7 +198,7 @@ static void TryMovePlayer(PlayerCharacter player, Map map, string direction, Pla
         if (newRoom.EventStatus != "none")
         {
             RandomEvent roomEvent = EventGenerator.GenerateEvent(newRoom.EventStatus);
-            roomEvent?.Execute(player, newRoom, controller); 
+            roomEvent?.Execute(player, newRoom, controller);
         }
     }
     else

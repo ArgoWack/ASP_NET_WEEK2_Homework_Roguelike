@@ -31,6 +31,7 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Events
                     break;
             }
 
+            // Clear the event after execution
             room.EventStatus = "none";
         }
 
@@ -85,21 +86,21 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Events
             string choice;
             do
             {
+                controller.ShowInventory();
+
                 WriteLine("\nWrite: \nb. Buy health potion for 40 \ns. Sell an item \nl. Leave");
                 choice = ReadLine().ToLower();
 
                 if (choice == "b")
                 {
-                    player.BuyHealthPotion();
+                    controller.BuyHealthPotion();
                 }
                 else if (choice == "s")
                 {
-                    controller.ShowInventory();
-
                     WriteLine("Enter the ID of the item you want to sell:");
                     if (int.TryParse(ReadLine(), out int itemId))
                     {
-                        player.SellItem(itemId);
+                        controller.SellItem(itemId);
                     }
                     else
                     {
@@ -115,5 +116,6 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Events
 
             WriteLine("The merchant nods and moves on.");
         }
+
     }
 }

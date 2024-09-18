@@ -20,10 +20,6 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Controller
             View.DisplayCharacterStats(_playerCharacter);
         }
 
-        public void ShowInventory()
-        {
-            View.DisplayInventory(_playerCharacter);
-        }
         public void EquipItem(int itemId)
         {
             try
@@ -40,6 +36,7 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Controller
                 View.ShowError(ex.Message);
             }
         }
+
         public void DiscardItem(int itemId)
         {
             try
@@ -56,6 +53,11 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Controller
                 View.ShowError(ex.Message);
             }
         }
+
+        public void ShowInventory()
+        {
+            View.DisplayInventory(_playerCharacter);
+        }
         public void MovePlayer(string direction, Map map)
         {
             _playerCharacter.MovePlayer(direction, map);
@@ -64,6 +66,35 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Controller
         public void HandleEvent(RandomEvent randomEvent, Room room)
         {
             randomEvent.Execute(_playerCharacter, room, this);
+        }
+
+        public void BuyHealthPotion()
+        {
+            try
+            {
+                _playerCharacter.BuyHealthPotion();
+                View.ShowEventOutcome("You bought a health potion for 40 coins.");
+            }
+            catch (InvalidOperationException ex)
+            {
+                View.ShowError(ex.Message);
+            }
+        }
+        public void SellItem(int itemId)
+        {
+            try
+            {
+                var item = _playerCharacter.Inventory.FirstOrDefault(i => i.ID == itemId);
+                if (item != null)
+                {
+                    _playerCharacter.SellItem(itemId);
+                    View.ShowEventOutcome($"You sold {item.Name} for {item.MoneyWorth} coins.");
+                }
+            }
+            catch (InvalidOperationException ex)
+            {
+                View.ShowError(ex.Message);
+            }
         }
     }
 }

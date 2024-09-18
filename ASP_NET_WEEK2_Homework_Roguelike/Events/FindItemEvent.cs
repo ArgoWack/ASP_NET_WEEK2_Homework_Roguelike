@@ -10,7 +10,7 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Events
     {
         public override void Execute(PlayerCharacter player, Room room, PlayerCharacterController controller)
         {
-            var item = ItemFactory.GenerateItem<SwordOneHanded>(); // Example item generation
+            var item = ItemFactory.GenerateItem<SwordOneHanded>();
             controller.View.ShowEventOutcome($"You have found an item: {item.Name}. Would you like to take it? (y/n)");
 
             string choice = ReadLine();
@@ -18,12 +18,14 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Events
             {
                 player.Inventory.Add(item);
                 controller.View.ShowEventOutcome($"You have taken the item: {item.Name}.");
-                room.EventStatus = "none";
             }
             else
             {
                 controller.View.ShowEventOutcome($"You have left the item: {item.Name}.");
             }
+
+            // Clear the event after execution
+            room.EventStatus = "none";
         }
     }
 }
