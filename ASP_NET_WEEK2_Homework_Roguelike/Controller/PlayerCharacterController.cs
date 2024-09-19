@@ -13,6 +13,7 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Controller
         private readonly PlayerCharacterView _view;
         private readonly Map _map;
 
+        public PlayerCharacterView View => _view;
         public PlayerCharacterController(PlayerCharacter playerCharacter, Map map)
         {
             _playerCharacter = playerCharacter;
@@ -50,15 +51,13 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Controller
             var currentX = _playerCharacter.CurrentX;
             var currentY = _playerCharacter.CurrentY;
 
-            // Get the current room
             Room currentRoom = _map.GetDiscoveredRoom(currentX, currentY);
 
             if (currentRoom != null && currentRoom.Exits.ContainsKey(direction))
             {
-                _playerCharacter.MovePlayer(direction, _map); // Move the player
+                _playerCharacter.MovePlayer(direction, _map);
                 Room newRoom = _map.GetDiscoveredRoom(_playerCharacter.CurrentX, _playerCharacter.CurrentY);
 
-                // Handle any event in the new room
                 if (newRoom.EventStatus != "none")
                 {
                     RandomEvent roomEvent = EventGenerator.GenerateEvent(newRoom.EventStatus);
@@ -67,7 +66,7 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Controller
             }
             else
             {
-                _view.ShowError("\nYou cannot move in that direction. There is no room.");
+                _view.ShowErrorCannotMove();
             }
         }
 
@@ -131,6 +130,7 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Controller
                 _view.ShowError(ex.Message);
             }
         }
+
         public void SellItem(int itemId)
         {
             try

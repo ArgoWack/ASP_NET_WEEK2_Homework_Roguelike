@@ -93,8 +93,7 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Events
             {
                 controller.ShowInventory();
 
-                WriteLine("\nWrite: \nb. Buy health potion for 40 \ns. Sell an item \nl. Leave");
-                choice = ReadLine().ToLower();
+                choice = controller.View.ShowMerchantOptions();
 
                 if (choice == "b")
                 {
@@ -102,24 +101,24 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Events
                 }
                 else if (choice == "s")
                 {
-                    WriteLine("Enter the ID of the item you want to sell:");
-                    if (int.TryParse(ReadLine(), out int itemId))
+                    int? itemId = controller.View.PromptForItemIdToSell();
+                    if (itemId.HasValue)
                     {
-                        controller.SellItem(itemId);
+                        controller.SellItem(itemId.Value);
                     }
                     else
                     {
-                        WriteLine("Invalid item ID.");
+                        controller.View.ShowErrorInvalidItemId();
                     }
                 }
                 else if (choice != "l")
                 {
-                    WriteLine("Invalid choice. Please choose 'b', 's', or 'l'.");
+                    controller.View.ShowErrorInvalidChoice();
                 }
 
             } while (choice != "l");
 
-            WriteLine("The merchant nods and moves on.");
+            controller.View.ShowMerchantLeaveMessage();
         }
 
     }

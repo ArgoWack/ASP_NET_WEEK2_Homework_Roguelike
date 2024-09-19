@@ -13,9 +13,9 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Events
         {
             var item = ItemFactory.GenerateItem<SwordOneHanded>();
 
-            controller.HandleEventOutcome($"You have found an item: {item.Name}. Would you like to take it? (y/n)");
+            controller.HandleEventOutcome($"You have found an item: {item.Name}.");
+            string choice = controller.View.PromptForItemPickup();
 
-            string choice = ReadLine();
             if (choice.ToLower() == "y")
             {
                 player.Inventory.Add(item);
@@ -26,7 +26,6 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Events
                 controller.HandleEventOutcome($"You have left the item: {item.Name}.");
             }
 
-            // Clear the event after execution
             room.EventStatus = "none";
         }
     }

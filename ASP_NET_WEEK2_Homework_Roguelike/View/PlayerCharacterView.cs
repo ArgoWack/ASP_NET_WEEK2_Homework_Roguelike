@@ -162,5 +162,53 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.View
         {
             WriteLine($"You sold {itemName} for {price} coins.");
         }
+        public void ShowErrorCannotMove()
+        {
+            WriteLine("\nYou cannot move in that direction. There is no room.");
+        }
+        public string ShowMerchantOptions()
+        {
+            WriteLine("\nWrite: \nb. Buy health potion for 40 \ns. Sell an item \nl. Leave");
+            return ReadLine().ToLower();
+        }
+
+        public int? PromptForItemIdToSell()
+        {
+            WriteLine("Enter the ID of the item you want to sell:");
+            if (int.TryParse(ReadLine(), out int itemId))
+            {
+                return itemId;
+            }
+            return null;
+        }
+
+        public void ShowErrorInvalidItemId()
+        {
+            WriteLine("Invalid item ID.");
+        }
+
+        public void ShowErrorInvalidChoice()
+        {
+            WriteLine("Invalid choice. Please choose 'b', 's', or 'l'.");
+        }
+
+        public void ShowMerchantLeaveMessage()
+        {
+            WriteLine("The merchant nods and moves on.");
+        }
+        public string PromptForItemPickup()
+        {
+            WriteLine("Would you like to take it? (y/n)");
+            return ReadLine();
+        }
+        public string ShowMonsterOptions()
+        {
+            WriteLine("\nf. Fight \nh. Heal \nl. Leave/Flee");
+            return ReadLine().ToLower();
+        }
+        public void ShowFleeMessage()
+        {
+            WriteLine("You flee from the monster.");
+        }
     }
 }

@@ -26,8 +26,7 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Events
             string choice;
             do
             {
-                WriteLine("\nf. Fight \nh. Heal \nl. Leave/Flee");
-                choice = ReadLine().ToLower();
+                choice = controller.View.ShowMonsterOptions();
 
                 if (choice == "f")
                 {
@@ -39,12 +38,12 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Events
                 }
                 else if (choice == "l")
                 {
-                    WriteLine("You flee from the monster.");
+                    controller.View.ShowFleeMessage();
                     break;
                 }
                 else
                 {
-                    WriteLine("Invalid choice. Please choose 'f', 'h', or 'l'.");
+                    controller.View.ShowErrorInvalidChoice();
                 }
 
             } while (choice != "l" && monster.Health > 0 && player.Health > 0);
