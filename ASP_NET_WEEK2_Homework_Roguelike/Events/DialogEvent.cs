@@ -10,24 +10,28 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Events
         public override void Execute(PlayerCharacter player, Room room, PlayerCharacterController controller)
         {
             string eventType = GetRandomEventType();
-            controller.View.ShowEventEncounter(eventType);
+
+            controller.HandleEventEncounter(eventType);
 
             switch (eventType)
             {
                 case "WiseTraveler":
-                    controller.View.ShowEventOutcome(ExecuteWiseTravelerEvent(player));
+                    string outcomeWiseTraveler = ExecuteWiseTravelerEvent(player);
+                    controller.HandleEventOutcome(outcomeWiseTraveler);
                     break;
                 case "Monk":
-                    controller.View.ShowEventOutcome(ExecuteMonkEvent(player));
+                    string outcomeMonk = ExecuteMonkEvent(player);
+                    controller.HandleEventOutcome(outcomeMonk);
                     break;
                 case "Witch":
-                    controller.View.ShowEventOutcome(ExecuteWitchEvent(player));
+                    string outcomeWitch = ExecuteWitchEvent(player);
+                    controller.HandleEventOutcome(outcomeWitch);
                     break;
                 case "Merchant":
                     ExecuteMerchantEvent(player, controller);
                     break;
                 default:
-                    controller.View.ShowEventOutcome("You encounter a mysterious stranger who says nothing and disappears.");
+                    controller.HandleEventOutcome("You encounter a mysterious stranger who says nothing and disappears.");
                     break;
             }
 

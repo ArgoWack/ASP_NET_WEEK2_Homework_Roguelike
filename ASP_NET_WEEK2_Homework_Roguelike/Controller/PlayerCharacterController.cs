@@ -2,18 +2,21 @@
 using ASP_NET_WEEK2_Homework_Roguelike.Events;
 using ASP_NET_WEEK2_Homework_Roguelike.ItemKinds;
 using ASP_NET_WEEK2_Homework_Roguelike.View;
+using ASP_NET_WEEK2_Homework_Roguelike.Items;
 
 namespace ASP_NET_WEEK2_Homework_Roguelike.Controller
 {
     public class PlayerCharacterController
     {
         private readonly PlayerCharacter _playerCharacter;
-        public readonly PlayerCharacterView View;
+        private readonly PlayerCharacterView _view;
+        private readonly Map _map;
 
-        public PlayerCharacterController(PlayerCharacter playerCharacter)
+        public PlayerCharacterController(PlayerCharacter playerCharacter, Map map)
         {
             _playerCharacter = playerCharacter;
-            View = new PlayerCharacterView();
+            _view = new PlayerCharacterView();
+            _map = map;
         }
         public void ShowCharacterStats()
         {
@@ -21,7 +24,47 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Controller
             _playerCharacter.UpdateAttack();
             _playerCharacter.UpdateDefense();
 
-            View.ShowCharacterStats(_playerCharacter);
+            _view.ShowCharacterStats(_playerCharacter);
+        }
+        public void HandleEventEncounter(string eventType)
+        {
+            _view.ShowEventEncounter(eventType);
+        }
+
+        public void HandleEventOutcome(string outcome)
+        {
+            _view.ShowEventOutcome(outcome);
+        }
+
+        public void ShowMap()
+        {
+            _view.ShowMap(_map, _playerCharacter);
+        }
+
+        public void MovePlayer(string direction)
+        {
+            var currentX = _playerCharacter.CurrentX;
+            var currentY = _playerCharacter.CurrentY;
+
+            // Get the current room
+            Room currentRoom = _map.GetDiscoveredRoom(currentX, currentY);
+
+            if (currentRoom != null && currentRoom.Exits.ContainsKey(direction))
+            {
+                _playerCharacter.MovePlayer(direction, _map); // Move the player
+                Room newRoom = _map.GetDiscoveredRoom(_playerCharacter.CurrentX, _playerCharacter.CurrentY);
+
+                // Handle any event in the new room
+                if (newRoom.EventStatus != "none")
+                {
+                    RandomEvent roomEvent = EventGenerator.GenerateEvent(newRoom.EventStatus);
+                    roomEvent?.Execute(_playerCharacter, newRoom, this);
+                }
+            }
+            else
+            {
+                _view.ShowError("\nYou cannot move in that direction. There is no room.");
+            }
         }
 
         public void EquipItem(int itemId)
@@ -32,12 +75,12 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Controller
                 var item = _playerCharacter.Inventory.FirstOrDefault(i => i.ID == itemId);
                 if (item != null)
                 {
-                    View.ShowEquipItemSuccess(item.Name);
+                    _view.ShowEquipItemSuccess(item.Name);
                 }
             }
             catch (InvalidOperationException ex)
             {
-                View.ShowError(ex.Message);
+                _view.ShowError(ex.Message);
             }
         }
 
@@ -49,23 +92,23 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Controller
                 if (item != null)
                 {
                     _playerCharacter.DiscardItem(itemId);
-                    View.ShowDiscardItemSuccess(item.Name);
+                    _view.ShowDiscardItemSuccess(item.Name);
                 }
             }
             catch (InvalidOperationException ex)
             {
-                View.ShowError(ex.Message);
+                _view.ShowError(ex.Message);
             }
         }
 
         public void ShowInventory()
         {
-            View.DisplayInventory(_playerCharacter);
+            _view.DisplayInventory(_playerCharacter);
         }
         public void MovePlayer(string direction, Map map)
         {
             _playerCharacter.MovePlayer(direction, map);
-            View.ShowPlayerMovement(direction, _playerCharacter.CurrentX, _playerCharacter.CurrentY);
+            _view.ShowPlayerMovement(direction, _playerCharacter.CurrentX, _playerCharacter.CurrentY);
         }
         public void HandleEvent(RandomEvent randomEvent, Room room)
         {
@@ -77,11 +120,11 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Controller
             try
             {
                 _playerCharacter.BuyHealthPotion();
-                View.ShowEventOutcome("You bought a health potion for 40 coins.");
+                _view.ShowEventOutcome("You bought a health potion for 40 coins.");
             }
             catch (InvalidOperationException ex)
             {
-                View.ShowError(ex.Message);
+                _view.ShowError(ex.Message);
             }
         }
         public void SellItem(int itemId)
@@ -92,12 +135,12 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Controller
                 if (item != null)
                 {
                     _playerCharacter.SellItem(itemId);
-                    View.ShowEventOutcome($"You sold {item.Name} for {item.MoneyWorth} coins.");
+                    _view.ShowEventOutcome($"You sold {item.Name} for {item.MoneyWorth} coins.");
                 }
             }
             catch (InvalidOperationException ex)
             {
-                View.ShowError(ex.Message);
+                _view.ShowError(ex.Message);
             }
         }
     }

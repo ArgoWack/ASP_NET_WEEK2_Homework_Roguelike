@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Text.Json.Serialization;
 using System.Text.Json;
-using System.Threading.Tasks;
+using System.Text.Json.Serialization;
 
 namespace ASP_NET_WEEK2_Homework_Roguelike
 {
@@ -18,27 +16,28 @@ namespace ASP_NET_WEEK2_Homework_Roguelike
             {
                 var root = document.RootElement;
 
-                // Deserialize discoveredRooms
+                // Deserialize DiscoveredRooms
                 if (root.TryGetProperty("discoveredRooms", out JsonElement roomsElement))
                 {
+                    map.DiscoveredRooms = new Dictionary<(int, int), Room>();
                     foreach (var roomElement in roomsElement.EnumerateObject())
                     {
                         var coordinates = roomElement.Name.Split(',');
                         var room = JsonSerializer.Deserialize<Room>(roomElement.Value.GetRawText(), options);
-                        map.discoveredRooms[(int.Parse(coordinates[0]), int.Parse(coordinates[1]))] = room;
+                        map.DiscoveredRooms[(int.Parse(coordinates[0]), int.Parse(coordinates[1]))] = room;
 
                         // Ensure Exits is not null
                         room.Exits ??= new Dictionary<string, Room>();
                     }
                 }
 
-                // Manually deserialize roomsToDiscover
+                // Deserialize RoomsToDiscover
                 if (root.TryGetProperty("roomsToDiscover", out JsonElement rtdElement))
                 {
-                    var roomsToDiscoverList = new List<RoomToDiscover>();
-
                     if (rtdElement.TryGetProperty("$values", out JsonElement valuesElement) && valuesElement.ValueKind == JsonValueKind.Array)
                     {
+                        var roomsToDiscoverList = new List<RoomToDiscover>();
+
                         foreach (var item in valuesElement.EnumerateArray())
                         {
                             var roomToDiscover = new RoomToDiscover
@@ -46,19 +45,31 @@ namespace ASP_NET_WEEK2_Homework_Roguelike
                                 X = item.GetProperty("X").GetInt32(),
                                 Y = item.GetProperty("Y").GetInt32(),
                                 EnteringDirection = item.GetProperty("EnteringDirection").GetString(),
-                                BlockedDirections = new HashSet<string>(item.GetProperty("BlockedDirections").GetProperty("$values").EnumerateArray().Select(x => x.GetString()))
+                                BlockedDirections = new HashSet<string>(item.GetProperty("BlockedDirections")
+                                                                         .GetProperty("$values").EnumerateArray()
+                                                                         .Select(x => x.GetString()))
                             };
 
                             roomsToDiscoverList.Add(roomToDiscover);
                         }
-                    }
 
-                    map.roomsToDiscover = roomsToDiscoverList;
+                        map.RoomsToDiscover = roomsToDiscoverList;
+                    }
+                    else
+                    {
+                        // Handle case where $values is empty or missing
+                        map.RoomsToDiscover = new List<RoomToDiscover>();
+                    }
+                }
+                else
+                {
+                    // If the property doesn't exist at all, initialize an empty list
+                    map.RoomsToDiscover = new List<RoomToDiscover>();
                 }
             }
 
             // Second pass: resolve the exits
-            foreach (var kvp in map.discoveredRooms)
+            foreach (var kvp in map.DiscoveredRooms)
             {
                 var room = kvp.Value;
 
@@ -67,9 +78,9 @@ namespace ASP_NET_WEEK2_Homework_Roguelike
                     foreach (var exit in room.Exits.ToList())
                     {
                         var exitCoordinates = exit.Value;
-                        if (exitCoordinates != null)
+                        if (exitCoordinates != null && map.DiscoveredRooms.ContainsKey((exitCoordinates.X, exitCoordinates.Y)))
                         {
-                            room.Exits[exit.Key] = map.discoveredRooms[(exitCoordinates.X, exitCoordinates.Y)];
+                            room.Exits[exit.Key] = map.DiscoveredRooms[(exitCoordinates.X, exitCoordinates.Y)];
                         }
                     }
                 }
@@ -84,12 +95,15 @@ namespace ASP_NET_WEEK2_Homework_Roguelike
 
             writer.WritePropertyName("discoveredRooms");
             writer.WriteStartObject();
-            foreach (var kvp in value.discoveredRooms)
+            foreach (var kvp in value.DiscoveredRooms)
             {
                 writer.WritePropertyName($"{kvp.Key.Item1},{kvp.Key.Item2}");
 
                 var room = kvp.Value;
-                var exitsToSerialize = room.Exits.ToDictionary(kvp => kvp.Key, kvp => kvp.Value != null ? new { X = kvp.Value.X, Y = kvp.Value.Y } : null);
+                var exitsToSerialize = room.Exits.ToDictionary(
+                    kvp => kvp.Key,
+                    kvp => kvp.Value != null ? new { X = kvp.Value.X, Y = kvp.Value.Y } : null);
+
                 var roomData = new
                 {
                     room.X,
@@ -106,7 +120,7 @@ namespace ASP_NET_WEEK2_Homework_Roguelike
             writer.WritePropertyName("roomsToDiscover");
             writer.WriteStartObject();
             writer.WritePropertyName("$values");
-            JsonSerializer.Serialize(writer, value.roomsToDiscover, options);
+            JsonSerializer.Serialize(writer, value.RoomsToDiscover, options);
             writer.WriteEndObject();
 
             writer.WriteEndObject();

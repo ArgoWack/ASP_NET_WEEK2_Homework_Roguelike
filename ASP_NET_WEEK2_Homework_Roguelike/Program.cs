@@ -18,7 +18,7 @@ PlayerCharacter playerCharacter = new PlayerCharacter();
 Map map = new Map();
 playerCharacter.CurrentMap = map;
 bool inGame = false;
-PlayerCharacterController playerController = new PlayerCharacterController(playerCharacter);
+PlayerCharacterController playerController = new PlayerCharacterController(playerCharacter,map);
 
 do
 {
@@ -73,7 +73,7 @@ do
                     // Updating map
                     playerCharacter.CurrentMap = map;
 
-                    playerController = new PlayerCharacterController(playerCharacter);
+                    playerController = new PlayerCharacterController(playerCharacter,map);
 
                     inGame = true;
                 }
@@ -120,7 +120,7 @@ do
                 TryMovePlayer(playerCharacter, map, "east", playerController);
                 break;
             case 'm':
-                map.DisplayMap(playerCharacter); // Display the map using map's method
+                playerController.ShowMap();
                 break;
             case 'p':
                 playerController.ShowCharacterStats();

@@ -10,13 +10,13 @@ namespace ASP_NET_WEEK2_Homework_Roguelike
 {
     public class Map
     {
-        public Dictionary<(int, int), Room> discoveredRooms;
-        public List<RoomToDiscover> roomsToDiscover;
+        public Dictionary<(int, int), Room> DiscoveredRooms { get; set; }
+        public List<RoomToDiscover> RoomsToDiscover { get; set; }
 
         public Map()
         {
-            discoveredRooms = new Dictionary<(int, int), Room>();
-            roomsToDiscover = new List<RoomToDiscover>();
+            DiscoveredRooms = new Dictionary<(int, int), Room>();
+            RoomsToDiscover = new List<RoomToDiscover>();
         }
 
         public void InitializeStartingRoom()
@@ -33,72 +33,46 @@ namespace ASP_NET_WEEK2_Homework_Roguelike
 
         public void AddDiscoveredRoom(Room room)
         {
-            discoveredRooms[(room.X, room.Y)] = room;
+            DiscoveredRooms[(room.X, room.Y)] = room;
             room.IsExplored = true;
 
-            //Adds "roomsToDiscover" depending on existing exits in new room
+            // Add logic to handle rooms to discover and updating discovered exits
             foreach (var direction in room.Exits.Keys)
             {
                 (int newX, int newY) = GetCoordinatesInDirection(room.X, room.Y, direction);
-                if (!discoveredRooms.ContainsKey((newX, newY)))
+                if (!DiscoveredRooms.ContainsKey((newX, newY)))
                 {
                     RoomToDiscover rtd = new RoomToDiscover(newX, newY, OppositeDirection(direction));
-                    roomsToDiscover.Add(rtd);
-
-                    // Blocks direction in room to be discoverd depending on exits in this one
+                    RoomsToDiscover.Add(rtd);
                     rtd.BlockedDirections.Add(OppositeDirection(direction));
                 }
             }
 
-            // updates roomsToDiscover 
-            foreach (var rtd in roomsToDiscover)
-            {
-                //checks if new room is nearby the other one
-                if ((room.X, room.Y) == GetCoordinatesInDirection(rtd.X, rtd.Y, rtd.EnteringDirection))
-                {
-                    //adds new blocked direction
-                    rtd.BlockedDirections.Add(OppositeDirection(rtd.EnteringDirection));
-                }
-            }
-
-            // removes roomsToDiscover from list if discoverd
-            roomsToDiscover.RemoveAll(r => r.X == room.X && r.Y == room.Y);
+            RoomsToDiscover.RemoveAll(r => r.X == room.X && r.Y == room.Y);
         }
 
+        // Retrieves a discovered room based on coordinates
         public Room GetDiscoveredRoom(int x, int y)
         {
-            //Checks if room it is in collection of discoveredRooms
-            if (discoveredRooms.TryGetValue((x, y), out Room room))
-            {
-                return room;
-            }
-            return null; //not discoverd room
+            return DiscoveredRooms.TryGetValue((x, y), out Room room) ? room : null;
         }
 
+        // Generates a new room based on current position and direction
         public Room GenerateRoom(int currentX, int currentY, string direction)
         {
-            // Calculates X,Y coordinates of the new room
             (int newX, int newY) = GetCoordinatesInDirection(currentX, currentY, direction);
-
             Room newRoom = new Room(newX, newY);
 
-            // Adds random event to a new room
+            // Add a random event or no event to the new room
             RandomEvent randomEvent = EventGenerator.GenerateEvent();
-            if (randomEvent != null)
-            {
-                newRoom.EventStatus = randomEvent.GetType().Name;  //EventStatus
-            }
-            else
-            {
-                newRoom.EventStatus = "none";
-            }
+            newRoom.EventStatus = randomEvent != null ? randomEvent.GetType().Name : "none";
 
             AddDiscoveredRoom(newRoom);
 
             // Generate random exits for the new room
             GenerateRandomExits(newRoom);
 
-            // Connection with the previous room
+            // Connect the new room with the previous one based on direction
             Room currentRoom = GetDiscoveredRoom(currentX, currentY);
             if (currentRoom != null)
             {
@@ -108,12 +82,13 @@ namespace ASP_NET_WEEK2_Homework_Roguelike
 
             return newRoom;
         }
+
+        // Generates random exits for a room
         private void GenerateRandomExits(Room room)
         {
             var directions = new[] { "north", "south", "east", "west" };
             var random = new Random();
 
-            // Ensure the room has between 2 and 4 exits
             int numberOfExits = random.Next(2, 5);
             var availableDirections = directions.OrderBy(_ => random.Next()).Take(numberOfExits).ToList();
 
@@ -122,12 +97,11 @@ namespace ASP_NET_WEEK2_Homework_Roguelike
                 if (!room.Exits.ContainsKey(direction))
                 {
                     (int newX, int newY) = GetCoordinatesInDirection(room.X, room.Y, direction);
-
-                    if (!discoveredRooms.ContainsKey((newX, newY)))
+                    if (!DiscoveredRooms.ContainsKey((newX, newY)))
                     {
-                        room.Exits[direction] = null; // Placeholder for future room
+                        room.Exits[direction] = null;
                         RoomToDiscover rtd = new RoomToDiscover(newX, newY, OppositeDirection(direction));
-                        roomsToDiscover.Add(rtd);
+                        RoomsToDiscover.Add(rtd);
                     }
                 }
             }
@@ -153,93 +127,30 @@ namespace ASP_NET_WEEK2_Homework_Roguelike
             return targetRoom;
         }
 
+        // Helper method to calculate coordinates in a given direction
         private (int, int) GetCoordinatesInDirection(int x, int y, string direction)
         {
-            switch (direction)
+            return direction switch
             {
-                case "north": return (x, y + 1);
-                case "south": return (x, y - 1);
-                case "east": return (x + 1, y);
-                case "west": return (x - 1, y);
-                default: return (x, y);
-            }
+                "north" => (x, y + 1),
+                "south" => (x, y - 1),
+                "east" => (x + 1, y),
+                "west" => (x - 1, y),
+                _ => (x, y)
+            };
         }
 
+        // Helper method to get the opposite direction
         private string OppositeDirection(string direction)
         {
-            switch (direction)
+            return direction switch
             {
-                case "north": return "south";
-                case "south": return "north";
-                case "east": return "west";
-                case "west": return "east";
-                default: return "";
-            }
-        }
-
-        public void DisplayMap(PlayerCharacter player)
-        {
-            var minX = discoveredRooms.Keys.Min(k => k.Item1);
-            var maxX = discoveredRooms.Keys.Max(k => k.Item1);
-            var minY = discoveredRooms.Keys.Min(k => k.Item2);
-            var maxY = discoveredRooms.Keys.Max(k => k.Item2);
-
-            WriteLine();
-            for (int y = maxY; y >= minY; y--)
-            {
-                for (int x = minX; x <= maxX; x++)
-                {
-                    if (discoveredRooms.TryGetValue((x, y), out Room room))
-                    {
-                        if (player.CurrentX == x && player.CurrentY == y)
-                        {
-                            Write("P");
-                        }
-                        else
-                        {
-                            Write("+");
-                        }
-                    }
-                    else
-                    {
-                        Write(" ");
-                    }
-
-                    // Draw horizontal connection
-                    if (x < maxX && discoveredRooms.TryGetValue((x, y), out Room currentRoom) && currentRoom.Exits.ContainsKey("east"))
-                    {
-                        Write("-");
-                    }
-                    else
-                    {
-                        Write(" ");
-                    }
-                }
-                WriteLine();
-
-                // Draw vertical connections
-                if (y > minY)
-                {
-                    for (int x = minX; x <= maxX; x++)
-                    {
-                        if (discoveredRooms.TryGetValue((x, y), out Room room) && room.Exits.ContainsKey("south"))
-                        {
-                            Write("|");
-                        }
-                        else
-                        {
-                            Write(" ");
-                        }
-
-                        // Space between columns
-                        if (x < maxX)
-                        {
-                            Write(" ");
-                        }
-                    }
-                    WriteLine();
-                }
-            }
+                "north" => "south",
+                "south" => "north",
+                "east" => "west",
+                "west" => "east",
+                _ => ""
+            };
         }
     }
 }

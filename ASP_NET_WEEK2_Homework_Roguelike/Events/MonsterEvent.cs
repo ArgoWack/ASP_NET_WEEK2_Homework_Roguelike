@@ -1,7 +1,5 @@
 ﻿using ASP_NET_WEEK2_Homework_Roguelike.Controller;
 using ASP_NET_WEEK2_Homework_Roguelike.ItemKinds;
-using ASP_NET_WEEK2_Homework_Roguelike.View;
-using ASP_NET_WEEK2_Homework_Roguelike.ItemKinds;
 using System;
 using System.Linq;
 using static System.Console;
@@ -22,7 +20,7 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Events
         public override void Execute(PlayerCharacter player, Room room, PlayerCharacterController controller)
         {
             var monster = GenerateRandomMonster();
-            controller.View.ShowEventEncounter(monster.Name);
+            controller.HandleEventEncounter(monster.Name);
 
             string choice;
             do
@@ -52,14 +50,14 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Events
 
             if (monster.Health <= 0)
             {
-                WriteLine("You defeated the monster!");
+                controller.HandleEventOutcome("You defeated the monster!");
                 RewardPlayer(player, monster, controller);
             }
 
             if (player.Health <= 0)
             {
                 // Game over scenario
-                WriteLine("You have been defeated by the monster...");
+                controller.HandleEventOutcome("You have been defeated by the monster...");
                 Thread.Sleep(5000);
                 Environment.Exit(0);
             }
@@ -81,8 +79,8 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Events
             monster.Health -= playerDamage;
             player.Health -= monsterDamage;
 
-            controller.View.ShowEventOutcome($"You dealt {playerDamage} damage to the {monster.Name}. It has {monster.Health} health remaining.");
-            controller.View.ShowEventOutcome($"The {monster.Name} dealt {monsterDamage} damage to you. You have {player.Health} health remaining.");
+            controller.HandleEventOutcome($"You dealt {playerDamage} damage to the {monster.Name}. It has {monster.Health} health remaining.");
+            controller.HandleEventOutcome($"The {monster.Name} dealt {monsterDamage} damage to you. You have {player.Health} health remaining.");
         }
 
         private void HealPlayer(PlayerCharacter player, PlayerCharacterController controller)
@@ -91,11 +89,11 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Events
             if (potion != null)
             {
                 player.HealByPotion((HealthPotion)potion);
-                controller.View.ShowEventOutcome("You used a health potion to heal.");
+                controller.HandleEventOutcome("You used a health potion to heal.");
             }
             else
             {
-                controller.View.ShowEventOutcome("You don't have any health potions!");
+                controller.HandleEventOutcome("You don't have any health potions!");
             }
         }
 
@@ -103,18 +101,18 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Events
         {
             int experienceGained = monster.Level * 100;
             player.GetExperience(experienceGained);
-            controller.View.ShowEventOutcome($"You gained {experienceGained} experience!");
+            controller.HandleEventOutcome($"You gained {experienceGained} experience!");
 
             if (random.NextDouble() < 0.5)
             {
                 var item = ItemFactory.GenerateItem<SwordOneHanded>();
                 player.Inventory.Add(item);
-                controller.View.ShowEventOutcome($"The {monster.Name} dropped a {item.Name}!");
+                controller.HandleEventOutcome($"The {monster.Name} dropped a {item.Name}!");
             }
 
             int moneyDropped = monster.Level * 10;
             player.Money += moneyDropped;
-            controller.View.ShowEventOutcome($"You found {moneyDropped} coins on the {monster.Name}.");
+            controller.HandleEventOutcome($"You found {moneyDropped} coins on the {monster.Name}.");
         }
     }
 }

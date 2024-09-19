@@ -304,7 +304,7 @@ namespace ASP_NET_WEEK2_Homework_Roguelike
 
             string jsonString = JsonSerializer.Serialize(gameState, options);
             File.WriteAllText(sanitizedFileName, jsonString);
-            WriteLine($"\n Game saved as {sanitizedFileName} \n");
+            Console.WriteLine($"\n Game saved as {sanitizedFileName} \n");
         }
 
         public static GameState LoadGame(string characterName)

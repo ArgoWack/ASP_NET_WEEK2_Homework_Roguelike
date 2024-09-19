@@ -8,6 +8,72 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.View
 {
     public class PlayerCharacterView
     {
+        public void ShowMap(Map map, PlayerCharacter player)
+        {
+            var minX = map.DiscoveredRooms.Keys.Min(k => k.Item1);
+            var maxX = map.DiscoveredRooms.Keys.Max(k => k.Item1);
+            var minY = map.DiscoveredRooms.Keys.Min(k => k.Item2);
+            var maxY = map.DiscoveredRooms.Keys.Max(k => k.Item2);
+
+            WriteLine();
+            for (int y = maxY; y >= minY; y--)
+            {
+                for (int x = minX; x <= maxX; x++)
+                {
+                    if (map.DiscoveredRooms.TryGetValue((x, y), out Room room))
+                    {
+                        if (player.CurrentX == x && player.CurrentY == y)
+                        {
+                            Write("P"); // Player's current position
+                        }
+                        else
+                        {
+                            Write("+"); // Discovered room
+                        }
+                    }
+                    else
+                    {
+                        Write(" "); // Undiscovered room
+                    }
+
+                    // Draw horizontal connections
+                    if (x < maxX && map.DiscoveredRooms.TryGetValue((x, y), out Room currentRoom) && currentRoom.Exits.ContainsKey("east"))
+                    {
+                        Write("-");
+                    }
+                    else
+                    {
+                        Write(" ");
+                    }
+                }
+                WriteLine();
+
+                // Draw vertical connections
+                if (y > minY)
+                {
+                    for (int x = minX; x <= maxX; x++)
+                    {
+                        if (map.DiscoveredRooms.TryGetValue((x, y), out Room room) && room.Exits.ContainsKey("south"))
+                        {
+                            Write("|");
+                        }
+                        else
+                        {
+                            Write(" ");
+                        }
+
+                        // Space between columns
+                        if (x < maxX)
+                        {
+                            Write(" ");
+                        }
+                    }
+                    WriteLine();
+                }
+            }
+        }
+
+
         public void ShowCharacterStats(PlayerCharacter player)
         {
             WriteLine($@"
