@@ -1,5 +1,6 @@
 ﻿using ASP_NET_WEEK2_Homework_Roguelike.Controller;
 using ASP_NET_WEEK2_Homework_Roguelike.ItemKinds;
+using ASP_NET_WEEK2_Homework_Roguelike.Model;
 using System;
 using System.Linq;
 using static System.Console;

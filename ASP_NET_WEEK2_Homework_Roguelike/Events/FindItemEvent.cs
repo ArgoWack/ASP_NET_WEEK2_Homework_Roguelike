@@ -3,6 +3,7 @@ using ASP_NET_WEEK2_Homework_Roguelike.Items;
 using ASP_NET_WEEK2_Homework_Roguelike.Controller;
 using System;
 using static System.Console;
+using ASP_NET_WEEK2_Homework_Roguelike.Model;
 
 namespace ASP_NET_WEEK2_Homework_Roguelike.Events
 {

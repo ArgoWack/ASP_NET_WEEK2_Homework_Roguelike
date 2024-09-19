@@ -1,4 +1,5 @@
 ﻿using ASP_NET_WEEK2_Homework_Roguelike.Controller;
+using ASP_NET_WEEK2_Homework_Roguelike.Model;
 using ASP_NET_WEEK2_Homework_Roguelike.View;
 using System;
 using static System.Console;

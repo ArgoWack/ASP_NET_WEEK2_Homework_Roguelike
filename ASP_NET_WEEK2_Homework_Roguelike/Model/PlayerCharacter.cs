@@ -10,7 +10,7 @@ using System.IO;
 using static System.Console;
 using System.Text.Json.Serialization;
 
-namespace ASP_NET_WEEK2_Homework_Roguelike
+namespace ASP_NET_WEEK2_Homework_Roguelike.Model
 {
     public class PlayerCharacter
     {
@@ -133,7 +133,7 @@ namespace ASP_NET_WEEK2_Homework_Roguelike
 
         public float CheckAttack()
         {
-            return ((EquippedHelmet?.Attack ?? 0) +
+            return (EquippedHelmet?.Attack ?? 0) +
                     (EquippedArmor?.Attack ?? 0) +
                     (EquippedShield?.Attack ?? 0) +
                     (EquippedGloves?.Attack ?? 0) +
@@ -141,7 +141,7 @@ namespace ASP_NET_WEEK2_Homework_Roguelike
                     (EquippedBoots?.Attack ?? 0) +
                     (EquippedAmulet?.Attack ?? 0) +
                     (EquippedSwordOneHanded?.Attack ?? 0) +
-                    (EquippedSwordTwoHanded?.Attack ?? 0));
+                    (EquippedSwordTwoHanded?.Attack ?? 0);
         }
 
         public void UpdateDefense()
@@ -151,7 +151,7 @@ namespace ASP_NET_WEEK2_Homework_Roguelike
 
         public float CheckDefense()
         {
-            return ((EquippedHelmet?.Defense ?? 0) +
+            return (EquippedHelmet?.Defense ?? 0) +
                     (EquippedArmor?.Defense ?? 0) +
                     (EquippedShield?.Defense ?? 0) +
                     (EquippedGloves?.Defense ?? 0) +
@@ -159,7 +159,7 @@ namespace ASP_NET_WEEK2_Homework_Roguelike
                     (EquippedBoots?.Defense ?? 0) +
                     (EquippedAmulet?.Defense ?? 0) +
                     (EquippedSwordOneHanded?.Defense ?? 0) +
-                    (EquippedSwordTwoHanded?.Defense ?? 0));
+                    (EquippedSwordTwoHanded?.Defense ?? 0);
         }
 
         public void EquipItem(int itemId)
@@ -304,7 +304,7 @@ namespace ASP_NET_WEEK2_Homework_Roguelike
 
             string jsonString = JsonSerializer.Serialize(gameState, options);
             File.WriteAllText(sanitizedFileName, jsonString);
-            Console.WriteLine($"\n Game saved as {sanitizedFileName} \n");
+            WriteLine($"\n Game saved as {sanitizedFileName} \n");
         }
 
         public static GameState LoadGame(string characterName)

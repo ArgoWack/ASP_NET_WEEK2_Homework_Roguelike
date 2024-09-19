@@ -3,6 +3,7 @@ using ASP_NET_WEEK2_Homework_Roguelike.Events;
 using ASP_NET_WEEK2_Homework_Roguelike.Controller;
 using System.IO;
 using static System.Console;
+using ASP_NET_WEEK2_Homework_Roguelike.Model;
 
 string description = " \n It's simple roguelike game. With the following hotkeys:" +
     "\n Q - Save&Quit" +
