@@ -1,26 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using ASP_NET_WEEK2_Homework_Roguelike.Events;
+using System;
 
-namespace ASP_NET_WEEK2_Homework_Roguelike.Events
+namespace ASP_NET_WEEK2_Homework_Roguelike
 {
     public static class EventGenerator
     {
         private static Random random = new Random();
 
-        public static RandomEvent GenerateEvent(string eventStatus)
-        {
-            return eventStatus switch
-            {
-                "FindItemEvent" => new FindItemEvent(),
-                "MonsterEvent" => new MonsterEvent(),
-                "DialogEvent" => new DialogEvent(),
-                _ => null, // No event
-            };
-        }
-
+        // Generates a random event based on chance
         public static RandomEvent GenerateEvent()
         {
             int roll = random.Next(100);
@@ -32,6 +19,18 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Events
                 return new DialogEvent();
             else
                 return null; // No event
+        }
+
+        // Generates an event based on specific status (for rooms with predefined events)
+        public static RandomEvent GenerateEvent(string eventStatus)
+        {
+            return eventStatus switch
+            {
+                "FindItemEvent" => new FindItemEvent(),
+                "MonsterEvent" => new MonsterEvent(),
+                "DialogEvent" => new DialogEvent(),
+                _ => null, // No event
+            };
         }
     }
 }

@@ -18,6 +18,9 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Controller
             _view = new PlayerCharacterView();
             _map = map;
         }
+
+        public PlayerCharacter PlayerCharacter => _playerCharacter;
+
         public void ShowCharacterStats()
         {
             _playerCharacter.UpdateWeight();

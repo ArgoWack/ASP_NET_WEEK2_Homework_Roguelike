@@ -1,10 +1,7 @@
 ﻿using ASP_NET_WEEK2_Homework_Roguelike;
 using ASP_NET_WEEK2_Homework_Roguelike.Events;
-using ASP_NET_WEEK2_Homework_Roguelike.Items;
 using ASP_NET_WEEK2_Homework_Roguelike.Controller;
-using System.Diagnostics;
-using System.Numerics;
-using System.Runtime.CompilerServices;
+using System.IO;
 using static System.Console;
 
 string description = " \n It's simple roguelike game. With the following hotkeys:" +
@@ -18,7 +15,7 @@ PlayerCharacter playerCharacter = new PlayerCharacter();
 Map map = new Map();
 playerCharacter.CurrentMap = map;
 bool inGame = false;
-PlayerCharacterController playerController = new PlayerCharacterController(playerCharacter,map);
+PlayerCharacterController playerController = new PlayerCharacterController(playerCharacter, map);
 
 do
 {
@@ -37,7 +34,7 @@ do
 
             // Save and continue to game loop
             playerCharacter.SaveGame();
-            inGame = true;
+            inGame = true; // Set the flag to true to enter the in-game loop
             break;
 
         case '2':
@@ -70,12 +67,10 @@ do
                     playerCharacter = gameState.PlayerCharacter;
                     map = gameState.Map;
 
-                    // Updating map
+                    // Updating map and controller with the loaded game state
                     playerCharacter.CurrentMap = map;
-
-                    playerController = new PlayerCharacterController(playerCharacter,map);
-
-                    inGame = true;
+                    playerController = new PlayerCharacterController(playerCharacter, map);
+                    inGame = true; // Set the flag to true to enter the in-game loop
                 }
                 catch (FileNotFoundException ex)
                 {
@@ -89,10 +84,12 @@ do
             break;
 
         case '3':
+            // Displaying description of game and controls
             WriteLine(description + "\n");
             break;
 
         case '4':
+            // Quitting the game
             Environment.Exit(0);
             break;
 
@@ -101,6 +98,7 @@ do
             break;
     }
 
+    // Enter the in-game menu only if a game is started or loaded
     while (inGame)
     {
         operation = WriteMenuAndParseChar<char>("InGameMenu", "\nWhat would you like to do: a/w/s/d/e/q? \n");
@@ -108,16 +106,16 @@ do
         switch (operation.KeyChar)
         {
             case 'a':
-                TryMovePlayer(playerCharacter, map, "west", playerController);
+                playerController.MovePlayer("west");
                 break;
             case 'w':
-                TryMovePlayer(playerCharacter, map, "north", playerController);
+                playerController.MovePlayer("north");
                 break;
             case 's':
-                TryMovePlayer(playerCharacter, map, "south", playerController);
+                playerController.MovePlayer("south");
                 break;
             case 'd':
-                TryMovePlayer(playerCharacter, map, "east", playerController);
+                playerController.MovePlayer("east");
                 break;
             case 'm':
                 playerController.ShowMap();
@@ -129,7 +127,7 @@ do
                 char choice;
                 do
                 {
-                    playerController.ShowInventory(); 
+                    playerController.ShowInventory();
                     WriteLine(" \n Write:  \ne. Use some item \nd. Discard some item  \nl. Leave inventory");
 
                     char.TryParse(ReadLine(), out choice);
@@ -145,7 +143,7 @@ do
                             WriteLine("\nInvalid ID.\n");
                         }
                     }
-                    else if (choice == 'd')
+                    if (choice == 'd')
                     {
                         WriteLine(" \n Write ID of the item you'd like to discard");
                         if (int.TryParse(ReadLine(), out int id))
@@ -161,52 +159,16 @@ do
                 while (choice != 'l');
                 break;
             case 'q':
-                playerCharacter.SaveGame(); // Save the game
-                inGame = false; // Exit the game loop
+                // Save and return to main menu
+                playerCharacter.SaveGame();
+                inGame = false; // Set the flag to false to return to the main menu
                 break;
             default:
                 WriteLine("\n Wrong input");
                 break;
         }
-
-        // Check if there is an event in the new room
-        Room currentRoom = map.GetDiscoveredRoom(playerCharacter.CurrentX, playerCharacter.CurrentY);
-        if (currentRoom != null && currentRoom.EventStatus != "none")
-        {
-            RandomEvent randomEvent = EventGenerator.GenerateEvent(currentRoom.EventStatus);
-            if (randomEvent != null)
-            {
-                playerController.HandleEvent(randomEvent, currentRoom); // Handle event using controller
-            }
-        }
     }
 } while (operation.KeyChar != '4'); // Exit only when 4 is chosen
-
-static void TryMovePlayer(PlayerCharacter player, Map map, string direction, PlayerCharacterController controller)
-{
-    int currentX = player.CurrentX;
-    int currentY = player.CurrentY;
-    Room currentRoom = map.GetDiscoveredRoom(currentX, currentY);
-
-    if (currentRoom != null && currentRoom.Exits.ContainsKey(direction))
-    {
-        player.MovePlayer(direction, map);
-
-        Room newRoom = map.GetDiscoveredRoom(player.CurrentX, player.CurrentY);
-
-        // Handle event in the new room
-        if (newRoom.EventStatus != "none")
-        {
-            RandomEvent roomEvent = EventGenerator.GenerateEvent(newRoom.EventStatus);
-            roomEvent?.Execute(player, newRoom, controller);
-        }
-    }
-    else
-    {
-        WriteLine("\n You cannot move in that direction. There is no room.");
-    }
-}
-
 
 static MenuActionService Initialize(MenuActionService actionService)
 {
