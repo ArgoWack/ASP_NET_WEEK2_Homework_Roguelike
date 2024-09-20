@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ASP_NET_WEEK2_Homework_Roguelike.ItemKinds
+namespace ASP_NET_WEEK2_Homework_Roguelike.Model.Items
 {
     [AttributeUsage(AttributeTargets.Class)]
     public class ItemTypeAttribute : Attribute

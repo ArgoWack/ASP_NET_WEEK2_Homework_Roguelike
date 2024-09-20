@@ -1,6 +1,4 @@
-﻿using ASP_NET_WEEK2_Homework_Roguelike.Items;
-using ASP_NET_WEEK2_Homework_Roguelike.ItemKinds;
-using ASP_NET_WEEK2_Homework_Roguelike.Model.Events;
+﻿using ASP_NET_WEEK2_Homework_Roguelike.Model.Events;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,6 +8,7 @@ using System.IO;
 using static System.Console;
 using System.Text.Json.Serialization;
 using ASP_NET_WEEK2_Homework_Roguelike.Services;
+using ASP_NET_WEEK2_Homework_Roguelike.Model.Items;
 
 namespace ASP_NET_WEEK2_Homework_Roguelike.Model
 {
@@ -248,11 +247,11 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Model
 
                     if (gameState.PlayerCharacter.Inventory.Any())
                     {
-                        ItemFactory.LastGeneratedItemId = gameState.PlayerCharacter.Inventory.Max(i => i.ID);
+                        ItemFactoryService.LastGeneratedItemId = gameState.PlayerCharacter.Inventory.Max(i => i.ID);
                     }
                     else
                     {
-                        ItemFactory.LastGeneratedItemId = 0;
+                        ItemFactoryService.LastGeneratedItemId = 0;
                     }
 
                     WriteLine($"Game loaded from {sanitizedFileName} \n");
@@ -305,7 +304,7 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Model
             }
 
             Money -= 40;
-            var healthPotion = ItemFactory.GenerateItem<HealthPotion>();
+            var healthPotion = ItemFactoryService.GenerateItem<HealthPotion>();
             Inventory.Add(healthPotion);
 
             UpdateWeight();

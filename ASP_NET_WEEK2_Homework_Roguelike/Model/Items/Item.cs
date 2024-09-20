@@ -7,7 +7,7 @@ using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 
-namespace ASP_NET_WEEK2_Homework_Roguelike.Items
+namespace ASP_NET_WEEK2_Homework_Roguelike.Model.Items
 {
     public abstract class Item
     {

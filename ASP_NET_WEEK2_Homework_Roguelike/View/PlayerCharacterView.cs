@@ -1,5 +1,5 @@
-﻿using ASP_NET_WEEK2_Homework_Roguelike.Items;
-using ASP_NET_WEEK2_Homework_Roguelike.Model;
+﻿using ASP_NET_WEEK2_Homework_Roguelike.Model;
+using ASP_NET_WEEK2_Homework_Roguelike.Model.Items;
 using System;
 using System.Collections.Generic;
 using static System.Console;

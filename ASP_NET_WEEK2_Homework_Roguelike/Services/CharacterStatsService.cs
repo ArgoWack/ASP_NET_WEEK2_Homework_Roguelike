@@ -1,5 +1,5 @@
 ﻿using ASP_NET_WEEK2_Homework_Roguelike.Model;
-using ASP_NET_WEEK2_Homework_Roguelike.ItemKinds;
+using ASP_NET_WEEK2_Homework_Roguelike.Model.Items;
 
 namespace ASP_NET_WEEK2_Homework_Roguelike.Services
 {

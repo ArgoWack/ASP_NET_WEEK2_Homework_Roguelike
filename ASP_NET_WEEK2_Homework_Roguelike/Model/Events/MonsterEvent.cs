@@ -3,7 +3,7 @@ using ASP_NET_WEEK2_Homework_Roguelike.Model;
 using System;
 using System.Linq;
 using ASP_NET_WEEK2_Homework_Roguelike.Controller;
-using ASP_NET_WEEK2_Homework_Roguelike.ItemKinds;
+using ASP_NET_WEEK2_Homework_Roguelike.Model.Items;
 
 namespace ASP_NET_WEEK2_Homework_Roguelike.Model.Events
 {
@@ -100,7 +100,7 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Model.Events
 
             if (random.NextDouble() < 0.5)
             {
-                var item = ItemFactory.GenerateItem<SwordOneHanded>();
+                var item = ItemFactoryService.GenerateItem<SwordOneHanded>();
                 player.Inventory.Add(item);
                 _eventService.HandleEventOutcome($"The {monster.Name} dropped a {item.Name}!");
             }

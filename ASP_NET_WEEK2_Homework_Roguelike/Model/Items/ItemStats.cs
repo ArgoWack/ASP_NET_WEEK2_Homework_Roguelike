@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ASP_NET_WEEK2_Homework_Roguelike.ItemKinds
+namespace ASP_NET_WEEK2_Homework_Roguelike.Model.Items
 {
     public static class ItemStats
     {
@@ -26,12 +26,12 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.ItemKinds
 
     public class ItemBaseStats
     {
-    public int ID { get; set; }
-    public string Name { get; set; }
-    public int Weight { get; set; }
-    public int Defense { get; set; }
-    public int Attack { get; set; }
-    public int MoneyWorth { get; set; }
-    public string Description { get; set; }
+        public int ID { get; set; }
+        public string Name { get; set; }
+        public int Weight { get; set; }
+        public int Defense { get; set; }
+        public int Attack { get; set; }
+        public int MoneyWorth { get; set; }
+        public string Description { get; set; }
     }
 }

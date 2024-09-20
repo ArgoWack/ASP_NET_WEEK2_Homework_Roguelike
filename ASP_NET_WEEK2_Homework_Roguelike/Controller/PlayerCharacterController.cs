@@ -1,5 +1,4 @@
-﻿using ASP_NET_WEEK2_Homework_Roguelike.Items;
-using ASP_NET_WEEK2_Homework_Roguelike.ItemKinds;
+﻿using ASP_NET_WEEK2_Homework_Roguelike.Model.Items;
 using ASP_NET_WEEK2_Homework_Roguelike.View;
 using ASP_NET_WEEK2_Homework_Roguelike.Model;
 using ASP_NET_WEEK2_Homework_Roguelike.Model.Events;
