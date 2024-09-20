@@ -9,11 +9,14 @@ using System.Text.Json;
 using System.IO;
 using static System.Console;
 using System.Text.Json.Serialization;
+using ASP_NET_WEEK2_Homework_Roguelike.Services;
 
 namespace ASP_NET_WEEK2_Homework_Roguelike.Model
 {
     public class PlayerCharacter
     {
+        private readonly CharacterStatsService _statsService;
+
         private int currentX;
         private int currentY;
 
@@ -82,21 +85,20 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Model
 
         public PlayerCharacter()
         {
+            _statsService = new CharacterStatsService();
             Inventory = new List<Item>();
             Level = 1;
             Health = HealthLimit;
             Weight = 0;
             Money = 0;
-            currentX = 0; // Starting X position
-            currentY = 0; // Starting Y position
-            CurrentMap = new Map(); // Initialize the map
+            currentX = 0;
+            currentY = 0;
+            CurrentMap = new Map();
 
-            // Initialize base stats
             baseSpeed = Level * 10;
             baseAttack = 0;
             baseDefense = 0;
 
-            // Initialize modifiers
             speedModifier = 0;
             attackModifier = 0;
             defenseModifier = 0;
@@ -113,7 +115,7 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Model
 
         public void UpdateWeight()
         {
-            Weight = CheckWeight();
+            Weight = _statsService.CalculateWeight(this);
         }
 
         public int CheckWeight()
@@ -128,7 +130,7 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Model
 
         public void UpdateAttack()
         {
-            baseAttack = CheckAttack();
+            baseAttack = _statsService.CalculateAttack(this);
         }
 
         public float CheckAttack()
@@ -146,7 +148,7 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Model
 
         public void UpdateDefense()
         {
-            baseDefense = CheckDefense();
+            baseDefense = _statsService.CalculateDefense(this);
         }
 
         public float CheckDefense()
@@ -299,7 +301,7 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Model
             {
                 WriteIndented = true,
                 ReferenceHandler = ReferenceHandler.Preserve,
-                Converters = { new ItemConverter(), new MapConverter() }
+                Converters = { new Converters.ItemConverter(), new Converters.MapConverter() }
             };
 
             string jsonString = JsonSerializer.Serialize(gameState, options);
@@ -318,7 +320,7 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Model
                 var options = new JsonSerializerOptions
                 {
                     ReferenceHandler = ReferenceHandler.Preserve,
-                    Converters = { new ItemConverter(), new MapConverter() }
+                    Converters = { new Converters.ItemConverter(), new Converters.MapConverter() }
                 };
 
                 var gameState = JsonSerializer.Deserialize<GameState>(jsonString, options);

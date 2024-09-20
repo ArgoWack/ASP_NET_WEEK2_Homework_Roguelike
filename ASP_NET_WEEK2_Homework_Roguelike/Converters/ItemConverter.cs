@@ -6,8 +6,9 @@ using System.Text;
 using System.Text.Json.Serialization;
 using System.Text.Json;
 using System.Threading.Tasks;
+using ASP_NET_WEEK2_Homework_Roguelike.Items;
 
-namespace ASP_NET_WEEK2_Homework_Roguelike.Items
+namespace ASP_NET_WEEK2_Homework_Roguelike.Converters
 {
     public class ItemConverter : JsonConverter<Item>
     {
@@ -39,7 +40,7 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Items
 
         public override void Write(Utf8JsonWriter writer, Item value, JsonSerializerOptions options)
         {
-            JsonSerializer.Serialize(writer, (object)value, value.GetType(), options);
+            JsonSerializer.Serialize(writer, value, value.GetType(), options);
         }
     }
 }

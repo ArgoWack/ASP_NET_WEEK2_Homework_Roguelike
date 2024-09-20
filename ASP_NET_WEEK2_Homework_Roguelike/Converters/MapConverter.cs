@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace ASP_NET_WEEK2_Homework_Roguelike
+namespace ASP_NET_WEEK2_Homework_Roguelike.Converters
 {
     public class MapConverter : JsonConverter<Map>
     {
@@ -102,7 +102,7 @@ namespace ASP_NET_WEEK2_Homework_Roguelike
                 var room = kvp.Value;
                 var exitsToSerialize = room.Exits.ToDictionary(
                     kvp => kvp.Key,
-                    kvp => kvp.Value != null ? new { X = kvp.Value.X, Y = kvp.Value.Y } : null);
+                    kvp => kvp.Value != null ? new { kvp.Value.X, kvp.Value.Y } : null);
 
                 var roomData = new
                 {
