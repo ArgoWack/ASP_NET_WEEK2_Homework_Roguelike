@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ASP_NET_WEEK2_Homework_Roguelike.Events
+namespace ASP_NET_WEEK2_Homework_Roguelike.Model.Events
 {
     public abstract class RandomEvent
     {

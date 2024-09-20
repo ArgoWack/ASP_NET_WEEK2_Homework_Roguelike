@@ -1,6 +1,6 @@
 ﻿using ASP_NET_WEEK2_Homework_Roguelike.Items;
 using ASP_NET_WEEK2_Homework_Roguelike.ItemKinds;
-using ASP_NET_WEEK2_Homework_Roguelike.Events;
+using ASP_NET_WEEK2_Homework_Roguelike.Model.Events;
 using System;
 using System.Collections.Generic;
 using System.Linq;
