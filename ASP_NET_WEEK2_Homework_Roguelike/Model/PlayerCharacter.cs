@@ -16,6 +16,7 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Model
     public class PlayerCharacter
     {
         private readonly CharacterStatsService _statsService;
+        private readonly InventoryService _inventoryService;
 
         private int currentX;
         private int currentY;
@@ -86,6 +87,8 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Model
         public PlayerCharacter()
         {
             _statsService = new CharacterStatsService();
+            _inventoryService = new InventoryService();
+
             Inventory = new List<Item>();
             Level = 1;
             Health = HealthLimit;
@@ -166,104 +169,18 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Model
 
         public void EquipItem(int itemId)
         {
-            var item = Inventory.FirstOrDefault(i => i.ID == itemId);
-            if (item == null)
-            {
-                throw new InvalidOperationException("Item not found in inventory.");
-            }
-
-            var itemType = item.GetType();
-            var itemTypeAttribute = itemType.GetCustomAttribute<ItemTypeAttribute>();
-
-            if (itemTypeAttribute != null)
-            {
-                if (item is SwordTwoHanded)
-                {
-                    UnequipItem(typeof(SwordOneHanded));
-                    UnequipItem(typeof(Shield));
-                }
-                else if (item is SwordOneHanded || item is Shield)
-                {
-                    UnequipItem(typeof(SwordTwoHanded));
-                }
-
-                UnequipItem(itemType);
-
-                var property = GetType().GetProperty($"Equipped{itemTypeAttribute.Kind}");
-                if (property != null)
-                {
-                    property.SetValue(this, item);
-                    UpdateWeight();
-                    UpdateAttack();
-                    UpdateDefense();
-                }
-                else
-                {
-                    throw new InvalidOperationException($"No equipped property found for {itemTypeAttribute.Kind}");
-                }
-            }
-            else
-            {
-                throw new InvalidOperationException("Item type not supported.");
-            }
+            _inventoryService.EquipItem(this, itemId);
         }
         public void UnequipItem(Type itemType)
         {
-            var itemTypeAttribute = itemType.GetCustomAttribute<ItemTypeAttribute>();
-            if (itemTypeAttribute != null)
-            {
-                try
-                {
-                    var property = GetType().GetProperty($"Equipped{itemTypeAttribute.Kind}");
-                    if (property != null)
-                    {
-                        property.SetValue(this, null);
-                        UpdateWeight();
-                        UpdateDefense();
-                        UpdateAttack();
-                        WriteLine($"You have unequipped {itemTypeAttribute.Kind}.");
-                    }
-                    else
-                    {
-                        WriteLine($"No equipped property found for {itemTypeAttribute.Kind}");
-                    }
-                }
-                catch (InvalidOperationException ex)
-                {
-                    WriteLine($"Error unequipping item: {ex.Message}");
-                }
-            }
-            else
-            {
-                WriteLine("Item type not supported.");
-            }
+            _inventoryService.UnequipItem(this, itemType);
         }
 
         public void DiscardItem(int itemId)
         {
-            var item = Inventory.FirstOrDefault(i => i.ID == itemId);
-
-            if (item == null)
-            {
-                throw new InvalidOperationException("Item not found in inventory.");
-            }
-
-            Inventory.Remove(item);
-
-            if (EquippedAmulet?.ID == itemId) EquippedAmulet = null;
-            if (EquippedArmor?.ID == itemId) EquippedArmor = null;
-            if (EquippedBoots?.ID == itemId) EquippedBoots = null;
-            if (EquippedGloves?.ID == itemId) EquippedGloves = null;
-            if (EquippedHelmet?.ID == itemId) EquippedHelmet = null;
-            if (EquippedShield?.ID == itemId) EquippedShield = null;
-            if (EquippedSwordOneHanded?.ID == itemId) EquippedSwordOneHanded = null;
-            if (EquippedSwordTwoHanded?.ID == itemId) EquippedSwordTwoHanded = null;
-            if (EquippedTrousers?.ID == itemId) EquippedTrousers = null;
-
-            UpdateWeight();
-            UpdateAttack();
-            UpdateDefense();
+            _inventoryService.DiscardItem(this, itemId);
         }
+
         public void HealByPotion(HealthPotion healthPotion)
         {
             Heal(healthPotion.MoneyWorth);
@@ -392,6 +309,20 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Model
             Inventory.Add(healthPotion);
 
             UpdateWeight();
+        }
+        public void SetBaseAttack(float value)
+        {
+            baseAttack = value;
+        }
+
+        public void SetBaseDefense(float value)
+        {
+            baseDefense = value;
+        }
+
+        public void SetWeight(int value)
+        {
+            Weight = value;
         }
     }
 }

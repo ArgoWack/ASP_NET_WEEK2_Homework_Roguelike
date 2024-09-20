@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using ASP_NET_WEEK2_Homework_Roguelike.Model;
 
 namespace ASP_NET_WEEK2_Homework_Roguelike.Converters
 {

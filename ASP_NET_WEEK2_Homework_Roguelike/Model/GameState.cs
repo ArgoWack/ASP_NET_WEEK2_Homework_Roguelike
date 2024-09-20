@@ -3,9 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using ASP_NET_WEEK2_Homework_Roguelike.Model;
 
-namespace ASP_NET_WEEK2_Homework_Roguelike
+namespace ASP_NET_WEEK2_Homework_Roguelike.Model
 {
     public class GameState
     {

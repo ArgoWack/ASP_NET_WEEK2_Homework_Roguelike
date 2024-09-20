@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ASP_NET_WEEK2_Homework_Roguelike.Model;
 
-namespace ASP_NET_WEEK2_Homework_Roguelike
+namespace ASP_NET_WEEK2_Homework_Roguelike.Services
 {
     internal class MenuActionService
     {
@@ -24,9 +25,9 @@ namespace ASP_NET_WEEK2_Homework_Roguelike
         public List<MenuAction> GetMenuActionsByMenuName(string menuName)
         {
             List<MenuAction> result = new List<MenuAction>();
-            foreach(var menuAction in menuActions)
+            foreach (var menuAction in menuActions)
             {
-                if (menuAction.MenuName==menuName)
+                if (menuAction.MenuName == menuName)
                 {
                     result.Add(menuAction);
                 }

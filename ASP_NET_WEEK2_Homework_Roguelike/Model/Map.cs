@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using static System.Console;
 
-namespace ASP_NET_WEEK2_Homework_Roguelike
+namespace ASP_NET_WEEK2_Homework_Roguelike.Model
 {
     public class Map
     {
