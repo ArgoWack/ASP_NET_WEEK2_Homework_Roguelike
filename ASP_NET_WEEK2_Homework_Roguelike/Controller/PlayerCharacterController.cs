@@ -2,6 +2,7 @@
 using ASP_NET_WEEK2_Homework_Roguelike.View;
 using ASP_NET_WEEK2_Homework_Roguelike.Model;
 using ASP_NET_WEEK2_Homework_Roguelike.Model.Events;
+using ASP_NET_WEEK2_Homework_Roguelike.Services;
 
 namespace ASP_NET_WEEK2_Homework_Roguelike.Controller
 {
@@ -9,14 +10,18 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Controller
     {
         private readonly PlayerCharacter _playerCharacter;
         private readonly PlayerCharacterView _view;
+        private readonly MapService _mapService;
         private readonly Map _map;
 
         public PlayerCharacterView View => _view;
-        public PlayerCharacterController(PlayerCharacter playerCharacter, Map map)
+
+        public PlayerCharacterController(PlayerCharacter playerCharacter, Map map, MapService mapService)
         {
             _playerCharacter = playerCharacter;
             _view = new PlayerCharacterView();
             _map = map;
+            _mapService = mapService ?? throw new ArgumentNullException(nameof(mapService));
+            _playerCharacter.CurrentMap = map;
         }
 
         public PlayerCharacter PlayerCharacter => _playerCharacter;
@@ -29,6 +34,7 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Controller
 
             _view.ShowCharacterStats(_playerCharacter);
         }
+
         public void HandleEventEncounter(string eventType)
         {
             _view.ShowEventEncounter(eventType);
@@ -46,15 +52,19 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Controller
 
         public void MovePlayer(string direction)
         {
-            var currentX = _playerCharacter.CurrentX;
-            var currentY = _playerCharacter.CurrentY;
+            int currentX = _playerCharacter.CurrentX;
+            int currentY = _playerCharacter.CurrentY;
 
-            Room currentRoom = _map.GetDiscoveredRoom(currentX, currentY);
+            Room currentRoom = _mapService.GetDiscoveredRoom(_map, currentX, currentY);
 
             if (currentRoom != null && currentRoom.Exits.ContainsKey(direction))
             {
-                _playerCharacter.MovePlayer(direction, _map);
-                Room newRoom = _map.GetDiscoveredRoom(_playerCharacter.CurrentX, _playerCharacter.CurrentY);
+                _mapService.MovePlayer(_map, ref currentX, ref currentY, direction);
+
+                _playerCharacter.CurrentX = currentX;
+                _playerCharacter.CurrentY = currentY;
+
+                Room newRoom = _mapService.GetDiscoveredRoom(_map, _playerCharacter.CurrentX, _playerCharacter.CurrentY);
 
                 if (newRoom.EventStatus != "none")
                 {
@@ -106,11 +116,7 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Controller
         {
             _view.DisplayInventory(_playerCharacter);
         }
-        public void MovePlayer(string direction, Map map)
-        {
-            _playerCharacter.MovePlayer(direction, map);
-            _view.ShowPlayerMovement(direction, _playerCharacter.CurrentX, _playerCharacter.CurrentY);
-        }
+
         public void HandleEvent(RandomEvent randomEvent, Room room)
         {
             randomEvent.Execute(_playerCharacter, room, this);

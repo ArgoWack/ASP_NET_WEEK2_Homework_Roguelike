@@ -1,6 +1,6 @@
-﻿using System;
-using ASP_NET_WEEK2_Homework_Roguelike.Services;
-using ASP_NET_WEEK2_Homework_Roguelike.Model.Events;
+﻿using ASP_NET_WEEK2_Homework_Roguelike.Services;
+using System;
+
 namespace ASP_NET_WEEK2_Homework_Roguelike.Model.Events
 {
     public static class EventGenerator
@@ -9,7 +9,7 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Model.Events
         private static CharacterInteractionService _interactionService;
         private static readonly Random random = new Random();
 
-        // Method to initialize EventGenerator with necessary services
+        // Initialize EventGenerator with necessary services
         public static void Initialize(EventService eventService, CharacterInteractionService interactionService)
         {
             _eventService = eventService ?? throw new ArgumentNullException(nameof(eventService));

@@ -17,6 +17,8 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Model
         private readonly CharacterStatsService _statsService;
         private readonly InventoryService _inventoryService;
 
+        public bool InGame { get; set; }
+
         private int currentX;
         private int currentY;
 
@@ -110,9 +112,15 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Model
             UpdateWeight();
         }
 
-        public void MovePlayer(string direction, Map map)
+        public void MovePlayer(string direction, Map map, MapService mapService)
         {
-            Room newRoom = map.MovePlayer(ref currentX, ref currentY, direction);
+            int playerX = CurrentX;
+            int playerY = CurrentY;
+
+            mapService.MovePlayer(map, ref playerX, ref playerY, direction);
+
+            CurrentX = playerX;
+            CurrentY = playerY;
         }
 
         public void UpdateWeight()

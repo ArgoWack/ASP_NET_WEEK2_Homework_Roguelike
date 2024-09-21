@@ -16,15 +16,24 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Services
         private EventService _eventService;
         private CharacterInteractionService _characterInteractionService;
         private EventController _eventController;
+        private MapService _mapService;
         private bool _inGame;
+        private MenuActionService _menuActionService;
+
+        public GameService()
+        {
+            _menuActionService = new MenuActionService();
+            InitializeMenuActions(_menuActionService);
+        }
 
         public void StartGame()
         {
             // Initialize main components
             _playerCharacter = new PlayerCharacter();
             _map = new Map();
+            _mapService = new MapService(new EventService(_playerController));
             _playerCharacter.CurrentMap = _map;
-            _playerController = new PlayerCharacterController(_playerCharacter, _map);
+            _playerController = new PlayerCharacterController(_playerCharacter, _map, _mapService);
 
             // Initialize services and controllers
             _eventService = new EventService(_playerController);
@@ -34,20 +43,14 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Services
 
             // Display initial game welcome message
             WriteLine("Welcome to Roguelike game \n");
+            ShowMainMenu();
         }
 
-        public void RunInGameLoop()
+        private void ShowMainMenu()
         {
-            string description = " \n It's a simple roguelike game with the following hotkeys:" +
-                "\n Q - Save & Quit" +
-                "\n E - Opens Inventory" +
-                "\n A/W/S/D - movement";
-
             ConsoleKeyInfo operation;
-
             do
             {
-                // Calling WriteMenuAndParseChar method here
                 operation = WriteMenuAndParseChar<int>("Main", "What would you like to do?");
 
                 switch (operation.KeyChar)
@@ -59,7 +62,7 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Services
                         ContinueGame();
                         break;
                     case '3':
-                        ShowDescription(description);
+                        ShowDescription();
                         break;
                     case '4':
                         QuitGame();
@@ -69,43 +72,52 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Services
                         break;
                 }
 
-                while (_inGame)
+                if (_inGame)
                 {
-                    operation = WriteMenuAndParseChar<char>("InGameMenu", "\nWhat would you like to do: a/w/s/d/e/q? \n");
-
-                    switch (operation.KeyChar)
-                    {
-                        case 'a':
-                            MovePlayer("west");
-                            break;
-                        case 'w':
-                            MovePlayer("north");
-                            break;
-                        case 's':
-                            MovePlayer("south");
-                            break;
-                        case 'd':
-                            MovePlayer("east");
-                            break;
-                        case 'm':
-                            _playerController.ShowMap();
-                            break;
-                        case 'p':
-                            _playerController.ShowCharacterStats();
-                            break;
-                        case 'e':
-                            HandleInventory();
-                            break;
-                        case 'q':
-                            _playerCharacter.SaveGame();
-                            _inGame = false;
-                            break;
-                        default:
-                            WriteLine("\n Wrong input");
-                            break;
-                    }
+                    RunInGameLoop();
                 }
             } while (operation.KeyChar != '4');
+        }
+
+        public void RunInGameLoop()
+        {
+            ConsoleKeyInfo operation;
+            do
+            {
+                operation = WriteMenuAndParseChar<char>("InGameMenu", "\nWhat would you like to do: a/w/s/d/e/q? \n");
+
+                switch (operation.KeyChar)
+                {
+                    case 'a':
+                        MovePlayer("west");
+                        break;
+                    case 'w':
+                        MovePlayer("north");
+                        break;
+                    case 's':
+                        MovePlayer("south");
+                        break;
+                    case 'd':
+                        MovePlayer("east");
+                        break;
+                    case 'm':
+                        _playerController.ShowMap();
+                        break;
+                    case 'p':
+                        _playerController.ShowCharacterStats();
+                        break;
+                    case 'e':
+                        HandleInventory();
+                        break;
+                    case 'q':
+                        _playerCharacter.SaveGame();
+                        _inGame = false;
+                        break;
+                    default:
+                        WriteLine("\n Wrong input");
+                        break;
+                }
+            } while (_inGame);
         }
 
         private void StartNewGame()
@@ -113,7 +125,7 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Services
             WriteLine("\n Write Character Name");
             _playerCharacter.Name = ReadLine();
             ReadKey();
-            _map.InitializeStartingRoom();
+            _mapService.InitializeStartingRoom(_map);
             _playerCharacter.CurrentX = 0;
             _playerCharacter.CurrentY = 0;
 
@@ -152,7 +164,7 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Services
                     _map = gameState.Map;
 
                     _playerCharacter.CurrentMap = _map;
-                    _playerController = new PlayerCharacterController(_playerCharacter, _map);
+                    _playerController = new PlayerCharacterController(_playerCharacter, _map, _mapService);
                     _inGame = true;
                 }
                 catch (FileNotFoundException ex)
@@ -166,8 +178,12 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Services
             }
         }
 
-        private void ShowDescription(string description)
+        private void ShowDescription()
         {
+            string description = " \n It's a simple roguelike game with the following hotkeys:" +
+                                 "\n Q - Save & Quit" +
+                                 "\n E - Opens Inventory" +
+                                 "\n A/W/S/D - movement";
             WriteLine(description + "\n");
         }
 
@@ -179,8 +195,7 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Services
         private void MovePlayer(string direction)
         {
             _playerController.MovePlayer(direction);
-
-            var currentRoom = _map.GetDiscoveredRoom(_playerCharacter.CurrentX, _playerCharacter.CurrentY);
+            var currentRoom = _mapService.GetDiscoveredRoom(_map, _playerCharacter.CurrentX, _playerCharacter.CurrentY);
             if (currentRoom != null)
             {
                 _eventController.ExecuteEvent(currentRoom);
@@ -223,7 +238,7 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Services
             } while (choice != 'l');
         }
 
-        private static MenuActionService Initialize(MenuActionService actionService)
+        private static void InitializeMenuActions(MenuActionService actionService)
         {
             actionService.AddNewAction(1, "New game", "Main");
             actionService.AddNewAction(2, "Continue", "Main");
@@ -234,42 +249,33 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Services
             actionService.AddNewAction('p', "Show player statistics", "InGameMenu");
             actionService.AddNewAction('e', "Open inventory", "InGameMenu");
             actionService.AddNewAction('a', "Move left", "InGameMenu");
-            actionService.AddNewAction('w', "Move straight", "InGameMenu");
-            actionService.AddNewAction('s', "Move back", "InGameMenu");
+            actionService.AddNewAction('w', "Move forward", "InGameMenu");
+            actionService.AddNewAction('s', "Move backward", "InGameMenu");
             actionService.AddNewAction('d', "Move right", "InGameMenu");
             actionService.AddNewAction('m', "Show map", "InGameMenu");
 
-            actionService.AddNewAction('e', "Use some item", "InventoryMenu");
-            actionService.AddNewAction('d', "Discard item", "InventoryMenu");
+            actionService.AddNewAction('e', "Use an item", "InventoryMenu");
+            actionService.AddNewAction('d', "Discard an item", "InventoryMenu");
             actionService.AddNewAction('l', "Leave inventory", "InventoryMenu");
-
-            return actionService;
         }
 
-        // Re-added WriteMenuAndParseChar method to ensure it is available in GameService
-        private static ConsoleKeyInfo WriteMenuAndParseChar<T>(string menuKind, string WriteLineText)
+        private ConsoleKeyInfo WriteMenuAndParseChar<T>(string menuKind, string prompt)
         {
-            MenuActionService actionService = new MenuActionService();
-            actionService = Initialize(actionService);
+            var menu = _menuActionService.GetMenuActionsByMenuName(menuKind);
+            WriteLine(prompt);
 
-            WriteLine(WriteLineText);
-
-            var menu = actionService.GetMenuActionsByMenuName(menuKind);
-            for (int i = 0; i < menu.Count; i++)
+            foreach (var action in menu)
             {
                 if (typeof(T) == typeof(int))
                 {
-                    WriteLine($"{Convert.ToInt32(menu[i].Id)}. {menu[i].Name}");
+                    WriteLine($"{action.Id}. {action.Name}");
                 }
                 else if (typeof(T) == typeof(char))
                 {
-                    WriteLine($"{(char)menu[i].Id}. {menu[i].Name}");
-                }
-                else
-                {
-                    throw new InvalidOperationException("Unsupported type.");
+                    WriteLine($"{(char)action.Id}. {action.Name}");
                 }
             }
+
             return ReadKey(true);
         }
     }

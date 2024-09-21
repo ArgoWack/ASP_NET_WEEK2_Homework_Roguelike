@@ -1,7 +1,6 @@
 ﻿using ASP_NET_WEEK2_Homework_Roguelike.Services;
 using ASP_NET_WEEK2_Homework_Roguelike.Model;
 using ASP_NET_WEEK2_Homework_Roguelike.Controller;
-using ASP_NET_WEEK2_Homework_Roguelike.Model.Events;
 
 namespace ASP_NET_WEEK2_Homework_Roguelike.Model.Events
 {
@@ -30,7 +29,7 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Model.Events
                     HandleWiseTraveler(player);
                     break;
                 case "Monk":
-                    _eventService.HealPlayer(player, 1000);
+                    _interactionService.HealPlayer(player, 1000);
                     break;
                 case "Witch":
                     HandleWitchCurse(player);
@@ -52,16 +51,16 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Model.Events
             switch (buffType)
             {
                 case 0:
-                    _eventService.ModifyPlayerStats(player, "experience", 200);
+                    _interactionService.ModifyPlayerStats(player, "experience", 200);
                     break;
                 case 1:
-                    _eventService.ModifyPlayerStats(player, "speed", 5);
+                    _interactionService.ModifyPlayerStats(player, "speed", 5);
                     break;
                 case 2:
-                    _eventService.ModifyPlayerStats(player, "attack", 5);
+                    _interactionService.ModifyPlayerStats(player, "attack", 5);
                     break;
                 case 3:
-                    _eventService.ModifyPlayerStats(player, "defense", 5);
+                    _interactionService.ModifyPlayerStats(player, "defense", 5);
                     break;
             }
         }
@@ -69,9 +68,9 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Model.Events
         private void HandleWitchCurse(PlayerCharacter player)
         {
             player.Health /= 2;
-            _eventService.ModifyPlayerStats(player, "speed", -2);
-            _eventService.ModifyPlayerStats(player, "attack", -2);
-            _eventService.ModifyPlayerStats(player, "defense", -2);
+            _interactionService.ModifyPlayerStats(player, "speed", -2);
+            _interactionService.ModifyPlayerStats(player, "attack", -2);
+            _interactionService.ModifyPlayerStats(player, "defense", -2);
             _eventService.HandleEventOutcome("You got cursed by the witch. Your health is halved, and your stats are reduced.");
         }
 
