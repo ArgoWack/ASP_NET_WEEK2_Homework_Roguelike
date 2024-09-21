@@ -73,7 +73,6 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.View
             }
         }
 
-
         public void ShowCharacterStats(PlayerCharacter player)
         {
             WriteLine($@"
@@ -89,17 +88,17 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.View
         ");
 
             var equippedItems = new Dictionary<string, Item>
-        {
-            { "Amulet", player.EquippedAmulet },
-            { "Armor", player.EquippedArmor },
-            { "Boots", player.EquippedBoots },
-            { "Gloves", player.EquippedGloves },
-            { "Helmet", player.EquippedHelmet },
-            { "Shield", player.EquippedShield },
-            { "SwordOneHanded", player.EquippedSwordOneHanded },
-            { "SwordTwoHanded", player.EquippedSwordTwoHanded },
-            { "Trousers", player.EquippedTrousers }
-        };
+            {
+                { "Amulet", player.EquippedAmulet },
+                { "Armor", player.EquippedArmor },
+                { "Boots", player.EquippedBoots },
+                { "Gloves", player.EquippedGloves },
+                { "Helmet", player.EquippedHelmet },
+                { "Shield", player.EquippedShield },
+                { "SwordOneHanded", player.EquippedSwordOneHanded },
+                { "SwordTwoHanded", player.EquippedSwordTwoHanded },
+                { "Trousers", player.EquippedTrousers }
+            };
 
             foreach (var equippedItem in equippedItems)
             {
@@ -116,6 +115,7 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.View
                 }
             }
         }
+
         public void DisplayInventory(PlayerCharacter player)
         {
             WriteLine(" \nHere is your inventory: ");
@@ -130,42 +130,52 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.View
                 WriteLine($"Item: {item.Name} | ID: {item.ID} | Defense: {item.Defense} | Attack: {item.Attack} | Weight: {item.Weight} | Value: {item.MoneyWorth} coins");
             }
         }
+
         public void ShowEquipItemSuccess(string itemName)
         {
             WriteLine($"You have equipped {itemName}.");
         }
+
         public void ShowDiscardItemSuccess(string itemName)
         {
             WriteLine($"Item '{itemName}' has been discarded.");
         }
+
         public void ShowPlayerMovement(string direction, int currentX, int currentY)
         {
             WriteLine($"Moved {direction}. Current position: ({currentX}, {currentY})");
         }
+
         public void ShowEventEncounter(string eventType)
         {
             WriteLine($"You encounter a {eventType}!");
         }
+
         public void ShowEventOutcome(string outcome)
         {
             WriteLine(outcome);
         }
+
         public void ShowError(string message)
         {
             WriteLine($"Error: {message}");
         }
+
         public void ShowBuyHealthPotionSuccess()
         {
             WriteLine("You bought a health potion for 40 coins.");
         }
+
         public void ShowSellItemSuccess(string itemName, int price)
         {
             WriteLine($"You sold {itemName} for {price} coins.");
         }
+
         public void ShowErrorCannotMove()
         {
             WriteLine("\nYou cannot move in that direction. There is no room.");
         }
+
         public string ShowMerchantOptions()
         {
             WriteLine("\nWrite: \nb. Buy health potion for 40 \ns. Sell an item \nl. Leave");
@@ -196,16 +206,19 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.View
         {
             WriteLine("The merchant nods and moves on.");
         }
+
         public string PromptForItemPickup()
         {
             WriteLine("Would you like to take it? (y/n)");
             return ReadLine();
         }
+
         public string ShowMonsterOptions()
         {
             WriteLine("\nf. Fight \nh. Heal \nl. Leave/Flee");
             return ReadLine().ToLower();
         }
+
         public void ShowFleeMessage()
         {
             WriteLine("You flee from the monster.");

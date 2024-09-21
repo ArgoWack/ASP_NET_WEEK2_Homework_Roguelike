@@ -28,6 +28,7 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Services
         {
             map.DiscoveredRooms[(room.X, room.Y)] = room;
             room.IsExplored = true;
+
             // Logic for exits and room to discover
             foreach (var direction in room.Exits.Keys)
             {

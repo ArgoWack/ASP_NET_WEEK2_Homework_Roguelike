@@ -39,7 +39,6 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Services
             return item;
         }
 
-        // Public method to generate an item with specific stats
         public static Item GenerateItem(Type itemType, int weight, int defense, int attack, int moneyWorth)
         {
             var item = (Item)Activator.CreateInstance(itemType);
@@ -55,7 +54,6 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Services
             return item;
         }
 
-        // Method to assign random stats to the item
         private static void AssignRandomStats(Item item, ItemBaseStats baseStats, ref double percentage)
         {
             foreach (var property in item.GetType().GetProperties())
@@ -67,7 +65,7 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Services
                     {
                         var finalValue = GenerateRandomStat(baseValue, out double calculatedPercentage);
                         property.SetValue(item, finalValue);
-                        percentage = calculatedPercentage; // Adjust if multiple stats affect quality calculation
+                        percentage = calculatedPercentage;
                     }
                 }
             }

@@ -68,7 +68,6 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Model.Events
             {
                 _eventService.HandleEventOutcome("You have been defeated by the monster...");
 
-                // Handling player defeat can be extended or moved to another method
                 Environment.Exit(0);
             }
 

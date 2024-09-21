@@ -11,7 +11,6 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Model
         // Stores rooms that are yet to be discovered
         public List<RoomToDiscover> RoomsToDiscover { get; set; }
 
-        // Constructor initializes the DiscoveredRooms and RoomsToDiscover lists
         public Map()
         {
             DiscoveredRooms = new Dictionary<(int, int), Room>();

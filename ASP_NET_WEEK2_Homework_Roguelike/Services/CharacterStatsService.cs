@@ -5,7 +5,6 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Services
 {
     public class CharacterStatsService
     {
-        // Method to calculate and return the attack value
         public float CalculateAttack(PlayerCharacter player)
         {
             return (player.EquippedHelmet?.Attack ?? 0) +
@@ -19,7 +18,6 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Services
                    (player.EquippedSwordTwoHanded?.Attack ?? 0);
         }
 
-        // Method to calculate and return the defense value
         public float CalculateDefense(PlayerCharacter player)
         {
             return (player.EquippedHelmet?.Defense ?? 0) +
@@ -33,7 +31,6 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Services
                    (player.EquippedSwordTwoHanded?.Defense ?? 0);
         }
 
-        // Method to calculate and return the total weight
         public int CalculateWeight(PlayerCharacter player)
         {
             int totalWeight = 0;

@@ -28,10 +28,7 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Controller
 
         public void ShowCharacterStats()
         {
-            _playerCharacter.UpdateWeight();
-            _playerCharacter.UpdateAttack();
-            _playerCharacter.UpdateDefense();
-
+            _playerCharacter.UpdateStats();
             _view.ShowCharacterStats(_playerCharacter);
         }
 

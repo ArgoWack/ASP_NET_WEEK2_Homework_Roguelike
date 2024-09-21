@@ -1,58 +1,39 @@
 ﻿using ASP_NET_WEEK2_Homework_Roguelike.Controller;
 using ASP_NET_WEEK2_Homework_Roguelike.Model;
-using System;
+using ASP_NET_WEEK2_Homework_Roguelike.View;
 
 namespace ASP_NET_WEEK2_Homework_Roguelike.Services
 {
     public class EventService
     {
         private readonly PlayerCharacterController _playerController;
+        private readonly GameView _gameView;
 
-        public EventService(PlayerCharacterController playerController)
+        public EventService(PlayerCharacterController playerController, GameView gameView)
         {
             _playerController = playerController;
+            _gameView = gameView;
         }
-
         public void HandleEventOutcome(string outcome)
         {
-            Console.WriteLine(outcome);
+            _gameView.DisplayMessage(outcome);
         }
-
-        // realted to FindItemEvent
         public string PromptForItemPickup()
         {
-            Console.WriteLine("Would you like to take the item? (y/n)");
-            string choice = Console.ReadLine();
-            return choice;
+            return _gameView.PromptForItemPickup();
         }
-
-        // realted to MonsterEvent
-        public string GetMonsterOptions()
-        {
-            Console.WriteLine("\nChoose an action: \nf - Fight \nh - Heal \nl - Leave/Flee");
-            string choice = Console.ReadLine();
-            return choice;
-        }
-
-        // realted to DialogEvent
         public string GetMerchantOptions()
         {
-            Console.WriteLine("Write: \nb - Buy health potion for 40 coins \ns - Sell an item \nl - Leave");
-            string choice = Console.ReadLine();
-            return choice;
+            return _gameView.GetMerchantOptions();
         }
-
-        //// realted to merchant interaction
         public int? PromptForItemIdToSell()
         {
-            Console.WriteLine("Enter the ID of the item you want to sell:");
-            if (int.TryParse(Console.ReadLine(), out int itemId))
-            {
-                return itemId;
-            }
-            return null;
+            return _gameView.PromptForItemIdToSell();
         }
-
+        public string GetMonsterOptions()
+        {
+            return _gameView.GetMonsterOptions();
+        }
         public void BuyHealthPotion(PlayerCharacter player)
         {
             try
@@ -65,26 +46,23 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Services
                 HandleEventOutcome(ex.Message);
             }
         }
-
         public void SellItem(PlayerCharacter player, int itemId)
         {
             try
             {
                 player.SellItem(itemId);
-                HandleEventOutcome($"You sold item with ID {itemId}.");
+                HandleEventOutcome($"You sold the item with ID {itemId}.");
             }
             catch (InvalidOperationException ex)
             {
                 HandleEventOutcome(ex.Message);
             }
         }
-
         public void HealPlayer(PlayerCharacter player, int amount)
         {
             player.Heal(amount);
             HandleEventOutcome($"You have been healed by {amount} points.");
         }
-
         public void ModifyPlayerStats(PlayerCharacter player, string stat, int amount)
         {
             switch (stat)
