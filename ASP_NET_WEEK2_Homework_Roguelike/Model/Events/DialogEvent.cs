@@ -29,7 +29,7 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Model.Events
                     HandleWiseTraveler(player);
                     break;
                 case "Monk":
-                    _interactionService.HealPlayer(player, 1000);
+                    HandleMonkHealing(player);
                     break;
                 case "Witch":
                     HandleWitchCurse(player);
@@ -64,7 +64,19 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Model.Events
                     break;
             }
         }
-
+        private void HandleMonkHealing(PlayerCharacter player)
+        {
+            int missingHealth = player.HealthLimit - player.Health;
+            if (missingHealth > 0)
+            {
+                _interactionService.HealPlayer(player, missingHealth);
+                _eventService.HandleEventOutcome($"You have been healed by {missingHealth} health points.");
+            }
+            else
+            {
+                _eventService.HandleEventOutcome("You are already at full health.");
+            }
+        }
         private void HandleWitchCurse(PlayerCharacter player)
         {
             player.Health /= 2;

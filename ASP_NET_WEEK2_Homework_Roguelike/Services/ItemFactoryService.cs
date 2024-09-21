@@ -1,12 +1,13 @@
-﻿using ASP_NET_WEEK2_Homework_Roguelike.Model.Items;
-using System;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
+using ASP_NET_WEEK2_Homework_Roguelike.Model.Items;
 
 namespace ASP_NET_WEEK2_Homework_Roguelike.Services
 {
     public static class ItemFactoryService
     {
-        // Enumeration for item quality
         public enum ItemQuality
         {
             Shitty,
@@ -19,59 +20,68 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Services
         }
 
         private static readonly Random _random = new Random();
-
-        // Static property to keep track of the last generated item ID.
         public static int LastGeneratedItemId { get; set; } = 0;
 
-        // Public method to generate an item of a specific type
-        public static T GenerateItem<T>() where T : Item, new()
+        // List of all item types available for random generation
+        private static readonly List<Type> itemTypes = Assembly.GetExecutingAssembly()
+            .GetTypes()
+            .Where(t => typeof(Item).IsAssignableFrom(t) && !t.IsAbstract && t.GetConstructor(Type.EmptyTypes) != null)
+            .ToList();
+
+        // Generates a random item from the available list of item types
+        public static Item GenerateRandomItem()
         {
-            var baseStats = ItemStats.BaseStats[typeof(T)];
-            var item = new T();
-            double percentage = 0.0;
+            if (!itemTypes.Any())
+            {
+                return null;
+            }
 
-            // Assign random stats to the item based on its base stats
-            AssignRandomStats(item, baseStats, ref percentage);
-
-            // Set the item name based on its quality and type
-            AssignItemName(item, typeof(T), percentage);
-            item.ID = ++LastGeneratedItemId;
-            return item;
+            var randomType = itemTypes[_random.Next(itemTypes.Count)];
+            return GenerateItem(randomType);
         }
 
-        public static Item GenerateItem(Type itemType, int weight, int defense, int attack, int moneyWorth)
+        // Generate a specific item type
+        public static Item GenerateItem(Type itemType)
         {
+            if (!typeof(Item).IsAssignableFrom(itemType) || itemType.IsAbstract || itemType.GetConstructor(Type.EmptyTypes) == null)
+            {
+                return null;
+            }
+
+            // Check if base stats exist for this item type
+            if (!ItemStats.BaseStats.TryGetValue(itemType, out var baseStats))
+            {
+                return null;
+            }
+
             var item = (Item)Activator.CreateInstance(itemType);
-            item.Weight = weight;
-            item.Defense = defense;
-            item.Attack = attack;
-            item.MoneyWorth = moneyWorth;
+            double percentage = 0.0;
 
-            var percentage = CalculateQualityPercentage(attack, defense, weight, itemType);
+            AssignRandomStats(item, baseStats, ref percentage);
             AssignItemName(item, itemType, percentage);
-
             item.ID = ++LastGeneratedItemId;
+
             return item;
         }
 
         private static void AssignRandomStats(Item item, ItemBaseStats baseStats, ref double percentage)
         {
-            foreach (var property in item.GetType().GetProperties())
+            foreach (var property in typeof(ItemBaseStats).GetProperties())
             {
-                if (property.PropertyType == typeof(int))
+                var itemProperty = item.GetType().GetProperty(property.Name);
+                if (itemProperty != null && itemProperty.PropertyType == typeof(int) && itemProperty.CanWrite)
                 {
                     var baseValue = (int?)property.GetValue(baseStats) ?? 0;
                     if (baseValue != 0)
                     {
                         var finalValue = GenerateRandomStat(baseValue, out double calculatedPercentage);
-                        property.SetValue(item, finalValue);
+                        itemProperty.SetValue(item, finalValue);
                         percentage = calculatedPercentage;
                     }
                 }
             }
         }
 
-        // Method to generate a random stat value based on a base value
         private static int GenerateRandomStat(int baseValue, out double percentage)
         {
             var variation = baseValue * 0.25;
@@ -80,18 +90,6 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Services
             return baseValue + (int)offset;
         }
 
-        // Method to calculate item quality based on stats
-        private static double CalculateQualityPercentage(int attack, int defense, int weight, Type itemType)
-        {
-            var baseStats = ItemStats.BaseStats[itemType];
-            double attackPercentage = baseStats.Attack != 0 ? (double)(attack - baseStats.Attack) / baseStats.Attack : 0;
-            double defensePercentage = baseStats.Defense != 0 ? (double)(defense - baseStats.Defense) / baseStats.Defense : 0;
-            double weightPercentage = baseStats.Weight != 0 ? (double)(weight - baseStats.Weight) / baseStats.Weight : 0;
-
-            return (attackPercentage + defensePercentage + weightPercentage) / 3;
-        }
-
-        // Method to assign the item name based on quality and type
         private static void AssignItemName(Item item, Type itemType, double percentage)
         {
             var quality = GetQuality(percentage);
@@ -102,7 +100,6 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Services
             }
         }
 
-        // Method to determine item quality based on calculated percentage
         public static ItemQuality GetQuality(double percentage)
         {
             if (percentage <= -0.20) return ItemQuality.Shitty;

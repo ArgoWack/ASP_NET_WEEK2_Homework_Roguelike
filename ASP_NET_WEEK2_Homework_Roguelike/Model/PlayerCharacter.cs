@@ -16,6 +16,7 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Model
     {
         private readonly CharacterStatsService _statsService;
         private readonly InventoryService _inventoryService;
+        private readonly EventService _eventService;
 
         private int currentX;
         private int currentY;
@@ -255,10 +256,18 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Model
             }
 
             Money -= 40;
-            var healthPotion = ItemFactoryService.GenerateItem<HealthPotion>();
-            Inventory.Add(healthPotion);
+            var healthPotion = ItemFactoryService.GenerateItem(typeof(HealthPotion)) as HealthPotion;
 
-            UpdateStats();
+            if (healthPotion != null)
+            {
+                Inventory.Add(healthPotion);
+                UpdateStats();
+                _eventService.HandleEventOutcome("You bought a health potion.");
+            }
+            else
+            {
+                throw new InvalidOperationException("Failed to generate health potion.");
+            }
         }
     }
 }

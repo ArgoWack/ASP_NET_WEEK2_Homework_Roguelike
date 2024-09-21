@@ -84,11 +84,22 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Model.Events
             int playerDamage = (int)Math.Max(player.Attack - monster.Defense, 0);
             int monsterDamage = (int)Math.Max(monster.Attack - player.Defense, 0);
 
-            monster.Health -= playerDamage;
-            player.Health -= monsterDamage;
+            // Ensure the player's damage does not reduce monster's health below 0
+            monster.Health = Math.Max(monster.Health - playerDamage, 0);
+
+            // Ensure the player's health does not drop below 0
+            int damageToPlayer = Math.Min(monsterDamage, player.Health);
+            player.Health = Math.Max(player.Health - damageToPlayer, 0);
 
             _eventService.HandleEventOutcome($"You dealt {playerDamage} damage to the {monster.Name}. It has {monster.Health} health remaining.");
-            _eventService.HandleEventOutcome($"The {monster.Name} dealt {monsterDamage} damage to you. You have {player.Health} health remaining.");
+            _eventService.HandleEventOutcome($"The {monster.Name} dealt {damageToPlayer} damage to you. You have {player.Health} health remaining.");
+
+            // Check if the player is defeated
+            if (player.Health == 0)
+            {
+                _eventService.HandleEventOutcome("You have been defeated by the monster...");
+                Environment.Exit(0); // End the game
+            }
         }
 
         private void RewardPlayer(PlayerCharacter player, Monster monster)
@@ -99,9 +110,17 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Model.Events
 
             if (random.NextDouble() < 0.5)
             {
-                var item = ItemFactoryService.GenerateItem<SwordOneHanded>();
-                player.Inventory.Add(item);
-                _eventService.HandleEventOutcome($"The {monster.Name} dropped a {item.Name}!");
+                var item = ItemFactoryService.GenerateRandomItem();
+
+                if (item != null)
+                {
+                    player.Inventory.Add(item);
+                    _eventService.HandleEventOutcome($"The {monster.Name} dropped a {item.Name}!");
+                }
+                else
+                {
+                    _eventService.HandleEventOutcome("The monster dropped nothing of value.");
+                }
             }
 
             int moneyDropped = monster.Level * 10;
