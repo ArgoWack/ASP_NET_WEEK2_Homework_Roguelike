@@ -78,16 +78,19 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Services
             // Update the player's stats after unequipping the item
             player.UpdateStats();
         }
-
         public void DiscardItem(PlayerCharacter player, int itemId)
         {
+            // Find the item in the inventory by ID
             var item = player.Inventory.FirstOrDefault(i => i.ID == itemId);
             if (item == null)
                 throw new InvalidOperationException("Item not found in inventory.");
 
+            var itemType = item.GetType();
+
+            player.UnequipItem(itemType);
+
             player.Inventory.Remove(item);
 
-            // Update stats after discarding the item
             player.UpdateStats();
         }
     }
