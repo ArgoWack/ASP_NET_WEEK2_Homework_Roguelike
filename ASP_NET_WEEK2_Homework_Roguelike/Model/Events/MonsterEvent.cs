@@ -46,7 +46,7 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Model.Events
                         FightMonster(player, monster);
                         break;
                     case "h":
-                        _interactionService.HealPlayer(player, 100);
+                        player.HealByPotion();
                         break;
                     case "l":
                         _eventService.HandleEventOutcome("You flee from the monster.");

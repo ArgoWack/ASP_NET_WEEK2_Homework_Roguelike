@@ -61,7 +61,7 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Model
         public int Money { get; set; }
         public int Level { get; set; }
         public int Experience { get; set; }
-
+        public int HealthPotionsCount { get; set; }
         public Helmet EquippedHelmet { get; set; }
         public Armor EquippedArmor { get; set; }
         public Shield EquippedShield { get; set; }
@@ -131,16 +131,37 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Model
             _inventoryService.DiscardItem(this, itemId);
             UpdateStats();
         }
-
-        public void HealByPotion(HealthPotion healthPotion)
+        public void SellHealthPotion()
         {
-            Heal(healthPotion.MoneyWorth);
-            Inventory.Remove(healthPotion);
+            HealthPotionsCount--;
+            Weight--;
+            Money += 40;
+        }
+        public void ReceiveHealthPotion()
+        {
+            HealthPotionsCount++;
+            Weight++;
+        }
+        public void HealByPotion()
+        {
+            if (HealthPotionsCount == 0)
+            {
+                _eventService.HandleEventOutcome("You don't have any potions to use and can't heal");
+            }
+
+            if (HealthPotionsCount>0)
+            {
+                HealthPotionsCount--;
+                Weight--;
+                Heal(100);
+            }
         }
 
         public void Heal(int amount)
         {
-            Health = Math.Min(Health + amount, HealthLimit);
+            int healed = Math.Min(Health + amount, HealthLimit);
+            Health = healed;
+            _eventService.HandleEventOutcome("You healed for: " + (healed- Health).ToString());
         }
 
         public void GetExperience(int amount)
@@ -260,7 +281,7 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Model
 
             if (healthPotion != null)
             {
-                Inventory.Add(healthPotion);
+                ReceiveHealthPotion();
                 UpdateStats();
                 _eventService.HandleEventOutcome("You bought a health potion.");
             }

@@ -2,6 +2,7 @@
 using ASP_NET_WEEK2_Homework_Roguelike.Model;
 using ASP_NET_WEEK2_Homework_Roguelike.Controller;
 using ASP_NET_WEEK2_Homework_Roguelike.Model.Items;
+using System;
 
 namespace ASP_NET_WEEK2_Homework_Roguelike.Model.Events
 {
@@ -21,28 +22,66 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Model.Events
             if (player == null || room == null)
                 throw new ArgumentNullException("Player or Room cannot be null.");
 
-            var item = ItemFactoryService.GenerateRandomItem();
 
-            if (item != null)
+            Random random = new Random();
+            int chances = random.Next(0, 100);
+
+            if(chances<34)
             {
-                _eventService.HandleEventOutcome($"You have found an item: {item.Name}.");
-                string choice = _eventService.PromptForItemPickup();
+                // adds healthpotion(s)
 
-                if (choice.ToLower() == "y")
+                if (chances < 10)
                 {
-                    player.Inventory.Add(item);
-                    _eventService.HandleEventOutcome($"You have taken the item: {item.Name}.");
+                    player.ReceiveHealthPotion();
+                    _eventService.HandleEventOutcome($"You have found HealthPotion");
                 }
-                else
+                if (chances >= 10 && chances < 20)
+                {                    
+                    player.ReceiveHealthPotion();
+                    player.ReceiveHealthPotion();
+                    _eventService.HandleEventOutcome($"You have found 2 HealthPotions");
+                }
+                if (chances >= 20 && chances < 30)
+                {                    
+                    player.ReceiveHealthPotion();
+                    player.ReceiveHealthPotion();
+                    player.ReceiveHealthPotion();
+                    _eventService.HandleEventOutcome($"You have found 3 HealthPotions");
+                }
+                if (chances >= 30)
                 {
-                    _eventService.HandleEventOutcome($"You have left the item: {item.Name}.");
+                    player.ReceiveHealthPotion();
+                    player.ReceiveHealthPotion();
+                    player.ReceiveHealthPotion();
+                    player.ReceiveHealthPotion();
+                    _eventService.HandleEventOutcome($"You are lucky, you have found 4 HealthPotions");
                 }
             }
             else
             {
-                _eventService.HandleEventOutcome("No valid item generated.");
-            }
+                // generates random item other than healthpotion
+                var item = ItemFactoryService.GenerateRandomItem();
 
+                if (item != null)
+                {
+                    _eventService.HandleEventOutcome($"You have found an item: {item.Name}.");
+                    string choice = _eventService.PromptForItemPickup();
+
+                    if (choice.ToLower() == "y")
+                    {
+                        player.Inventory.Add(item);
+                        _eventService.HandleEventOutcome($"You have taken the item: {item.Name}.");
+                    }
+                    else
+                    {
+                        _eventService.HandleEventOutcome($"You have left the item: {item.Name}.");
+                    }
+                }
+                else
+                {
+                    _eventService.HandleEventOutcome("No valid item generated.");
+                }
+            }
             room.EventStatus = "none";
         }
     }
