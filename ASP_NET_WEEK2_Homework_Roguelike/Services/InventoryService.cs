@@ -80,16 +80,19 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Services
         }
         public void DiscardItem(PlayerCharacter player, int itemId)
         {
-            // Find the item in the inventory by ID
             var item = player.Inventory.FirstOrDefault(i => i.ID == itemId);
             if (item == null)
                 throw new InvalidOperationException("Item not found in inventory.");
 
-            var itemType = item.GetType();
-
-            player.UnequipItem(itemType);
-
-            player.Inventory.Remove(item);
+            if (item.Quantity > 1)
+            {
+                item.Quantity--; // Reduce quantity for stackable items
+            }
+            else
+            {
+                player.UnequipItem(item.GetType()); // Ensure the item is unequipped if equipped
+                player.Inventory.Remove(item); // Remove item entirely
+            }
 
             player.UpdateStats();
         }

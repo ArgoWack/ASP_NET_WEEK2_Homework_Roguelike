@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using ASP_NET_WEEK2_Homework_Roguelike.Model.Items;
+using ASP_NET_WEEK2_Homework_Roguelike.Model;
 using ASP_NET_WEEK2_Homework_Roguelike.Services;
 using static System.Console;
 
@@ -24,6 +26,44 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.View
                                  "\n E - Opens Inventory" +
                                  "\n A/W/S/D - movement";
             DisplayMessage(description + "\n");
+        }
+        public void DisplayInventory(PlayerCharacter player)
+        {
+            WriteLine(" \nHere is your inventory: ");
+            if (!player.Inventory.Any())
+            {
+                WriteLine("Your inventory is empty.");
+                return;
+            }
+
+            foreach (Item item in player.Inventory)
+            {
+                string details = $"Item: {item.Name} | ID: {item.ID} | Quantity: {item.Quantity} | " +
+                                 $"Defense: {item.Defense} | Attack: {item.Attack} | " +
+                                 $"Weight (total): {item.Weight * item.Quantity} | Value: {item.MoneyWorth} coins";
+                WriteLine(details);
+            }
+        }
+
+        public char PromptForInventoryChoice()
+        {
+            DisplayMessage(" \n Write:  \ne. Use some item \nd. Discard some item  \nl. Leave inventory");
+            char.TryParse(ReadLine(), out char choice);
+            return choice;
+        }
+
+        public int? PromptForItemId(string action)
+        {
+            DisplayMessage($" \n Write ID of the item you'd like to {action}:");
+            if (int.TryParse(ReadLine(), out int id))
+            {
+                return id;
+            }
+            else
+            {
+                DisplayMessage("Invalid ID.");
+                return null;
+            }
         }
 
         public string PromptForCharacterName()
@@ -57,27 +97,6 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.View
         public void ShowError(string message)
         {
             DisplayMessage($"Error: {message}");
-        }
-
-        public char PromptForInventoryChoice()
-        {
-            DisplayMessage(" \n Write:  \ne. Use some item \nd. Discard some item  \nl. Leave inventory");
-            char.TryParse(ReadLine(), out char choice);
-            return choice;
-        }
-
-        public int? PromptForItemId(string action)
-        {
-            DisplayMessage($" \n Write ID of the item you'd like to {action}:");
-            if (int.TryParse(ReadLine(), out int id))
-            {
-                return id;
-            }
-            else
-            {
-                ShowError("Invalid ID.");
-                return null;
-            }
         }
 
         public string PromptForItemPickup()

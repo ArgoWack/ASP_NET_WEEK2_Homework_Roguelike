@@ -10,6 +10,7 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Model.Items
     [ItemType("HealthPotion")]
     public class HealthPotion : Item
     {
-
+        public int HealingAmount { get; set; }
+        public int StackSize { get; set; } // Max potions per stack
     }
 }

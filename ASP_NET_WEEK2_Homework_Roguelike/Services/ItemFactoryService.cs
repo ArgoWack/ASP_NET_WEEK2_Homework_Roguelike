@@ -48,19 +48,30 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Services
                 return null;
             }
 
-            // Check if base stats exist for this item type
             if (!ItemStats.BaseStats.TryGetValue(itemType, out var baseStats))
             {
                 return null;
             }
 
+            // Create a new item of the specified type
             var item = (Item)Activator.CreateInstance(itemType);
+
+            // Assign random stats and calculate the quality percentage
             double percentage = 0.0;
-
             AssignRandomStats(item, baseStats, ref percentage);
-            AssignItemName(item, itemType, percentage);
-            item.ID = ++LastGeneratedItemId;
 
+            // Assign a name based on item quality
+            AssignItemName(item, itemType, percentage);
+
+            // Handle specific logic for stackable items, like HealthPotion
+            if (item is HealthPotion potion)
+            {
+                potion.StackSize = 10; // Default stack size
+                potion.HealingAmount = baseStats.Attack; // Use base stats' "Attack" for healing amount
+                potion.Quantity = 1; // Default quantity for new stackable items
+            }
+
+            item.ID = ++LastGeneratedItemId;
             return item;
         }
 

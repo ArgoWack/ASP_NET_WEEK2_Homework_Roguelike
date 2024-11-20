@@ -61,7 +61,6 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Model
         public int Money { get; set; }
         public int Level { get; set; }
         public int Experience { get; set; }
-        public int HealthPotionsCount { get; set; }
         public Helmet EquippedHelmet { get; set; }
         public Armor EquippedArmor { get; set; }
         public Shield EquippedShield { get; set; }
@@ -133,28 +132,65 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Model
         }
         public void SellHealthPotion()
         {
-            HealthPotionsCount--;
-            Weight--;
-            Money += 40;
+            var potion = Inventory.OfType<HealthPotion>().FirstOrDefault(p => p.Quantity > 0);
+
+            if (potion == null)
+            {
+                throw new InvalidOperationException("You don't have any health potions to sell.");
+            }
+
+            Money += potion.MoneyWorth;
+            potion.Quantity--;
+
+            if (potion.Quantity == 0)
+            {
+                Inventory.Remove(potion);
+            }
+
+            Weight -= potion.Weight; // Adjust weight dynamically
+            UpdateStats();
         }
         public void ReceiveHealthPotion()
         {
-            HealthPotionsCount++;
-            Weight++;
+            var existingPotion = Inventory.OfType<HealthPotion>().FirstOrDefault(p => p.Quantity < p.StackSize);
+
+            if (existingPotion != null)
+            {
+                existingPotion.Quantity++;
+            }
+            else
+            {
+                var newPotion = ItemFactoryService.GenerateItem(typeof(HealthPotion)) as HealthPotion;
+                if (newPotion != null)
+                {
+                    newPotion.Quantity = 1;
+                    Inventory.Add(newPotion);
+                }
+            }
+
+            Weight += Inventory.OfType<HealthPotion>().Sum(p => p.Weight); // Recalculate total weight
+            UpdateStats();
         }
         public void HealByPotion()
         {
-            if (HealthPotionsCount == 0)
+            var potion = Inventory.OfType<HealthPotion>().FirstOrDefault(p => p.Quantity > 0);
+
+            if (potion == null)
             {
-                _eventService.HandleEventOutcome("You don't have any potions to use and can't heal");
+                _eventService.HandleEventOutcome("You don't have any potions to use.");
+                return;
             }
 
-            if (HealthPotionsCount>0)
+            Heal(potion.HealingAmount);
+            potion.Quantity--;
+
+            if (potion.Quantity == 0)
             {
-                HealthPotionsCount--;
-                Weight--;
-                Heal(100);
+                Inventory.Remove(potion);
             }
+
+            Weight -= potion.Weight; // Adjust weight dynamically
+            UpdateStats();
         }
 
         public void Heal(int amount)

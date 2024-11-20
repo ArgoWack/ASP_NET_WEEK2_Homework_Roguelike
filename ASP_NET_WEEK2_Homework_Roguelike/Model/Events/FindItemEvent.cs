@@ -32,8 +32,12 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Model.Events
 
                 if (chances < 10)
                 {
-                    player.ReceiveHealthPotion();
-                    _eventService.HandleEventOutcome($"You have found HealthPotion");
+                    int foundPotions = new Random().Next(1, 4); // Randomly find 1-3 potions
+                    for (int i = 0; i < foundPotions; i++)
+                    {
+                        player.ReceiveHealthPotion();
+                    }
+                    _eventService.HandleEventOutcome($"You have found {foundPotions} Health Potions.");
                 }
                 if (chances >= 10 && chances < 20)
                 {                    
