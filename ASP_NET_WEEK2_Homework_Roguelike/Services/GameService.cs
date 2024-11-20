@@ -31,6 +31,8 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Services
 
         public void StartGame()
         {
+            _gameView = new GameView();
+
             _playerCharacter = new PlayerCharacter();
             _map = new Map();
             _mapService = new MapService(new EventService(_playerController, _gameView));
@@ -40,7 +42,8 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Services
             _eventService = new EventService(_playerController, _gameView);
             _characterInteractionService = new CharacterInteractionService(_eventService);
             _eventController = new EventController(_playerController, _eventService);
-            EventGenerator.Initialize(_eventService, _characterInteractionService);
+
+            EventGenerator.Initialize(_eventService, _characterInteractionService, _gameView);
 
             _gameView.ShowWelcomeMessage();
             ShowMainMenu();
