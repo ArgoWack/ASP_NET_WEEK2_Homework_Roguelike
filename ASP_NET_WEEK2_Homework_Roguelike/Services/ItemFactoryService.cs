@@ -45,34 +45,52 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Services
         {
             if (!typeof(Item).IsAssignableFrom(itemType) || itemType.IsAbstract || itemType.GetConstructor(Type.EmptyTypes) == null)
             {
+                Console.WriteLine($"Invalid item type: {itemType}"); // Debugging log
                 return null;
             }
 
             if (!ItemStats.BaseStats.TryGetValue(itemType, out var baseStats))
             {
+                Console.WriteLine($"Base stats not found for item type: {itemType}"); // Debugging log
                 return null;
             }
 
-            // Create a new item of the specified type
-            var item = (Item)Activator.CreateInstance(itemType);
-
-            // Assign random stats and calculate the quality percentage
-            double percentage = 0.0;
-            AssignRandomStats(item, baseStats, ref percentage);
-
-            // Assign a name based on item quality
-            AssignItemName(item, itemType, percentage);
-
-            // Handle specific logic for stackable items, like HealthPotion
-            if (item is HealthPotion potion)
+            try
             {
-                potion.StackSize = 10; // Default stack size
-                potion.HealingAmount = baseStats.Attack; // Use base stats' "Attack" for healing amount
-                potion.Quantity = 1; // Default quantity for new stackable items
-            }
+                // Special handling for HealthPotion
+                if (itemType == typeof(HealthPotion))
+                {
+                    var potion = new HealthPotion
+                    {
+                        StackSize = 10,
+                        HealingAmount = 25,
+                        Quantity = 1,
+                        Weight = 1,
+                        Name = "HealthPotion",
+                        ID = ++LastGeneratedItemId,
+                        MoneyWorth = 40
+                    };
+                    return potion;
+                }
 
-            item.ID = ++LastGeneratedItemId;
-            return item;
+                // General item creation logic for other items
+                var item = (Item)Activator.CreateInstance(itemType);
+
+                // Assign random stats and calculate the quality percentage
+                double percentage = 0.0;
+                AssignRandomStats(item, baseStats, ref percentage);
+
+                // Assign a name based on quality
+                AssignItemName(item, itemType, percentage);
+
+                item.ID = ++LastGeneratedItemId;
+                return item;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Exception occurred while generating item: {ex.Message}");
+                return null;
+            }
         }
 
         private static void AssignRandomStats(Item item, ItemBaseStats baseStats, ref double percentage)

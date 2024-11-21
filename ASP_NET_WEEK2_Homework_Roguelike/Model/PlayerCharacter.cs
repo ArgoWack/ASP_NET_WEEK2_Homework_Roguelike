@@ -108,7 +108,8 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Model
 
         public void UpdateStats()
         {
-            Weight = _statsService.CalculateWeight(this);
+            //Weight = _statsService.CalculateWeight(this);
+            Weight = Inventory.Sum(item => item.Weight * item.Quantity);
             baseAttack = _statsService.CalculateAttack(this);
             baseDefense = _statsService.CalculateDefense(this);
         }
@@ -150,27 +151,49 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Model
             Weight -= potion.Weight; // Adjust weight dynamically
             UpdateStats();
         }
-        public void ReceiveHealthPotion()
+        public void ReceiveHealthPotion(int quantity = 1)
         {
+            // Look for an existing stack of HealthPotions with available space
             var existingPotion = Inventory.OfType<HealthPotion>().FirstOrDefault(p => p.Quantity < p.StackSize);
 
             if (existingPotion != null)
             {
-                existingPotion.Quantity++;
-            }
-            else
-            {
-                var newPotion = ItemFactoryService.GenerateItem(typeof(HealthPotion)) as HealthPotion;
-                if (newPotion != null)
-                {
-                    newPotion.Quantity = 1;
-                    Inventory.Add(newPotion);
-                }
+                int addable = Math.Min(existingPotion.StackSize - existingPotion.Quantity, quantity);
+                existingPotion.Quantity += addable;
+                quantity -= addable;
             }
 
-            Weight += Inventory.OfType<HealthPotion>().Sum(p => p.Weight); // Recalculate total weight
+            // If there are still potions to add, create new stacks
+            while (quantity > 0)
+            {
+                var newPotion = ItemFactoryService.GenerateItem(typeof(HealthPotion)) as HealthPotion;
+
+                if (newPotion == null)
+                {
+                    throw new InvalidOperationException("Failed to generate HealthPotion.");
+                }
+
+                int stackQuantity = Math.Min(newPotion.StackSize, quantity);
+                newPotion.Quantity = stackQuantity;
+                Inventory.Add(newPotion);
+                quantity -= stackQuantity;
+            }
+
+            // Update weight
+            Weight = Inventory.Sum(item => item.Weight * item.Quantity);
             UpdateStats();
         }
+
+        public void FullInventoryDebug()
+        {
+            Console.WriteLine("\n--- Full Inventory Debug ---");
+            foreach (var item in Inventory)
+            {
+                Console.WriteLine($"ID: {item.ID}, Name: {item.Name}, Quantity: {item.Quantity}, Weight: {item.Weight}, Defense: {item.Defense}, Attack: {item.Attack}, Value: {item.MoneyWorth}");
+            }
+            Console.WriteLine("----------------------------\n");
+        }
+
         public void HealByPotion()
         {
             var potion = Inventory.OfType<HealthPotion>().FirstOrDefault(p => p.Quantity > 0);

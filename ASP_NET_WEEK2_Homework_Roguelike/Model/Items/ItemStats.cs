@@ -19,7 +19,8 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Model.Items
             { typeof(Gloves), new ItemBaseStats { Weight=4, Defense = 7,Attack=0,MoneyWorth=3 } },
             { typeof(Trousers), new ItemBaseStats { Weight=8, Defense = 12,Attack=0,MoneyWorth=5 } },
             { typeof(Boots), new ItemBaseStats { Weight=5, Defense = 5,Attack=0,MoneyWorth=4 } },
-            { typeof(Amulet), new ItemBaseStats { Weight=0, Defense = 1,Attack=4,MoneyWorth=10 } }
+            { typeof(Amulet), new ItemBaseStats { Weight=0, Defense = 1,Attack=4,MoneyWorth=10 } },
+            { typeof(HealthPotion), new ItemBaseStats { Attack = 0, Defense = 0, MoneyWorth = 40, Weight = 1 } }
         };
     }
 
