@@ -201,12 +201,12 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Model
                 return;
             }
 
-            Heal(potion.HealingAmount);
-            potion.Quantity--;
+            Heal(potion.HealingAmount); // Apply healing effect
+            potion.Quantity--; // Reduce the stack count
 
             if (potion.Quantity == 0)
             {
-                Inventory.Remove(potion);
+                Inventory.Remove(potion); // Remove empty stack
             }
 
             Weight -= potion.Weight; // Adjust weight dynamically
@@ -319,8 +319,21 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Model
                 throw new InvalidOperationException("Item not found in inventory.");
             }
 
-            Money += item.MoneyWorth;
-            Inventory.Remove(item);
+            if (item is HealthPotion potion)
+            {
+                Money += potion.MoneyWorth;
+                potion.Quantity--;
+
+                if (potion.Quantity == 0)
+                {
+                    Inventory.Remove(potion);
+                }
+            }
+            else
+            {
+                Money += item.MoneyWorth;
+                Inventory.Remove(item);
+            }
 
             UpdateStats();
         }

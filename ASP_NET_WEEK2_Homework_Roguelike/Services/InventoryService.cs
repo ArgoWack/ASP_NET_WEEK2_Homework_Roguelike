@@ -84,16 +84,23 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Services
             if (item == null)
                 throw new InvalidOperationException("Item not found in inventory.");
 
-            if (item.Quantity > 1)
+            if (item is HealthPotion potion)
             {
-                item.Quantity--; // Reduce quantity for stackable items
+                potion.Quantity--; // Reduce the quantity of the stack
+
+                if (potion.Quantity == 0) // If the stack is empty, remove the item
+                {
+                    player.Inventory.Remove(potion);
+                }
             }
             else
             {
-                player.UnequipItem(item.GetType()); // Ensure the item is unequipped if equipped
-                player.Inventory.Remove(item); // Remove item entirely
+                // For non-stackable items, ensure they are unequipped before removal
+                player.UnequipItem(item.GetType());
+                player.Inventory.Remove(item);
             }
 
+            // Recalculate stats regardless of the type of item discarded
             player.UpdateStats();
         }
     }
