@@ -45,45 +45,43 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Services
         {
             if (!typeof(Item).IsAssignableFrom(itemType) || itemType.IsAbstract || itemType.GetConstructor(Type.EmptyTypes) == null)
             {
-                Console.WriteLine($"Invalid item type: {itemType}"); // Debugging log
+                Console.WriteLine($"Invalid item type: {itemType}");
                 return null;
             }
 
             if (!ItemStats.BaseStats.TryGetValue(itemType, out var baseStats))
             {
-                Console.WriteLine($"Base stats not found for item type: {itemType}"); // Debugging log
+                Console.WriteLine($"Base stats not found for item type: {itemType}");
                 return null;
             }
-
             try
             {
-                // Special handling for HealthPotion
+                // Handle stackable or healing-specific items (e.g., HealthPotion)
                 if (itemType == typeof(HealthPotion))
                 {
                     var potion = new HealthPotion
                     {
-                        StackSize = 10,
-                        HealingAmount = 25,
-                        Quantity = 1,
-                        Weight = 1,
-                        Name = "HealthPotion",
-                        ID = ++LastGeneratedItemId,
-                        MoneyWorth = 40
+                        Name = baseStats.Name, // Defined in ItemStats
+                        Weight = baseStats.Weight,
+                        MoneyWorth = baseStats.MoneyWorth,
+                        MaxStackSize = baseStats.MaxStackSize,
+                        HealingAmount = baseStats.HealingAmount,
+                        Quantity = 1, // Default starting quantity
+                        ID = ++LastGeneratedItemId
                     };
                     return potion;
                 }
-
+                
                 // General item creation logic for other items
                 var item = (Item)Activator.CreateInstance(itemType);
 
-                // Assign random stats and calculate the quality percentage
+                // Do not preemptively assign fields; leave them for specialized methods
+                item.ID = ++LastGeneratedItemId; // Always assign a unique ID
+
+                // Assign stats and calculate quality
                 double percentage = 0.0;
-                AssignRandomStats(item, baseStats, ref percentage);
-
-                // Assign a name based on quality
-                AssignItemName(item, itemType, percentage);
-
-                item.ID = ++LastGeneratedItemId;
+                AssignRandomStats(item, baseStats, ref percentage); // Handles randomized fields
+                AssignItemName(item, itemType, percentage);         // Adds a name based on quality
                 return item;
             }
             catch (Exception ex)

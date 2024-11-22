@@ -20,5 +20,6 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Model.Items
         public string Description { get; set; }
         public string ItemType => GetType().Name;
         public int Quantity { get; set; } = 1; // Default for stackable items
+
     }
 }

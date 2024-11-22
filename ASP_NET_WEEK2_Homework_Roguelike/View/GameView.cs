@@ -39,14 +39,14 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.View
 
             foreach (var item in player.Inventory)
             {
-                string details = $"Item: {item.Name} | ID: {item.ID} | Quantity: {item.Quantity} | Weight: {item.Weight * item.Quantity}";
-
                 if (item is HealthPotion potion)
                 {
-                    details += $" | Healing: {potion.HealingAmount}";
+                    WriteLine($"Item: {potion.Name} | ID: {potion.ID} | Quantity: {potion.Quantity} | Max Stack Size: {potion.MaxStackSize} | Healing: {potion.HealingAmount} | Weight: {potion.Weight * potion.Quantity}| Value: {item.MoneyWorth} coins");
                 }
-
-                WriteLine(details);
+                else
+                {
+                    WriteLine($"Item: {item.Name} | ID: {item.ID} | Defense: {item.Defense} | Attack: {item.Attack} | Weight: {item.Weight} | Value: {item.MoneyWorth} coins");
+                }
             }
         }
         public char PromptForInventoryChoice()

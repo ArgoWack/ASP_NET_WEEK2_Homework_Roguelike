@@ -41,23 +41,19 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Model.Events
                 }
                 if (chances >= 10 && chances < 20)
                 {                    
-                    player.ReceiveHealthPotion();
-                    player.ReceiveHealthPotion();
+                    player.ReceiveHealthPotion(2);
                     _eventService.HandleEventOutcome($"You have found 2 HealthPotions");
                 }
                 if (chances >= 20 && chances < 30)
                 {                    
-                    player.ReceiveHealthPotion();
-                    player.ReceiveHealthPotion();
-                    player.ReceiveHealthPotion();
+                    player.ReceiveHealthPotion(3);
+
                     _eventService.HandleEventOutcome($"You have found 3 HealthPotions");
                 }
                 if (chances >= 30)
                 {
-                    player.ReceiveHealthPotion();
-                    player.ReceiveHealthPotion();
-                    player.ReceiveHealthPotion();
-                    player.ReceiveHealthPotion();
+                    player.ReceiveHealthPotion(4);
+
                     _eventService.HandleEventOutcome($"You are lucky, you have found 4 HealthPotions");
                 }
             }

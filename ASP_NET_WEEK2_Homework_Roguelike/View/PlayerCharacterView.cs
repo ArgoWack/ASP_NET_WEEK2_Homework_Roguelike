@@ -118,16 +118,24 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.View
 
         public void DisplayInventory(PlayerCharacter player)
         {
-            WriteLine(" \nHere is your inventory: ");
+            WriteLine("\nHere is your inventory:");
+
             if (!player.Inventory.Any())
             {
                 WriteLine("Your inventory is empty.");
                 return;
             }
 
-            foreach (Item item in player.Inventory)
+            foreach (var item in player.Inventory)
             {
-                WriteLine($"Item: {item.Name} | ID: {item.ID} | Defense: {item.Defense} | Attack: {item.Attack} | Weight: {item.Weight} | Value: {item.MoneyWorth} coins");
+               if (item is HealthPotion potion)
+                {
+                    WriteLine($"Item: {potion.Name} | ID: {potion.ID} | Quantity: {potion.Quantity}/{potion.MaxStackSize} | Healing: {potion.HealingAmount} | Weight: {potion.Weight * potion.Quantity}| Value: {item.MoneyWorth} coins");
+                }
+                else
+                {
+                    WriteLine($"Item: {item.Name} | ID: {item.ID} | Defense: {item.Defense} | Attack: {item.Attack} | Weight: {item.Weight} | Value: {item.MoneyWorth} coins");
+                }
             }
         }
 
