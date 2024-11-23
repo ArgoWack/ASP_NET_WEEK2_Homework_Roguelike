@@ -197,7 +197,15 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Model
 
             if (potion == null)
             {
-                _eventService.HandleEventOutcome("You don't have any potions to use.");
+                // Handle case where there are no potions
+                if (_eventService != null)
+                {
+                    _eventService.HandleEventOutcome("You don't have any potions to use.");
+                }
+                else
+                {
+                    WriteLine("You don't have any potions to use."); // Fallback if _eventService is null
+                }
                 return;
             }
 
@@ -215,9 +223,19 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Model
 
         public void Heal(int amount)
         {
-            int healed = Math.Min(Health + amount, HealthLimit);
-            Health = healed;
-            _eventService.HandleEventOutcome("You healed for: " + (healed- Health).ToString());
+            int previousHealth = Health;
+            Health = Math.Min(Health + amount, HealthLimit);
+
+            int actualHealedAmount = Health - previousHealth;
+
+            if (_eventService != null)
+            {
+                _eventService.HandleEventOutcome($"You healed for: {actualHealedAmount} health points.");
+            }
+            else
+            {
+                WriteLine($"You healed for: {actualHealedAmount} health points.");
+            }
         }
 
         public void GetExperience(int amount)
@@ -295,19 +313,19 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Model
 
         public void ModifySpeed(float amount)
         {
-            speedModifier += amount;
+            speedModifier = Math.Max(0, speedModifier + amount);
             UpdateStats();
         }
 
         public void ModifyAttack(float amount)
         {
-            attackModifier += amount;
+            attackModifier = Math.Max(0, attackModifier + amount);
             UpdateStats();
         }
 
         public void ModifyDefense(float amount)
         {
-            defenseModifier += amount;
+            defenseModifier = Math.Max(0, defenseModifier + amount);
             UpdateStats();
         }
 
