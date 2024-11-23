@@ -1,12 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.Json.Serialization;
-using System.Threading.Tasks;
-using System.Xml.Linq;
-
+﻿
 namespace ASP_NET_WEEK2_Homework_Roguelike.Model.Items
 {
     public abstract class Item
@@ -19,7 +11,7 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Model.Items
         public int MoneyWorth { get; set; }
         public string Description { get; set; }
         public string ItemType => GetType().Name;
-        public int Quantity { get; set; } = 1; // Default for stackable items
+        public int Quantity { get; set; } = 1; // default for stackable items
 
     }
 }

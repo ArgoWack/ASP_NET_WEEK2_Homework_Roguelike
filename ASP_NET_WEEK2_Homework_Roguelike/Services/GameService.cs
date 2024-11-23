@@ -1,11 +1,10 @@
 ﻿using ASP_NET_WEEK2_Homework_Roguelike.Controller;
 using ASP_NET_WEEK2_Homework_Roguelike.Model;
-using ASP_NET_WEEK2_Homework_Roguelike.Services;
 using ASP_NET_WEEK2_Homework_Roguelike.View;
-using System;
-using System.IO;
 using static System.Console;
 using ASP_NET_WEEK2_Homework_Roguelike.Model.Events;
+using System.Text.Json.Serialization;
+using System.Text.Json;
 
 namespace ASP_NET_WEEK2_Homework_Roguelike.Services
 {
@@ -21,34 +20,47 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Services
         private bool _inGame;
         private MenuActionService _menuActionService;
         private GameView _gameView;
-
         public GameService()
         {
             _menuActionService = new MenuActionService();
             InitializeMenuActions(_menuActionService);
             _gameView = new GameView();
         }
-
         public void StartGame()
         {
+            // Step 1: Initializes essential services
+            var statsService = new CharacterStatsService();
+            var inventoryService = new InventoryService();
+            var playerCharacterView = new PlayerCharacterView();
             _gameView = new GameView();
 
-            _playerCharacter = new PlayerCharacter();
+            // Step 2: Initializes EventService (requires PlayerCharacterController, so deferred)
+            _eventService = new EventService(null, _gameView); // Temporarily pass null for the controller
+
+            // Step 3: Initializes PlayerCharacter with required dependencies
+            _playerCharacter = new PlayerCharacter(statsService, inventoryService, _eventService, playerCharacterView);
+
+            // Step 4: Initializes map and MapService
             _map = new Map();
-            _mapService = new MapService(new EventService(_playerController, _gameView));
-            _playerCharacter.CurrentMap = _map;
+            _mapService = new MapService(_eventService);
+
+            // Step 5: Initializes PlayerCharacterController 
             _playerController = new PlayerCharacterController(_playerCharacter, _map, _mapService);
 
-            _eventService = new EventService(_playerController, _gameView);
+            // Step 6: Links EventService to PlayerCharacterController
+            _eventService.SetPlayerController(_playerController);
+
+            // Step 7: Initializes additional services and controllers
             _characterInteractionService = new CharacterInteractionService(_eventService);
             _eventController = new EventController(_playerController, _eventService);
 
-            EventGenerator.Initialize(_eventService, _characterInteractionService, _gameView);
+            // Step 8: Initialize EventGenerator
+            EventGenerator.Initialize(_eventService, _characterInteractionService, _gameView, playerCharacterView);
 
+            // Step 9: Starts the game by showing the welcome message and main menu
             _gameView.ShowWelcomeMessage();
             ShowMainMenu();
         }
-
         private void ShowMainMenu()
         {
             ConsoleKeyInfo operation;
@@ -74,21 +86,18 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Services
                         _gameView.ShowError("Wrong input");
                         break;
                 }
-
                 if (_inGame)
                 {
                     RunInGameLoop();
                 }
             } while (operation.KeyChar != '4');
         }
-
         public void RunInGameLoop()
         {
             ConsoleKeyInfo operation;
             do
             {
                 operation = _gameView.DisplayMenuAndGetChoice<char>("InGameMenu", "\nWhat would you like to do: a/w/s/d/e/q? \n", _menuActionService);
-
                 switch (operation.KeyChar)
                 {
                     case 'a':
@@ -113,7 +122,7 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Services
                         HandleInventory();
                         break;
                     case 'q':
-                        _playerCharacter.SaveGame();
+                        SaveGame();
                         _inGame = false;
                         break;
                     default:
@@ -122,7 +131,6 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Services
                 }
             } while (_inGame);
         }
-
         private void StartNewGame()
         {
             _playerCharacter.Name = _gameView.PromptForCharacterName();
@@ -130,31 +138,25 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Services
             _mapService.InitializeStartingRoom(_map);
             _playerCharacter.CurrentX = 0;
             _playerCharacter.CurrentY = 0;
-
-            _playerCharacter.SaveGame();
+            SaveGame();
             _inGame = true;
         }
-
         private void ContinueGame()
         {
             var saveFiles = Directory.GetFiles(Directory.GetCurrentDirectory(), "*_savefile.json");
-
             if (saveFiles.Length == 0)
             {
                 _gameView.ShowError("No saved games found.");
                 return;
             }
-
             int selectedIndex = _gameView.PromptForSaveFileSelection(saveFiles);
-
             if (selectedIndex > 0 && selectedIndex <= saveFiles.Length)
             {
                 var selectedFile = saveFiles[selectedIndex - 1];
                 var characterName = Path.GetFileNameWithoutExtension(selectedFile).Replace("_savefile", "");
-
                 try
                 {
-                    var gameState = PlayerCharacter.LoadGame(characterName);
+                    var gameState = LoadGame(characterName, _gameView);
                     _playerCharacter = gameState.PlayerCharacter;
                     _map = gameState.Map;
 
@@ -172,13 +174,11 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Services
                 _gameView.ShowError("Invalid selection. Returning to main menu.");
             }
         }
-
         private void QuitGame()
         {
             _gameView.ShowEndGameMessage();
             Environment.Exit(0);
         }
-
         private void MovePlayer(string direction)
         {
             _playerController.MovePlayer(direction);
@@ -188,7 +188,6 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Services
                 _eventController.ExecuteEvent(currentRoom);
             }
         }
-
         private void HandleInventory()
         {
             char choice;
@@ -215,7 +214,6 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Services
                 }
             } while (choice != 'l');
         }
-
         private static void InitializeMenuActions(MenuActionService actionService)
         {
             actionService.AddNewAction(1, "New game", "Main");
@@ -235,6 +233,80 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Services
             actionService.AddNewAction('e', "Use an item", "InventoryMenu");
             actionService.AddNewAction('d', "Discard an item", "InventoryMenu");
             actionService.AddNewAction('l', "Leave inventory", "InventoryMenu");
+        }
+        // Save/Load
+        public void SaveGame()
+        {
+            string sanitizedFileName = $"{_playerCharacter.Name}_savefile.json".Replace(" ", "_").Replace(":", "_").Replace("/", "_");
+            var gameState = new GameState
+            {
+                PlayerCharacter = _playerCharacter,
+                Map = _map
+            };
+            var options = new JsonSerializerOptions
+            {
+                WriteIndented = true,
+                ReferenceHandler = ReferenceHandler.Preserve,
+                Converters = { new Converters.ItemConverter(), new Converters.MapConverter() }
+            };
+            try
+            {
+                string jsonString = JsonSerializer.Serialize(gameState, options);
+                File.WriteAllText(sanitizedFileName, jsonString);
+                _gameView.ShowMessage($"Game saved as {sanitizedFileName}");
+            }
+            catch (Exception ex)
+            {
+                _gameView.ShowError($"Failed to save the game: {ex.Message}");
+            }
+        }
+        public static GameState LoadGame(string characterName, GameView gameView)
+        {
+            string sanitizedFileName = $"{characterName}_savefile.json".Replace(" ", "_").Replace(":", "_").Replace("/", "_");
+            if (File.Exists(sanitizedFileName))
+            {
+                try
+                {
+                    string jsonString = File.ReadAllText(sanitizedFileName);
+                    var options = new JsonSerializerOptions
+                    {
+                        ReferenceHandler = ReferenceHandler.Preserve,
+                        Converters = { new Converters.ItemConverter(), new Converters.MapConverter() }
+                    };
+                    var gameState = JsonSerializer.Deserialize<GameState>(jsonString, options);
+                    if (gameState != null)
+                    {
+                        gameState.PlayerCharacter.CurrentMap = gameState.Map;
+
+                        if (gameState.PlayerCharacter.Inventory.Any())
+                        {
+                            ItemFactoryService.LastGeneratedItemId = gameState.PlayerCharacter.Inventory.Max(i => i.ID);
+                        }
+                        else
+                        {
+                            ItemFactoryService.LastGeneratedItemId = 0;
+                        }
+
+                        gameView.ShowMessage($"Game loaded from {sanitizedFileName}");
+                        return gameState;
+                    }
+                    else
+                    {
+                        gameView.ShowError("Failed to load game: Game state is null.");
+                        return null;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    gameView.ShowError($"Failed to load the game: {ex.Message}");
+                    return null;
+                }
+            }
+            else
+            {
+                gameView.ShowError($"Save file for character '{characterName}' not found.");
+                return null;
+            }
         }
     }
 }

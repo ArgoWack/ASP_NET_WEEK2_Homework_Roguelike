@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿
 namespace ASP_NET_WEEK2_Homework_Roguelike.Model
 {
     public class Room
@@ -13,7 +8,6 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Model
         public string EventStatus { get; set; }
         public Dictionary<string, Room> Exits { get; set; }
         public bool IsExplored { get; set; }
-
         public Room(int x, int y)
         {
             X = x;

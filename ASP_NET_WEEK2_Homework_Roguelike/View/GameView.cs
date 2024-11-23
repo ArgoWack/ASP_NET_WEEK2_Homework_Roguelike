@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using ASP_NET_WEEK2_Homework_Roguelike.Model.Items;
+﻿using ASP_NET_WEEK2_Homework_Roguelike.Model.Items;
 using ASP_NET_WEEK2_Homework_Roguelike.Model;
 using ASP_NET_WEEK2_Homework_Roguelike.Services;
 using static System.Console;
@@ -13,12 +11,10 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.View
         {
             WriteLine(message);
         }
-
         public void ShowWelcomeMessage()
         {
             DisplayMessage("Welcome to Roguelike game \n");
         }
-
         public void ShowDescription()
         {
             string description = " \n It's a simple roguelike game with the following hotkeys:" +
@@ -36,7 +32,6 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.View
                 WriteLine("Your inventory is empty.");
                 return;
             }
-
             foreach (var item in player.Inventory)
             {
                 if (item is HealthPotion potion)
@@ -55,7 +50,6 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.View
             char.TryParse(ReadLine(), out char choice);
             return choice;
         }
-
         public int? PromptForItemId(string action)
         {
             DisplayMessage($" \n Write ID of the item you'd like to {action}:");
@@ -69,13 +63,11 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.View
                 return null;
             }
         }
-
         public string PromptForCharacterName()
         {
             DisplayMessage("\n Write Character Name");
             return ReadLine();
         }
-
         public int PromptForSaveFileSelection(string[] saveFiles)
         {
             DisplayMessage("\n Available saved games:");
@@ -85,7 +77,6 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.View
                 var characterName = fileName.Replace("_savefile", "");
                 DisplayMessage($"{i + 1}. {characterName}");
             }
-
             DisplayMessage("\n Enter the number of the character you want to load:");
             if (int.TryParse(ReadLine(), out int selectedIndex))
             {
@@ -97,24 +88,20 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.View
                 return -1;
             }
         }
-
         public void ShowError(string message)
         {
             DisplayMessage($"Error: {message}");
         }
-
         public string PromptForItemPickup()
         {
             DisplayMessage("Would you like to take it? (y/n)");
             return ReadLine().ToLower();
         }
-
         public string GetMerchantOptions()
         {
             DisplayMessage("Write: \nb - Buy health potion for 40 coins \ns - Sell an item \nl - Leave");
             return ReadLine().ToLower();
         }
-
         public int? PromptForItemIdToSell()
         {
             DisplayMessage("Enter the ID of the item you want to sell:");
@@ -124,13 +111,11 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.View
             }
             return null;
         }
-
         public string GetMonsterOptions()
         {
             DisplayMessage("\nChoose an action: \nf - Fight \nh - Heal \nl - Leave/Flee");
             return ReadLine().ToLower();
         }
-
         public ConsoleKeyInfo DisplayMenuAndGetChoice<T>(string menuKind, string prompt, MenuActionService menuActionService)
         {
             var menu = menuActionService.GetMenuActionsByMenuName(menuKind);
@@ -150,10 +135,13 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.View
 
             return ReadKey(true);
         }
-
         public void ShowEndGameMessage()
         {
             DisplayMessage("Thank you for playing! The game has ended.");
+        }
+        public void ShowMessage(string message)
+        {
+            DisplayMessage(message);
         }
     }
 }

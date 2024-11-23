@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
+﻿using System.Reflection;
 using ASP_NET_WEEK2_Homework_Roguelike.Model.Items;
+using ASP_NET_WEEK2_Homework_Roguelike.View;
 
 namespace ASP_NET_WEEK2_Homework_Roguelike.Services
 {
@@ -18,7 +16,6 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Services
             Great,
             Legendary
         }
-
         private static readonly Random _random = new Random();
         public static int LastGeneratedItemId { get; set; } = 0;
 
@@ -29,68 +26,67 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Services
             .ToList();
 
         // Generates a random item from the available list of item types
-        public static Item GenerateRandomItem()
+        public static Item GenerateRandomItem(PlayerCharacterView view)
         {
             if (!itemTypes.Any())
             {
+                view.ShowError("No available item types for generation.");
                 return null;
             }
-
             var randomType = itemTypes[_random.Next(itemTypes.Count)];
-            return GenerateItem(randomType);
+            return GenerateItem(randomType, view);
         }
 
-        // Generate a specific item type
-        public static Item GenerateItem(Type itemType)
+        // Generates a specific item type
+        public static Item GenerateItem(Type itemType, PlayerCharacterView view)
         {
+            if (view == null)
+                throw new ArgumentNullException(nameof(view));
             if (!typeof(Item).IsAssignableFrom(itemType) || itemType.IsAbstract || itemType.GetConstructor(Type.EmptyTypes) == null)
             {
-                Console.WriteLine($"Invalid item type: {itemType}");
+                view.ShowError($"Invalid item type: {itemType}");
                 return null;
             }
-
             if (!ItemStats.BaseStats.TryGetValue(itemType, out var baseStats))
             {
-                Console.WriteLine($"Base stats not found for item type: {itemType}");
+                view.ShowError($"Base stats not found for item type: {itemType}");
                 return null;
             }
             try
             {
-                // Handle stackable or healing-specific items (e.g., HealthPotion)
+                // Handles stackable or healing-specific items (e.g., HealthPotion)
                 if (itemType == typeof(HealthPotion))
                 {
                     var potion = new HealthPotion
                     {
-                        Name = baseStats.Name, // Defined in ItemStats
+                        Name = baseStats.Name,
                         Weight = baseStats.Weight,
                         MoneyWorth = baseStats.MoneyWorth,
                         MaxStackSize = baseStats.MaxStackSize,
                         HealingAmount = baseStats.HealingAmount,
-                        Quantity = 1, // Default starting quantity
+                        Quantity = 1,
                         ID = ++LastGeneratedItemId
                     };
+                    view.ShowItemGenerated($"Generated HealthPotion with ID: {potion.ID}");
                     return potion;
                 }
-                
+
                 // General item creation logic for other items
                 var item = (Item)Activator.CreateInstance(itemType);
+                item.ID = ++LastGeneratedItemId;
 
-                // Do not preemptively assign fields; leave them for specialized methods
-                item.ID = ++LastGeneratedItemId; // Always assign a unique ID
-
-                // Assign stats and calculate quality
+                // Assigns stats and calculate quality
                 double percentage = 0.0;
-                AssignRandomStats(item, baseStats, ref percentage); // Handles randomized fields
-                AssignItemName(item, itemType, percentage);         // Adds a name based on quality
+                AssignRandomStats(item, baseStats, ref percentage);
+                AssignItemName(item, itemType, percentage);
                 return item;
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Exception occurred while generating item: {ex.Message}");
+                view.ShowError($"Exception occurred while generating item: {ex.Message}");
                 return null;
             }
         }
-
         private static void AssignRandomStats(Item item, ItemBaseStats baseStats, ref double percentage)
         {
             foreach (var property in typeof(ItemBaseStats).GetProperties())
@@ -108,7 +104,6 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Services
                 }
             }
         }
-
         private static int GenerateRandomStat(int baseValue, out double percentage)
         {
             var variation = baseValue * 0.25;
@@ -116,7 +111,6 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Services
             percentage = offset / baseValue;
             return baseValue + (int)offset;
         }
-
         private static void AssignItemName(Item item, Type itemType, double percentage)
         {
             var quality = GetQuality(percentage);
@@ -126,7 +120,6 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Services
                 item.Name = $"{quality} {itemTypeAttribute.Kind}";
             }
         }
-
         public static ItemQuality GetQuality(double percentage)
         {
             if (percentage <= -0.20) return ItemQuality.Shitty;

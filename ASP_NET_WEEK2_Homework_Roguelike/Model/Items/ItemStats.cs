@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿
 namespace ASP_NET_WEEK2_Homework_Roguelike.Model.Items
 {
     public static class ItemStats
@@ -33,7 +27,7 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Model.Items
         public int Attack { get; set; }
         public int MoneyWorth { get; set; }
         public string Description { get; set; }
-        public int MaxStackSize { get; set; } // Optional, for stackable items
-        public int HealingAmount { get; set; } // Optional, for healing items
+        public int MaxStackSize { get; set; } // optional, for stackable items
+        public int HealingAmount { get; set; } // optional, for healing items
     }
 }

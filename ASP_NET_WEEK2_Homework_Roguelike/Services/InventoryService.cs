@@ -1,7 +1,5 @@
 ﻿using ASP_NET_WEEK2_Homework_Roguelike.Model;
 using ASP_NET_WEEK2_Homework_Roguelike.Model.Items;
-using System;
-using System.Linq;
 
 namespace ASP_NET_WEEK2_Homework_Roguelike.Services
 {
@@ -9,11 +7,12 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Services
     {
         public void EquipItem(PlayerCharacter player, int itemId)
         {
+            if (player == null)
+                throw new ArgumentNullException(nameof(player));
+
             var item = player.Inventory.FirstOrDefault(i => i.ID == itemId);
             if (item == null)
                 throw new InvalidOperationException("Item not found in inventory.");
-
-            // Logic to equip item based on item type
             switch (item)
             {
                 case Helmet helmet:
@@ -46,61 +45,49 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Services
                 default:
                     throw new InvalidOperationException("Cannot equip this type of item.");
             }
-
-            // Update the player's stats after equipping the item
+            // ensures player stats are updated after equipping an item
             player.UpdateStats();
         }
-
         public void UnequipItem(PlayerCharacter player, Type itemType)
         {
-            // Logic to unequip based on item type
-            if (itemType == typeof(Helmet))
-                player.EquippedHelmet = null;
-            else if (itemType == typeof(Armor))
-                player.EquippedArmor = null;
-            else if (itemType == typeof(Shield))
-                player.EquippedShield = null;
-            else if (itemType == typeof(Gloves))
-                player.EquippedGloves = null;
-            else if (itemType == typeof(Trousers))
-                player.EquippedTrousers = null;
-            else if (itemType == typeof(Boots))
-                player.EquippedBoots = null;
-            else if (itemType == typeof(Amulet))
-                player.EquippedAmulet = null;
-            else if (itemType == typeof(SwordOneHanded))
-                player.EquippedSwordOneHanded = null;
-            else if (itemType == typeof(SwordTwoHanded))
-                player.EquippedSwordTwoHanded = null;
+            if (player == null)
+                throw new ArgumentNullException(nameof(player));
+            if (itemType == null)
+                throw new ArgumentNullException(nameof(itemType));
+            if (itemType == typeof(Helmet)) player.EquippedHelmet = null;
+            else if (itemType == typeof(Armor)) player.EquippedArmor = null;
+            else if (itemType == typeof(Shield)) player.EquippedShield = null;
+            else if (itemType == typeof(Gloves)) player.EquippedGloves = null;
+            else if (itemType == typeof(Trousers)) player.EquippedTrousers = null;
+            else if (itemType == typeof(Boots)) player.EquippedBoots = null;
+            else if (itemType == typeof(Amulet)) player.EquippedAmulet = null;
+            else if (itemType == typeof(SwordOneHanded)) player.EquippedSwordOneHanded = null;
+            else if (itemType == typeof(SwordTwoHanded)) player.EquippedSwordTwoHanded = null;
             else
                 throw new InvalidOperationException("Cannot unequip this type of item.");
-
-            // Update the player's stats after unequipping the item
+            // ensures player stats are updated after unequipping an item
             player.UpdateStats();
         }
         public void DiscardItem(PlayerCharacter player, int itemId)
         {
+            if (player == null)
+                throw new ArgumentNullException(nameof(player));
+
             var item = player.Inventory.FirstOrDefault(i => i.ID == itemId);
             if (item == null)
                 throw new InvalidOperationException("Item not found in inventory.");
-
             if (item is HealthPotion potion)
             {
-                potion.Quantity--; // Reduce the quantity of the stack
-
-                if (potion.Quantity == 0) // If the stack is empty, remove the item
-                {
+                potion.Quantity--;
+                if (potion.Quantity == 0)
                     player.Inventory.Remove(potion);
-                }
             }
             else
             {
-                // For non-stackable items, ensure they are unequipped before removal
                 player.UnequipItem(item.GetType());
                 player.Inventory.Remove(item);
             }
-
-            // Recalculate stats regardless of the type of item discarded
+            // ensures player stats are updated after discarding an item
             player.UpdateStats();
         }
     }

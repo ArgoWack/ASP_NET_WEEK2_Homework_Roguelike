@@ -14,14 +14,12 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Controller
             _playerController = playerController;
             _eventService = eventService;
         }
-
         public void ExecuteEvent(Room room)
         {
             if (room == null || room.EventStatus == "none") return;
 
-            // Generate the event based on the room's EventStatus and execute it
+            // generates the event based on the room's EventStatus and execute it
             var randomEvent = EventGenerator.GenerateEvent(room.EventStatus);
-
             if (randomEvent != null)
             {
                 try
@@ -38,8 +36,7 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Controller
             {
                 _eventService.HandleEventOutcome("No valid event found for this room.");
             }
-
-            room.EventStatus = "none"; // Clear event status after handling
+            room.EventStatus = "none"; // clears event status after handling
         }
     }
 }

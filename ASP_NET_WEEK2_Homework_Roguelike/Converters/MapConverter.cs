@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text.Json;
+﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 using ASP_NET_WEEK2_Homework_Roguelike.Model;
 
@@ -12,12 +9,10 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Converters
         public override Map Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
             var map = new Map();
-
             using (var document = JsonDocument.ParseValue(ref reader))
             {
                 var root = document.RootElement;
-
-                // Deserialize DiscoveredRooms
+                // deserializes DiscoveredRooms
                 if (root.TryGetProperty("discoveredRooms", out JsonElement roomsElement))
                 {
                     map.DiscoveredRooms = new Dictionary<(int, int), Room>();
@@ -26,13 +21,11 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Converters
                         var coordinates = roomElement.Name.Split(',');
                         var room = JsonSerializer.Deserialize<Room>(roomElement.Value.GetRawText(), options);
                         map.DiscoveredRooms[(int.Parse(coordinates[0]), int.Parse(coordinates[1]))] = room;
-
-                        // Ensure Exits is not null
+                        // ensures Exits are not null
                         room.Exits ??= new Dictionary<string, Room>();
                     }
                 }
-
-                // Deserialize RoomsToDiscover
+                // deserializes RoomsToDiscover
                 if (root.TryGetProperty("roomsToDiscover", out JsonElement rtdElement))
                 {
                     if (rtdElement.TryGetProperty("$values", out JsonElement valuesElement) && valuesElement.ValueKind == JsonValueKind.Array)
@@ -50,26 +43,23 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Converters
                                                                          .GetProperty("$values").EnumerateArray()
                                                                          .Select(x => x.GetString()))
                             };
-
                             roomsToDiscoverList.Add(roomToDiscover);
                         }
-
                         map.RoomsToDiscover = roomsToDiscoverList;
                     }
                     else
                     {
-                        // Handle case where $values is empty or missing
+                        // handles case where $values is empty or missing
                         map.RoomsToDiscover = new List<RoomToDiscover>();
                     }
                 }
                 else
                 {
-                    // If the property doesn't exist at all, initialize an empty list
+                    // if the property doesn't exist at all, initializes an empty list
                     map.RoomsToDiscover = new List<RoomToDiscover>();
                 }
             }
-
-            // Second pass: resolve the exits
+            // second pass: resolve the exits
             foreach (var kvp in map.DiscoveredRooms)
             {
                 var room = kvp.Value;
@@ -86,14 +76,11 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Converters
                     }
                 }
             }
-
             return map;
         }
-
         public override void Write(Utf8JsonWriter writer, Map value, JsonSerializerOptions options)
         {
             writer.WriteStartObject();
-
             writer.WritePropertyName("discoveredRooms");
             writer.WriteStartObject();
             foreach (var kvp in value.DiscoveredRooms)
@@ -104,7 +91,6 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Converters
                 var exitsToSerialize = room.Exits.ToDictionary(
                     kvp => kvp.Key,
                     kvp => kvp.Value != null ? new { kvp.Value.X, kvp.Value.Y } : null);
-
                 var roomData = new
                 {
                     room.X,
@@ -113,17 +99,14 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Converters
                     room.IsExplored,
                     Exits = exitsToSerialize
                 };
-
                 JsonSerializer.Serialize(writer, roomData, options);
             }
             writer.WriteEndObject();
-
             writer.WritePropertyName("roomsToDiscover");
             writer.WriteStartObject();
             writer.WritePropertyName("$values");
             JsonSerializer.Serialize(writer, value.RoomsToDiscover, options);
             writer.WriteEndObject();
-
             writer.WriteEndObject();
         }
     }

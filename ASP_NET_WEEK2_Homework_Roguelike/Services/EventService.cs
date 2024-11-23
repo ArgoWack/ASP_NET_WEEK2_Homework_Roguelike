@@ -6,13 +6,19 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Services
 {
     public class EventService
     {
-        private readonly PlayerCharacterController _playerController;
+        private PlayerCharacterController _playerController;
         private readonly GameView _gameView;
 
         public EventService(PlayerCharacterController playerController, GameView gameView)
         {
             _playerController = playerController;
-            _gameView = gameView;
+            _gameView = gameView ?? throw new ArgumentNullException(nameof(gameView));
+        }
+
+        // method to set the PlayerCharacterController after the object is created
+        public void SetPlayerController(PlayerCharacterController playerController)
+        {
+            _playerController = playerController ?? throw new ArgumentNullException(nameof(playerController));
         }
         public void HandleEventOutcome(string outcome)
         {
@@ -36,6 +42,8 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Services
         }
         public void BuyHealthPotion(PlayerCharacter player)
         {
+            if (player == null)
+                throw new ArgumentNullException(nameof(player));
             try
             {
                 player.BuyHealthPotion();
@@ -48,6 +56,8 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Services
         }
         public void SellItem(PlayerCharacter player, int itemId)
         {
+            if (player == null)
+                throw new ArgumentNullException(nameof(player));
             try
             {
                 player.SellItem(itemId);
@@ -60,16 +70,22 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Services
         }
         public void HealPlayer(PlayerCharacter player, int amount)
         {
+            if (player == null)
+                throw new ArgumentNullException(nameof(player));
+
             player.Heal(amount);
             HandleEventOutcome($"You have been healed by {amount} points.");
         }
         public void ModifyPlayerStats(PlayerCharacter player, string stat, int amount)
         {
-            switch (stat)
+            if (player == null)
+                throw new ArgumentNullException(nameof(player));
+
+            switch (stat.ToLower())
             {
                 case "experience":
-                    player.Experience += amount;
-                    HandleEventOutcome($"You gained {amount} experience.");
+                    player.GetExperience(amount);
+                    HandleEventOutcome($"You gained {amount} experience points.");
                     break;
                 case "speed":
                     player.ModifySpeed(amount);
@@ -84,7 +100,7 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Services
                     HandleEventOutcome($"Your defense has been modified by {amount}.");
                     break;
                 default:
-                    HandleEventOutcome("Invalid stat modification.");
+                    HandleEventOutcome($"Invalid stat modification: {stat}.");
                     break;
             }
         }

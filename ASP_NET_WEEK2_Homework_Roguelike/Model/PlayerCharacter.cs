@@ -1,14 +1,6 @@
-﻿using ASP_NET_WEEK2_Homework_Roguelike.Model.Events;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text.Json;
-using System.IO;
-using static System.Console;
-using System.Text.Json.Serialization;
-using ASP_NET_WEEK2_Homework_Roguelike.Services;
+﻿using ASP_NET_WEEK2_Homework_Roguelike.Services;
 using ASP_NET_WEEK2_Homework_Roguelike.Model.Items;
+using ASP_NET_WEEK2_Homework_Roguelike.View;
 
 namespace ASP_NET_WEEK2_Homework_Roguelike.Model
 {
@@ -17,50 +9,48 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Model
         private readonly CharacterStatsService _statsService;
         private readonly InventoryService _inventoryService;
         private readonly EventService _eventService;
+        private readonly PlayerCharacterView _view;
 
-        private int currentX;
-        private int currentY;
+        private int _currentX;
+        private int _currentY;
 
-        // Base stats and modifiers
-        private float baseSpeed;
-        private float baseAttack;
-        private float baseDefense;
-        private float speedModifier;
-        private float attackModifier;
-        private float defenseModifier;
+        private float _baseSpeed;
+        private float _baseAttack;
+        private float _baseDefense;
+        private float _speedModifier;
+        private float _attackModifier;
+        private float _defenseModifier;
 
-        private List<Item> inventory;
+        private List<Item> _inventory;
 
-        public int CurrentX
-        {
-            get => currentX;
-            set => currentX = value;
-        }
-
-        public int CurrentY
-        {
-            get => currentY;
-            set => currentY = value;
-        }
-
-        public Map CurrentMap { get; set; }
-
-        public List<Item> Inventory
-        {
-            get => inventory;
-            set
-            {
-                inventory = value;
-                UpdateStats();
-            }
-        }
-
+        // Properties
         public string Name { get; set; }
         public int Health { get; set; }
         public int Weight { get; private set; }
         public int Money { get; set; }
         public int Level { get; set; }
         public int Experience { get; set; }
+        public Map CurrentMap { get; set; }
+        public int CurrentX
+        {
+            get => _currentX;
+            set => _currentX = value;
+        }
+        public int CurrentY
+        {
+            get => _currentY;
+            set => _currentY = value;
+        }
+        public List<Item> Inventory
+        {
+            get => _inventory;
+            set
+            {
+                _inventory = value;
+                UpdateStats();
+            }
+        }
+        // Equipped Items
         public Helmet EquippedHelmet { get; set; }
         public Armor EquippedArmor { get; set; }
         public Shield EquippedShield { get; set; }
@@ -71,63 +61,60 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Model
         public SwordOneHanded EquippedSwordOneHanded { get; set; }
         public SwordTwoHanded EquippedSwordTwoHanded { get; set; }
 
+        // Derived Stats
         public int HealthLimit => 100 + Level * 10;
+        public float Speed => (_baseSpeed + _speedModifier) / (Weight / 100 + 1);
+        public float Attack => (_baseAttack + _attackModifier) * Speed;
+        public float Defense => (_baseDefense + _defenseModifier) * Speed;
 
-        public float Speed => (baseSpeed + speedModifier) / (Weight / 100 + 1);
-        public float Attack => (baseAttack + attackModifier) * Speed;
-        public float Defense => (baseDefense + defenseModifier) * Speed;
-
-        public PlayerCharacter()
+        public PlayerCharacter(CharacterStatsService statsService, InventoryService inventoryService, EventService eventService, PlayerCharacterView view)
         {
-            _statsService = new CharacterStatsService();
-            _inventoryService = new InventoryService();
+            _statsService = statsService ?? throw new ArgumentNullException(nameof(statsService));
+            _inventoryService = inventoryService ?? throw new ArgumentNullException(nameof(inventoryService));
+            _eventService = eventService ?? throw new ArgumentNullException(nameof(eventService));
+            _view = view ?? throw new ArgumentNullException(nameof(view));
 
-            Inventory = new List<Item>();
+            _inventory = new List<Item>();
             Level = 1;
             Health = HealthLimit;
             Money = 0;
-            currentX = 0;
-            currentY = 0;
+            _currentX = 0;
+            _currentY = 0;
             CurrentMap = new Map();
 
-            baseSpeed = Level * 10;
-
+            _baseSpeed = Level * 10;
             UpdateStats();
         }
 
+        // Movement
         public void MovePlayer(string direction, Map map, MapService mapService)
         {
-            int playerX = CurrentX;
-            int playerY = CurrentY;
-
+            int playerX = _currentX;
+            int playerY = _currentY;
             mapService.MovePlayer(map, ref playerX, ref playerY, direction);
-
-            CurrentX = playerX;
-            CurrentY = playerY;
+            _currentX = playerX;
+            _currentY = playerY;
         }
 
+        // Stats Updates
         public void UpdateStats()
         {
-            // Recalculate weight using the existing method for consistency
-            RecalculateWeight();
-
-            // Update other stats based on inventory and player attributes
-            baseAttack = _statsService.CalculateAttack(this);
-            baseDefense = _statsService.CalculateDefense(this);
+            Weight = _statsService.CalculateWeight(this);
+            _baseAttack = _statsService.CalculateAttack(this);
+            _baseDefense = _statsService.CalculateDefense(this);
         }
 
+        // Inventory Management
         public void EquipItem(int itemId)
         {
             _inventoryService.EquipItem(this, itemId);
             UpdateStats();
         }
-
         public void UnequipItem(Type itemType)
         {
             _inventoryService.UnequipItem(this, itemType);
             UpdateStats();
         }
-
         public void DiscardItem(int itemId)
         {
             _inventoryService.DiscardItem(this, itemId);
@@ -135,109 +122,66 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Model
         }
         public void SellHealthPotion()
         {
-            var potion = Inventory.OfType<HealthPotion>().FirstOrDefault(p => p.Quantity > 0);
-
+            var potion = _inventory.OfType<HealthPotion>().FirstOrDefault(p => p.Quantity > 0);
             if (potion == null)
-            {
                 throw new InvalidOperationException("You don't have any health potions to sell.");
-            }
 
             Money += potion.MoneyWorth;
             potion.Quantity--;
 
             if (potion.Quantity == 0)
-            {
-                Inventory.Remove(potion);
-            }
+                _inventory.Remove(potion);
 
-            Weight -= potion.Weight; // Adjust weight dynamically
+            Weight -= potion.Weight;
             UpdateStats();
         }
         public void ReceiveHealthPotion(int quantity = 1)
         {
-            WriteLine($"\n--- Adding {quantity} HealthPotion(s) ---");
-
-            // Try to add to an existing stack
-            var existingPotion = Inventory.OfType<HealthPotion>().FirstOrDefault(p => p.Quantity < p.MaxStackSize);
-
+            var existingPotion = _inventory.OfType<HealthPotion>().FirstOrDefault(p => p.Quantity < p.MaxStackSize);
             if (existingPotion != null)
             {
                 int addable = Math.Min(existingPotion.MaxStackSize - existingPotion.Quantity, quantity);
                 existingPotion.Quantity += addable;
                 quantity -= addable;
             }
-
-            // Add new stacks for remaining potions
             while (quantity > 0)
             {
-                var newPotion = ItemFactoryService.GenerateItem(typeof(HealthPotion)) as HealthPotion;
-
-                if (newPotion == null)
-                {
-                    throw new InvalidOperationException("Failed to generate HealthPotion.");
-                }
+                var newPotion = ItemFactoryService.GenerateItem(typeof(HealthPotion), _view) as HealthPotion;
+                if (newPotion == null) throw new InvalidOperationException("Failed to generate HealthPotion.");
 
                 newPotion.Quantity = Math.Min(newPotion.MaxStackSize, quantity);
-                Inventory.Add(newPotion);
+                _inventory.Add(newPotion);
                 quantity -= newPotion.Quantity;
             }
-
-            // Recalculate and log total weight
-            RecalculateWeight();
-        }
-
-        public void RecalculateWeight()
-        {
-            // Calculate weight as the sum of (item.Weight * item.Quantity) for all items
-            Weight = Inventory.Sum(item => item is HealthPotion potion ? potion.Weight * potion.Quantity : item.Weight);
+            Weight = _statsService.CalculateWeight(this);
         }
         public void HealByPotion()
         {
-            var potion = Inventory.OfType<HealthPotion>().FirstOrDefault(p => p.Quantity > 0);
-
+            var potion = _inventory.OfType<HealthPotion>().FirstOrDefault(p => p.Quantity > 0);
             if (potion == null)
             {
-                // Handle case where there are no potions
-                if (_eventService != null)
-                {
-                    _eventService.HandleEventOutcome("You don't have any potions to use.");
-                }
-                else
-                {
-                    WriteLine("You don't have any potions to use."); // Fallback if _eventService is null
-                }
+                _eventService.HandleEventOutcome("You don't have any potions to use.");
                 return;
             }
-
-            Heal(potion.HealingAmount); // Apply healing effect
-            potion.Quantity--; // Reduce the stack count
-
+            Heal(potion.HealingAmount);
+            potion.Quantity--;
             if (potion.Quantity == 0)
-            {
-                Inventory.Remove(potion); // Remove empty stack
-            }
+                _inventory.Remove(potion);
 
-            Weight -= potion.Weight; // Adjust weight dynamically
+            Weight -= potion.Weight;
             UpdateStats();
         }
 
+        // Healing
         public void Heal(int amount)
         {
             int previousHealth = Health;
             Health = Math.Min(Health + amount, HealthLimit);
-
-            int actualHealedAmount = Health - previousHealth;
-
-            if (_eventService != null)
-            {
-                _eventService.HandleEventOutcome($"You healed for: {actualHealedAmount} health points.");
-            }
-            else
-            {
-                WriteLine($"You healed for: {actualHealedAmount} health points.");
-            }
+            int healedAmount = Health - previousHealth;
+            _eventService.HandleEventOutcome($"You healed for: {healedAmount} health points.");
         }
 
+        // Experience and Leveling
         public void GetExperience(int amount)
         {
             Experience += amount;
@@ -250,92 +194,31 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Model
             }
         }
 
-        public void SaveGame()
-        {
-            string sanitizedFileName = $"{Name}_savefile.json".Replace(" ", "_").Replace(":", "_").Replace("/", "_");
-            var gameState = new GameState
-            {
-                PlayerCharacter = this,
-                Map = CurrentMap
-            };
-
-            var options = new JsonSerializerOptions
-            {
-                WriteIndented = true,
-                ReferenceHandler = ReferenceHandler.Preserve,
-                Converters = { new Converters.ItemConverter(), new Converters.MapConverter() }
-            };
-
-            string jsonString = JsonSerializer.Serialize(gameState, options);
-            File.WriteAllText(sanitizedFileName, jsonString);
-            WriteLine($"\n Game saved as {sanitizedFileName} \n");
-        }
-
-        public static GameState LoadGame(string characterName)
-        {
-            string sanitizedFileName = $"{characterName}_savefile.json".Replace(" ", "_").Replace(":", "_").Replace("/", "_");
-
-            if (File.Exists(sanitizedFileName))
-            {
-                string jsonString = File.ReadAllText(sanitizedFileName);
-
-                var options = new JsonSerializerOptions
-                {
-                    ReferenceHandler = ReferenceHandler.Preserve,
-                    Converters = { new Converters.ItemConverter(), new Converters.MapConverter() }
-                };
-
-                var gameState = JsonSerializer.Deserialize<GameState>(jsonString, options);
-
-                if (gameState != null)
-                {
-                    gameState.PlayerCharacter.CurrentMap = gameState.Map;
-
-                    if (gameState.PlayerCharacter.Inventory.Any())
-                    {
-                        ItemFactoryService.LastGeneratedItemId = gameState.PlayerCharacter.Inventory.Max(i => i.ID);
-                    }
-                    else
-                    {
-                        ItemFactoryService.LastGeneratedItemId = 0;
-                    }
-
-                    WriteLine($"Game loaded from {sanitizedFileName} \n");
-                }
-
-                return gameState;
-            }
-            else
-            {
-                throw new FileNotFoundException($"Save file for character '{characterName}' not found.");
-            }
-        }
-
+        // Stat Modifiers
         public void ModifySpeed(float amount)
         {
-            speedModifier = Math.Max(0, speedModifier + amount);
+            _speedModifier = Math.Max(0, _speedModifier + amount);
             UpdateStats();
         }
 
         public void ModifyAttack(float amount)
         {
-            attackModifier = Math.Max(0, attackModifier + amount);
+            _attackModifier = Math.Max(0, _attackModifier + amount);
             UpdateStats();
         }
 
         public void ModifyDefense(float amount)
         {
-            defenseModifier = Math.Max(0, defenseModifier + amount);
+            _defenseModifier = Math.Max(0, _defenseModifier + amount);
             UpdateStats();
         }
 
+        // Item Transactions
         public void SellItem(int itemId)
         {
-            var item = Inventory.FirstOrDefault(i => i.ID == itemId);
+            var item = _inventory.FirstOrDefault(i => i.ID == itemId);
             if (item == null)
-            {
                 throw new InvalidOperationException("Item not found in inventory.");
-            }
 
             if (item is HealthPotion potion)
             {
@@ -343,39 +226,24 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Model
                 potion.Quantity--;
 
                 if (potion.Quantity == 0)
-                {
-                    Inventory.Remove(potion);
-                }
+                    _inventory.Remove(potion);
             }
             else
             {
                 Money += item.MoneyWorth;
-                Inventory.Remove(item);
+                _inventory.Remove(item);
             }
-
             UpdateStats();
         }
 
         public void BuyHealthPotion()
         {
             if (Money < 40)
-            {
                 throw new InvalidOperationException("You don't have enough money to buy a health potion.");
-            }
-
             Money -= 40;
-            var healthPotion = ItemFactoryService.GenerateItem(typeof(HealthPotion)) as HealthPotion;
-
-            if (healthPotion != null)
-            {
-                ReceiveHealthPotion();
-                UpdateStats();
-                _eventService.HandleEventOutcome("You bought a health potion.");
-            }
-            else
-            {
-                throw new InvalidOperationException("Failed to generate health potion.");
-            }
+            ReceiveHealthPotion();
+            UpdateStats();
+            _eventService.HandleEventOutcome("You bought a health potion.");
         }
     }
 }

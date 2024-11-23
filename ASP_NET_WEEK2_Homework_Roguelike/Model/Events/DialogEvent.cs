@@ -1,5 +1,4 @@
 ﻿using ASP_NET_WEEK2_Homework_Roguelike.Services;
-using ASP_NET_WEEK2_Homework_Roguelike.Model;
 using ASP_NET_WEEK2_Homework_Roguelike.Controller;
 using ASP_NET_WEEK2_Homework_Roguelike.View;
 
@@ -10,22 +9,18 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Model.Events
         private readonly EventService _eventService;
         private readonly CharacterInteractionService _interactionService;
         private readonly GameView _gameView;
-
         public DialogEvent(EventService eventService, CharacterInteractionService interactionService, GameView gameView)
         {
             _eventService = eventService ?? throw new ArgumentNullException(nameof(eventService));
             _interactionService = interactionService ?? throw new ArgumentNullException(nameof(interactionService));
             _gameView = gameView ?? throw new ArgumentNullException(nameof(gameView));
         }
-
         public override void Execute(PlayerCharacter player, Room room, PlayerCharacterController controller)
         {
             if (player == null || room == null)
                 throw new ArgumentNullException("Player or Room cannot be null.");
-
             string eventType = GetRandomEventType();
             _eventService.HandleEventOutcome($"You encounter a {eventType}");
-
             switch (eventType)
             {
                 case "WiseTraveler":
@@ -44,10 +39,8 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Model.Events
                     _eventService.HandleEventOutcome("You encounter a mysterious stranger who says nothing and disappears.");
                     break;
             }
-
             room.EventStatus = "none";
         }
-
         private void HandleWiseTraveler(PlayerCharacter player)
         {
             int buffType = new Random().Next(4);
@@ -73,7 +66,6 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Model.Events
             if (missingHealth > 0)
             {
                 _interactionService.HealPlayer(player, missingHealth);
-                _eventService.HandleEventOutcome($"You have been healed by {missingHealth} health points.");
             }
             else
             {
@@ -88,7 +80,6 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Model.Events
             _interactionService.ModifyPlayerStats(player, "defense", -2);
             _eventService.HandleEventOutcome("You got cursed by the witch. Your health is halved, and your stats are reduced.");
         }
-
         private void ExecuteMerchantEvent(PlayerCharacter player)
         {
             string choice;
@@ -96,14 +87,13 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Model.Events
             {
                 _eventService.HandleEventOutcome("Merchant encountered. What would you like to do?");
                 choice = _eventService.GetMerchantOptions();
-
                 switch (choice)
                 {
                     case "b":
                         _eventService.BuyHealthPotion(player);
                         break;
                     case "s":
-                        _gameView.DisplayInventory(player); // Use the existing DisplayInventory method
+                        _gameView.DisplayInventory(player);
                         int? itemId = _eventService.PromptForItemIdToSell();
                         if (itemId.HasValue)
                         {
@@ -121,10 +111,8 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Model.Events
                         _eventService.HandleEventOutcome("Invalid choice.");
                         break;
                 }
-
             } while (choice != "l");
         }
-
         private string GetRandomEventType()
         {
             var eventTypes = new[] { "WiseTraveler", "Monk", "Witch", "Merchant" };
