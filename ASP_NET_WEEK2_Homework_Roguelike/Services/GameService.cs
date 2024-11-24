@@ -5,6 +5,7 @@ using static System.Console;
 using ASP_NET_WEEK2_Homework_Roguelike.Model.Events;
 using System.Text.Json.Serialization;
 using System.Text.Json;
+using ASP_NET_WEEK2_Homework_Roguelike.Converters;
 
 namespace ASP_NET_WEEK2_Homework_Roguelike.Services
 {
@@ -141,7 +142,7 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Services
             SaveGame();
             _inGame = true;
         }
-        private void ContinueGame()
+        public void ContinueGame()
         {
             var saveFiles = Directory.GetFiles(Directory.GetCurrentDirectory(), "*_savefile.json");
             if (saveFiles.Length == 0)
@@ -157,14 +158,26 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Services
                 try
                 {
                     var gameState = LoadGame(characterName, _gameView);
+                    if (gameState == null)
+                    {
+                        _gameView.ShowError("Failed to load game state.");
+                        return;
+                    }
                     _playerCharacter = gameState.PlayerCharacter;
                     _map = gameState.Map;
 
-                    _playerCharacter.CurrentMap = _map;
+                    // reinitializes services for the loaded PlayerCharacter
+                    _playerCharacter.InitializeServices(
+                        new CharacterStatsService(),
+                        new InventoryService(),
+                        _eventService,
+                        new PlayerCharacterView()
+                    );
+
                     _playerController = new PlayerCharacterController(_playerCharacter, _map, _mapService);
                     _inGame = true;
                 }
-                catch (FileNotFoundException ex)
+                catch (Exception ex)
                 {
                     _gameView.ShowError(ex.Message);
                 }
@@ -260,7 +273,7 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Services
                 _gameView.ShowError($"Failed to save the game: {ex.Message}");
             }
         }
-        public static GameState LoadGame(string characterName, GameView gameView)
+        public static GameState? LoadGame(string characterName, GameView gameView)
         {
             string sanitizedFileName = $"{characterName}_savefile.json".Replace(" ", "_").Replace(":", "_").Replace("/", "_");
             if (File.Exists(sanitizedFileName))
@@ -271,42 +284,52 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Services
                     var options = new JsonSerializerOptions
                     {
                         ReferenceHandler = ReferenceHandler.Preserve,
-                        Converters = { new Converters.ItemConverter(), new Converters.MapConverter() }
+                        Converters =
+                {
+                    new PlayerCharacterConverter(),
+                    new MapConverter(),
+                    new ItemConverter()
+                }
                     };
                     var gameState = JsonSerializer.Deserialize<GameState>(jsonString, options);
                     if (gameState != null)
                     {
-                        gameState.PlayerCharacter.CurrentMap = gameState.Map;
-
-                        if (gameState.PlayerCharacter.Inventory.Any())
+                        // Validate Map
+                        if (gameState.Map.DiscoveredRooms == null || !gameState.Map.DiscoveredRooms.Any())
                         {
-                            ItemFactoryService.LastGeneratedItemId = gameState.PlayerCharacter.Inventory.Max(i => i.ID);
+                            gameState.Map.DiscoveredRooms = new Dictionary<(int, int), Room>
+                    {
+                        { (0, 0), new Room { X = 0, Y = 0, IsExplored = true, Exits = new Dictionary<string, Room>() } }
+                    };
                         }
-                        else
-                        {
-                            ItemFactoryService.LastGeneratedItemId = 0;
-                        }
+                        // Initialize services for the PlayerCharacter
+                        var statsService = new CharacterStatsService();
+                        gameState.PlayerCharacter.InitializeServices(
+                            statsService,
+                            new InventoryService(),
+                            new EventService(null, gameView),
+                            new PlayerCharacterView()
+                        );
+                        gameState.PlayerCharacter.UpdateStats();
 
-                        gameView.ShowMessage($"Game loaded from {sanitizedFileName}");
                         return gameState;
                     }
                     else
                     {
                         gameView.ShowError("Failed to load game: Game state is null.");
-                        return null;
                     }
                 }
                 catch (Exception ex)
                 {
                     gameView.ShowError($"Failed to load the game: {ex.Message}");
-                    return null;
                 }
             }
             else
             {
                 gameView.ShowError($"Save file for character '{characterName}' not found.");
-                return null;
             }
+            return null;
         }
+
     }
 }

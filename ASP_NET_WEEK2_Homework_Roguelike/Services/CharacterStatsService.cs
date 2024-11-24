@@ -24,16 +24,7 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Services
         {
             if (player == null)
                 throw new ArgumentNullException(nameof(player));
-
-            return (player.EquippedHelmet?.Defense ?? 0) +
-                   (player.EquippedArmor?.Defense ?? 0) +
-                   (player.EquippedShield?.Defense ?? 0) +
-                   (player.EquippedGloves?.Defense ?? 0) +
-                   (player.EquippedTrousers?.Defense ?? 0) +
-                   (player.EquippedBoots?.Defense ?? 0) +
-                   (player.EquippedAmulet?.Defense ?? 0) +
-                   (player.EquippedSwordOneHanded?.Defense ?? 0) +
-                   (player.EquippedSwordTwoHanded?.Defense ?? 0);
+            return player.Inventory.Sum(item => item.Defense);
         }
         public int CalculateWeight(PlayerCharacter player)
         {

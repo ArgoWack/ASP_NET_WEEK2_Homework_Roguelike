@@ -1,15 +1,21 @@
 ﻿using ASP_NET_WEEK2_Homework_Roguelike.Services;
 using ASP_NET_WEEK2_Homework_Roguelike.Model.Items;
 using ASP_NET_WEEK2_Homework_Roguelike.View;
+using System.Text.Json.Serialization;
 
 namespace ASP_NET_WEEK2_Homework_Roguelike.Model
 {
     public class PlayerCharacter
     {
-        private readonly CharacterStatsService _statsService;
-        private readonly InventoryService _inventoryService;
-        private readonly EventService _eventService;
-        private readonly PlayerCharacterView _view;
+        public PlayerCharacter()
+        {
+            Inventory = new List<Item>();
+        }
+
+        private CharacterStatsService _statsService;
+        private InventoryService _inventoryService;
+        private EventService _eventService;
+        private PlayerCharacterView _view;
 
         private int _currentX;
         private int _currentY;
@@ -85,7 +91,26 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Model
             _baseSpeed = Level * 10;
             UpdateStats();
         }
+        //For deserialization
+        public void InitializeServices(
+            CharacterStatsService statsService,
+            InventoryService inventoryService,
+            EventService eventService,
+            PlayerCharacterView view)
+        {
+            _statsService = statsService ?? throw new ArgumentNullException(nameof(statsService));
+            _inventoryService = inventoryService ?? throw new ArgumentNullException(nameof(inventoryService));
+            _eventService = eventService ?? throw new ArgumentNullException(nameof(eventService));
+            _view = view ?? throw new ArgumentNullException(nameof(view));
 
+            // Initialize default properties if needed
+            Inventory ??= new List<Item>();
+            EquippedHelmet ??= null;
+            EquippedArmor ??= null;
+            EquippedShield ??= null;
+
+            UpdateStats(); // Recalculate stats
+        }
         // Movement
         public void MovePlayer(string direction, Map map, MapService mapService)
         {
@@ -99,11 +124,42 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Model
         // Stats Updates
         public void UpdateStats()
         {
-            Weight = _statsService.CalculateWeight(this);
-            _baseAttack = _statsService.CalculateAttack(this);
-            _baseDefense = _statsService.CalculateDefense(this);
-        }
+            if (_statsService == null)
+            {
+                return; // exits early if the service is not initialized
+            }
 
+            // Reset base stats
+            _baseAttack = 0;
+            _baseDefense = 0;
+
+            // List of equipped items for stat calculations
+            var equippedItems = new List<Item>
+            {
+                EquippedHelmet,
+                EquippedArmor,
+                EquippedShield,
+                EquippedGloves,
+                EquippedTrousers,
+                EquippedBoots,
+                EquippedAmulet,
+                EquippedSwordOneHanded,
+                EquippedSwordTwoHanded
+            };
+
+            // Calculate attack and defense from equipped items
+            foreach (var item in equippedItems)
+            {
+                if (item != null)
+                {
+                    _baseAttack += item.Attack;
+                    _baseDefense += item.Defense;
+                }
+            }
+
+            // Calculate total weight including inventory
+            Weight = _statsService.CalculateWeight(this);
+        }
         // Inventory Management
         public void EquipItem(int itemId)
         {
@@ -235,7 +291,6 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Model
             }
             UpdateStats();
         }
-
         public void BuyHealthPotion()
         {
             if (Money < 40)
