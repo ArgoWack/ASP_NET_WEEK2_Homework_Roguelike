@@ -12,7 +12,6 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Converters
     {
         public override PlayerCharacter? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
-            Console.WriteLine("PlayerCharacterConverter: Starting deserialization.");
             var jsonDocument = JsonDocument.ParseValue(ref reader);
             var jsonObject = jsonDocument.RootElement;
 
@@ -27,24 +26,39 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Converters
                 Experience = jsonObject.GetProperty("Experience").GetInt32(),
             };
 
-            // Deserialize Inventory
+            // Deserialize stat modifiers
+            if (jsonObject.TryGetProperty("SpeedModifier", out var speedModifierElement))
+                playerCharacter.ModifySpeed(speedModifierElement.GetSingle());
+
+            if (jsonObject.TryGetProperty("AttackModifier", out var attackModifierElement))
+                playerCharacter.ModifyAttack(attackModifierElement.GetSingle());
+
+            if (jsonObject.TryGetProperty("DefenseModifier", out var defenseModifierElement))
+                playerCharacter.ModifyDefense(defenseModifierElement.GetSingle());
+
+            // Deserialize inventory
             if (jsonObject.TryGetProperty("Inventory", out var inventoryElement))
             {
                 playerCharacter.Inventory = JsonSerializer.Deserialize<List<Item>>(inventoryElement.GetRawText(), options) ?? new List<Item>();
             }
 
-            // Deserialize Equipped Items
+            // Deserialize equipped items
             playerCharacter.EquippedHelmet = DeserializeEquippedItem<Helmet>(jsonObject, "EquippedHelmet", options);
             playerCharacter.EquippedArmor = DeserializeEquippedItem<Armor>(jsonObject, "EquippedArmor", options);
             playerCharacter.EquippedShield = DeserializeEquippedItem<Shield>(jsonObject, "EquippedShield", options);
+            playerCharacter.EquippedGloves = DeserializeEquippedItem<Gloves>(jsonObject, "EquippedGloves", options);
+            playerCharacter.EquippedTrousers = DeserializeEquippedItem<Trousers>(jsonObject, "EquippedTrousers", options);
+            playerCharacter.EquippedBoots = DeserializeEquippedItem<Boots>(jsonObject, "EquippedBoots", options);
+            playerCharacter.EquippedAmulet = DeserializeEquippedItem<Amulet>(jsonObject, "EquippedAmulet", options);
+            playerCharacter.EquippedSwordOneHanded = DeserializeEquippedItem<SwordOneHanded>(jsonObject, "EquippedSwordOneHanded", options);
+            playerCharacter.EquippedSwordTwoHanded = DeserializeEquippedItem<SwordTwoHanded>(jsonObject, "EquippedSwordTwoHanded", options);
 
-            // Deserialize Map
+            // Deserialize map
             if (jsonObject.TryGetProperty("CurrentMap", out var mapElement))
             {
                 try
                 {
                     playerCharacter.CurrentMap = JsonSerializer.Deserialize<Map>(mapElement.GetRawText(), options);
-                    Console.WriteLine($"Map deserialized. DiscoveredRooms count: {playerCharacter.CurrentMap?.DiscoveredRooms.Count ?? 0}");
                 }
                 catch (Exception ex)
                 {
@@ -52,8 +66,6 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Converters
                     playerCharacter.CurrentMap = new Map(); // Fallback to an empty map
                 }
             }
-
-            Console.WriteLine("PlayerCharacterConverter: Deserialization complete.");
             return playerCharacter;
         }
 
@@ -63,7 +75,8 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Converters
             {
                 try
                 {
-                    return JsonSerializer.Deserialize<T>(propertyElement.GetRawText(), options);
+                    var item = JsonSerializer.Deserialize<T>(propertyElement.GetRawText(), options);
+                    return item;
                 }
                 catch (Exception ex)
                 {
@@ -75,7 +88,6 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Converters
 
         public override void Write(Utf8JsonWriter writer, PlayerCharacter value, JsonSerializerOptions options)
         {
-            Console.WriteLine("PlayerCharacterConverter: Starting serialization.");
             writer.WriteStartObject();
 
             // Serialize basic properties
@@ -86,6 +98,11 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Converters
             writer.WriteNumber("CurrentY", value.CurrentY);
             writer.WriteNumber("Money", value.Money);
             writer.WriteNumber("Experience", value.Experience);
+
+            // Serialize stat modifiers
+            writer.WriteNumber("SpeedModifier", value.SpeedModifier);
+            writer.WriteNumber("AttackModifier", value.AttackModifier);
+            writer.WriteNumber("DefenseModifier", value.DefenseModifier);
 
             // Serialize inventory
             writer.WritePropertyName("Inventory");
@@ -114,7 +131,6 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Converters
             JsonSerializer.Serialize(writer, value.EquippedSwordTwoHanded, options);
 
             writer.WriteEndObject();
-            Console.WriteLine("PlayerCharacterConverter: Serialization complete.");
         }
     }
 }

@@ -150,6 +150,7 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Services
                 _gameView.ShowError("No saved games found.");
                 return;
             }
+
             int selectedIndex = _gameView.PromptForSaveFileSelection(saveFiles);
             if (selectedIndex > 0 && selectedIndex <= saveFiles.Length)
             {
@@ -163,10 +164,11 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Services
                         _gameView.ShowError("Failed to load game state.");
                         return;
                     }
+
                     _playerCharacter = gameState.PlayerCharacter;
                     _map = gameState.Map;
 
-                    // reinitializes services for the loaded PlayerCharacter
+                    // Initializes services for the loaded PlayerCharacter
                     _playerCharacter.InitializeServices(
                         new CharacterStatsService(),
                         new InventoryService(),
@@ -174,12 +176,15 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Services
                         new PlayerCharacterView()
                     );
 
+                    // Recalculate stats after loading
+                    _playerCharacter.UpdateStats();
+
                     _playerController = new PlayerCharacterController(_playerCharacter, _map, _mapService);
                     _inGame = true;
                 }
                 catch (Exception ex)
                 {
-                    _gameView.ShowError(ex.Message);
+                    _gameView.ShowError($"Error loading save: {ex.Message}");
                 }
             }
             else

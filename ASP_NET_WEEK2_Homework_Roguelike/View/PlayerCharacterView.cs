@@ -212,5 +212,9 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.View
         {
             WriteLine($"Item Generated: {message}");
         }
+        public void ShowMessage(string message)
+        {
+            WriteLine(message);
+        }
     }
 }

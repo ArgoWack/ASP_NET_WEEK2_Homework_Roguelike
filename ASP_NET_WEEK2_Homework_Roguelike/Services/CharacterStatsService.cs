@@ -10,21 +10,62 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Services
             if (player == null)
                 throw new ArgumentNullException(nameof(player));
 
-            return (player.EquippedHelmet?.Attack ?? 0) +
-                   (player.EquippedArmor?.Attack ?? 0) +
-                   (player.EquippedShield?.Attack ?? 0) +
-                   (player.EquippedGloves?.Attack ?? 0) +
-                   (player.EquippedTrousers?.Attack ?? 0) +
-                   (player.EquippedBoots?.Attack ?? 0) +
-                   (player.EquippedAmulet?.Attack ?? 0) +
-                   (player.EquippedSwordOneHanded?.Attack ?? 0) +
-                   (player.EquippedSwordTwoHanded?.Attack ?? 0);
+            float totalAttack = 0;
+
+            // Collect all equipped items
+            var equippedItems = new List<Item>
+            {
+                player.EquippedHelmet,
+                player.EquippedArmor,
+                player.EquippedShield,
+                player.EquippedGloves,
+                player.EquippedTrousers,
+                player.EquippedBoots,
+                player.EquippedAmulet,
+                player.EquippedSwordOneHanded,
+                player.EquippedSwordTwoHanded
+            };
+
+            // Calculate total attack from equipped items
+            foreach (var item in equippedItems)
+            {
+                if (item != null)
+                    totalAttack += item.Attack;
+            }
+
+            Console.WriteLine($"Calculated Attack: {totalAttack}");
+            return totalAttack;
         }
         public float CalculateDefense(PlayerCharacter player)
         {
             if (player == null)
                 throw new ArgumentNullException(nameof(player));
-            return player.Inventory.Sum(item => item.Defense);
+
+            float totalDefense = 0;
+
+            // Collect all equipped items
+            var equippedItems = new List<Item>
+            {
+                player.EquippedHelmet,
+                player.EquippedArmor,
+                player.EquippedShield,
+                player.EquippedGloves,
+                player.EquippedTrousers,
+                player.EquippedBoots,
+                player.EquippedAmulet,
+                player.EquippedSwordOneHanded,
+                player.EquippedSwordTwoHanded
+            };
+
+            // Calculate total defense from equipped items
+            foreach (var item in equippedItems)
+            {
+                if (item != null)
+                    totalDefense += item.Defense;
+            }
+
+            Console.WriteLine($"Calculated Defense: {totalDefense}");
+            return totalDefense;
         }
         public int CalculateWeight(PlayerCharacter player)
         {

@@ -27,6 +27,11 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Model
         private float _attackModifier;
         private float _defenseModifier;
 
+        //for serialization
+        public float SpeedModifier => _speedModifier;
+        public float AttackModifier => _attackModifier;
+        public float DefenseModifier => _defenseModifier;
+
         private List<Item> _inventory;
 
         // Properties
@@ -69,9 +74,30 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Model
 
         // Derived Stats
         public int HealthLimit => 100 + Level * 10;
-        public float Speed => (_baseSpeed + _speedModifier) / (Weight / 100 + 1);
-        public float Attack => (_baseAttack + _attackModifier) * Speed;
-        public float Defense => (_baseDefense + _defenseModifier) * Speed;
+        public float Speed
+        {
+            get
+            {
+                float weightPenalty = Math.Max(0.5f, 1.0f - (Weight / 100.0f)); // Minimum speed penalty of 50%
+                return _baseSpeed * weightPenalty;
+            }
+        }
+
+        public float Attack
+        {
+            get
+            {
+                return _baseAttack * (Speed / 10.0f); // Scale attack by speed
+            }
+        }
+
+        public float Defense
+        {
+            get
+            {
+                return _baseDefense * (Speed / 10.0f); // Scale defense by speed
+            }
+        }
 
         public PlayerCharacter(CharacterStatsService statsService, InventoryService inventoryService, EventService eventService, PlayerCharacterView view)
         {
@@ -126,40 +152,27 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Model
         {
             if (_statsService == null)
             {
-                return; // exits early if the service is not initialized
+                return;
             }
-
-            // Reset base stats
-            _baseAttack = 0;
-            _baseDefense = 0;
-
-            // List of equipped items for stat calculations
-            var equippedItems = new List<Item>
-            {
-                EquippedHelmet,
-                EquippedArmor,
-                EquippedShield,
-                EquippedGloves,
-                EquippedTrousers,
-                EquippedBoots,
-                EquippedAmulet,
-                EquippedSwordOneHanded,
-                EquippedSwordTwoHanded
-            };
-
-            // Calculate attack and defense from equipped items
-            foreach (var item in equippedItems)
-            {
-                if (item != null)
-                {
-                    _baseAttack += item.Attack;
-                    _baseDefense += item.Defense;
-                }
-            }
-
-            // Calculate total weight including inventory
+            
+            /*
+            _baseAttack = _statsService.CalculateAttack(this);
+            _baseDefense = _statsService.CalculateDefense(this);
             Weight = _statsService.CalculateWeight(this);
+            */
+            // Calculate speed with a weight penalty
+            float weightPenalty = Math.Max(0.5f, 1.0f - (Weight / 100.0f)); // Minimum 50% speed
+            _baseSpeed = 10.0f + Level * 2; // Base speed depends on level
+            float adjustedSpeed = _baseSpeed * weightPenalty;
+
+            // Calculate derived stats
+            _baseAttack = _statsService.CalculateAttack(this) * (adjustedSpeed / 10.0f);
+            _baseDefense = _statsService.CalculateDefense(this) * (adjustedSpeed / 10.0f);
+            //Speed = adjustedSpeed;
+            Weight = _statsService.CalculateWeight(this);
+
         }
+
         // Inventory Management
         public void EquipItem(int itemId)
         {
