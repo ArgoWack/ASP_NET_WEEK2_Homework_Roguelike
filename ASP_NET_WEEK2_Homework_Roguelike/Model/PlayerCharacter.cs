@@ -232,7 +232,7 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Model
             int previousHealth = Health;
             Health = Math.Min(Health + amount, HealthLimit);
             int healedAmount = Health - previousHealth;
-            _eventService.HandleEventOutcome($"You healed for: {healedAmount} health points.");
+            _eventService.HandleEventOutcome($"You healed for: {healedAmount} health points. Current Health: {Health}/{HealthLimit}.");
         }
 
         // Experience and Leveling
@@ -296,7 +296,6 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Model
             Money -= 40;
             ReceiveHealthPotion();
             UpdateStats();
-            _eventService.HandleEventOutcome("You bought a health potion for 40 coins.");
         }
     }
 }

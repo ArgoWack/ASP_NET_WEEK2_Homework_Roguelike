@@ -45,7 +45,7 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Controller
                 _mapService.MovePlayer(_map, ref currentX, ref currentY, direction.ToLower());
                 _playerCharacter.CurrentX = currentX;
                 _playerCharacter.CurrentY = currentY;
-
+                _view.ShowPlayerMovement(direction, _playerCharacter.CurrentX, _playerCharacter.CurrentY);
                 Room newRoom = _mapService.GetDiscoveredRoom(_map, currentX, currentY);
                 if (newRoom?.EventStatus != "none")
                 {
@@ -55,7 +55,7 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Controller
             }
             else
             {
-                _view.ShowError("Cannot move in that direction. No valid room exists.");
+                _view.RelayMessage("Cannot move in that direction. No valid room exists.");
             }
         }
         public void EquipItem(int itemId)

@@ -47,6 +47,7 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Services
             try
             {
                 player.BuyHealthPotion();
+                HandleEventOutcome($"You bought a health potion for 40 coins. Current money: {player.Money} coins.");
             }
             catch (InvalidOperationException ex)
             {
@@ -59,8 +60,14 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Services
                 throw new ArgumentNullException(nameof(player));
             try
             {
+                var item = player.Inventory.FirstOrDefault(i => i.ID == itemId);
+                if (item == null) throw new InvalidOperationException("Item not found in inventory.");
+
+                int previousMoney = player.Money;
                 player.SellItem(itemId);
-                HandleEventOutcome($"You sold the item with ID {itemId}.");
+                int earned = player.Money - previousMoney;
+
+                HandleEventOutcome($"You sold {item.Name} for {earned} coins. Current Wealth: {player.Money} coins.");
             }
             catch (InvalidOperationException ex)
             {

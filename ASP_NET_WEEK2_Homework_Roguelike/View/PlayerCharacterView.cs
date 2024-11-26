@@ -75,16 +75,15 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.View
                 return;
             }
             WriteLine($@"
-        Character name: {player.Name}
-        Attack: {player.Attack}
-        Defense: {player.Defense}
-        Speed: {player.Speed}
-        Weight: {player.Weight}
-        Money: {player.Money}
-        Health: {player.Health}
-        Level: {player.Level}
-        Experience: {player.Experience}
-        ");
+                Character name: {player.Name}
+                Attack: {Math.Round(player.Attack)}
+                Defense: {Math.Round(player.Defense)}
+                Speed: {Math.Round(player.Speed)}
+                Weight: {player.Weight}
+                Money: {player.Money}
+                Health: {player.Health}/{player.HealthLimit}
+                Level: {player.Level}
+                Experience: {player.Experience}");
             var equippedItems = new Dictionary<string, Item>
             {
                 { "Amulet", player.EquippedAmulet },
@@ -132,17 +131,19 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.View
                 }
             }
         }
+        
         public void ShowEquipItemSuccess(string itemName)
         {
             WriteLine($"You have equipped {itemName}.");
         }
+
         public void ShowDiscardItemSuccess(string itemName)
         {
-            WriteLine($"Item '{itemName}' has been discarded.");
+            WriteLine($"You have discarded {itemName}.");
         }
         public void ShowPlayerMovement(string direction, int currentX, int currentY)
         {
-            WriteLine($"Moved {direction}. Current position: ({currentX}, {currentY})");
+            WriteLine($"\nMoved {direction}. Current position: ({currentX}, {currentY})\n");
         }
         public void ShowEventEncounter(string eventType)
         {
@@ -155,6 +156,10 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.View
         public void ShowError(string message)
         {
             WriteLine($"Error: {message}");
+        }
+        public void RelayMessage(string message)
+        {
+            WriteLine($"{message}");
         }
         public void ShowItemGenerated(string message)
         {

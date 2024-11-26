@@ -6,6 +6,8 @@ using ASP_NET_WEEK2_Homework_Roguelike.Model.Events;
 using System.Text.Json.Serialization;
 using System.Text.Json;
 using ASP_NET_WEEK2_Homework_Roguelike.Converters;
+using ASP_NET_WEEK2_Homework_Roguelike.Model.Items;
+using System.Numerics;
 
 namespace ASP_NET_WEEK2_Homework_Roguelike.Services
 {
@@ -201,7 +203,6 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Services
         {
             _playerController.MovePlayer(direction);
             var currentRoom = _mapService.GetDiscoveredRoom(_map, _playerCharacter.CurrentX, _playerCharacter.CurrentY);
-
             if (currentRoom != null)
             {
                 // skips the "no new events" message if the event status was just handled
@@ -221,7 +222,7 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Services
             }
             else
             {
-                _gameView.ShowError("Cannot move in that direction. No valid room exists.");
+                _gameView.ShowMessage("Cannot move in that direction. No valid room exists.");
             }
         }
         private void HandleInventory()
@@ -237,7 +238,15 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Services
                     var id = _gameView.PromptForItemId("use");
                     if (id.HasValue)
                     {
-                        _playerController.EquipItem(id.Value);
+                        var item = _playerController.PlayerCharacter.Inventory.FirstOrDefault(i => i.ID == id.Value);
+                        if (item is HealthPotion)
+                        {
+                            _playerController.PlayerCharacter.HealByPotion();
+                        }
+                        else
+                        {
+                            _playerController.EquipItem(id.Value);
+                        }
                     }
                 }
                 else if (choice == 'd')

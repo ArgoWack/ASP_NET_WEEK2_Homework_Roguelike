@@ -85,7 +85,7 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Model.Events
             string choice;
             do
             {
-                _eventService.HandleEventOutcome("Merchant encountered. What would you like to do?");
+                _eventService.HandleEventOutcome($"Merchant encountered. You have {player.Money} coins. What would you like to do?");
                 choice = _eventService.GetMerchantOptions();
                 switch (choice)
                 {
