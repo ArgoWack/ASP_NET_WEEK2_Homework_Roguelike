@@ -42,32 +42,5 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Services
             player.Heal(amount);
             _eventService.HandleEventOutcome($"You have been healed by {amount} health points.");
         }
-        public void HandleInventoryInteraction(PlayerCharacter player, int itemId, string action)
-        {
-            if (player == null)
-                throw new ArgumentNullException(nameof(player), "Player cannot be null.");
-            if (string.IsNullOrEmpty(action))
-                throw new ArgumentNullException(nameof(action), "Action cannot be null or empty.");
-            try
-            {
-                switch (action.ToLower())
-                {
-                    case "equip":
-                        player.EquipItem(itemId);
-                        _eventService.HandleEventOutcome($"Item {itemId} has been equipped.");
-                        break;
-                    case "discard":
-                        player.DiscardItem(itemId);
-                        _eventService.HandleEventOutcome($"Item {itemId} has been discarded.");
-                        break;
-                    default:
-                        throw new InvalidOperationException($"Invalid inventory action: {action}");
-                }
-            }
-            catch (InvalidOperationException ex)
-            {
-                _eventService.HandleEventOutcome(ex.Message);
-            }
-        }
     }
 }

@@ -189,21 +189,6 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Model
             _inventoryService.DiscardItem(this, itemId);
             UpdateStats();
         }
-        public void SellHealthPotion()
-        {
-            var potion = _inventory.OfType<HealthPotion>().FirstOrDefault(p => p.Quantity > 0);
-            if (potion == null)
-                throw new InvalidOperationException("You don't have any health potions to sell.");
-
-            Money += potion.MoneyWorth;
-            potion.Quantity--;
-
-            if (potion.Quantity == 0)
-                _inventory.Remove(potion);
-
-            Weight -= potion.Weight;
-            UpdateStats();
-        }
         public void ReceiveHealthPotion(int quantity = 1)
         {
             var existingPotion = _inventory.OfType<HealthPotion>().FirstOrDefault(p => p.Quantity < p.MaxStackSize);

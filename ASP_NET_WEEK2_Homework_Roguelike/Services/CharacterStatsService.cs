@@ -72,19 +72,5 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Services
                 ? potion.Weight * potion.Quantity
                 : item.Weight);
         }
-        public float ModifyStat(float currentModifier, float amount)
-        {
-            return Math.Max(0, currentModifier + amount);
-        }
-        public (int newExperience, int newLevel, int health) LevelUp(int experience, int level, int healthLimit)
-        {
-            int newLevel = level;
-            while (experience >= newLevel * 100)
-            {
-                experience -= newLevel * 100;
-                newLevel++;
-            }
-            return (experience, newLevel, healthLimit); // returns updated values
-        }
     }
 }

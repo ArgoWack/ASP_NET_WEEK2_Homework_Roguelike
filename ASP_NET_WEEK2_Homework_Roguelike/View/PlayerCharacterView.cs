@@ -156,65 +156,9 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.View
         {
             WriteLine($"Error: {message}");
         }
-        public void ShowBuyHealthPotionSuccess()
-        {
-            WriteLine("You bought a health potion for 40 coins.");
-        }
-        public void ShowSellItemSuccess(string itemName, int price)
-        {
-            WriteLine($"You sold {itemName} for {price} coins.");
-        }
-        public void ShowErrorCannotMove()
-        {
-            WriteLine("\nYou cannot move in that direction. There is no room.");
-        }
-        public string ShowMerchantOptions()
-        {
-            WriteLine("\nWrite: \nb. Buy health potion for 40 \ns. Sell an item \nl. Leave");
-            return ReadLine().ToLower();
-        }
-        public int? PromptForItemIdToSell()
-        {
-            WriteLine("Enter the ID of the item you want to sell:");
-            if (int.TryParse(ReadLine(), out int itemId))
-            {
-                return itemId;
-            }
-            return null;
-        }
-        public void ShowErrorInvalidItemId()
-        {
-            WriteLine("Invalid item ID.");
-        }
-        public void ShowErrorInvalidChoice()
-        {
-            WriteLine("Invalid choice. Please choose 'b', 's', or 'l'.");
-        }
-        public void ShowMerchantLeaveMessage()
-        {
-            WriteLine("The merchant nods and moves on.");
-        }
-        public string PromptForItemPickup()
-        {
-            WriteLine("Would you like to take it? (y/n)");
-            return ReadLine();
-        }
-        public string ShowMonsterOptions()
-        {
-            WriteLine("\nf. Fight \nh. Heal \nl. Leave/Flee");
-            return ReadLine().ToLower();
-        }
-        public void ShowFleeMessage()
-        {
-            WriteLine("You flee from the monster.");
-        }
         public void ShowItemGenerated(string message)
         {
             WriteLine($"Item Generated: {message}");
-        }
-        public void ShowMessage(string message)
-        {
-            WriteLine(message);
         }
     }
 }
