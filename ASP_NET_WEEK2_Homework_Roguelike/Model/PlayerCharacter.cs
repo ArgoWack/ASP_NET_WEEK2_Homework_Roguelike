@@ -311,7 +311,7 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Model
             Money -= 40;
             ReceiveHealthPotion();
             UpdateStats();
-            _eventService.HandleEventOutcome("You bought a health potion.");
+            _eventService.HandleEventOutcome("You bought a health potion for 40 coins.");
         }
     }
 }

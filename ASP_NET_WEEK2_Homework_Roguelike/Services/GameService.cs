@@ -201,9 +201,27 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Services
         {
             _playerController.MovePlayer(direction);
             var currentRoom = _mapService.GetDiscoveredRoom(_map, _playerCharacter.CurrentX, _playerCharacter.CurrentY);
+
             if (currentRoom != null)
             {
-                _eventController.ExecuteEvent(currentRoom);
+                // skips the "no new events" message if the event status was just handled
+                if (currentRoom.EventStatus == "handled")
+                {
+                    return;
+                }
+
+                if (currentRoom.EventStatus != "handled")
+                {
+                    _eventController.ExecuteEvent(currentRoom);
+                }
+                else
+                {
+                    _gameView.ShowMessage("This room has no new events.");
+                }
+            }
+            else
+            {
+                _gameView.ShowError("Cannot move in that direction. No valid room exists.");
             }
         }
         private void HandleInventory()

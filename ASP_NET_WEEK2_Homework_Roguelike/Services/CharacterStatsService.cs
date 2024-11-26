@@ -32,8 +32,6 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Services
                 if (item != null)
                     totalAttack += item.Attack;
             }
-
-            Console.WriteLine($"Calculated Attack: {totalAttack}");
             return totalAttack;
         }
         public float CalculateDefense(PlayerCharacter player)
@@ -63,8 +61,6 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Services
                 if (item != null)
                     totalDefense += item.Defense;
             }
-
-            Console.WriteLine($"Calculated Defense: {totalDefense}");
             return totalDefense;
         }
         public int CalculateWeight(PlayerCharacter player)

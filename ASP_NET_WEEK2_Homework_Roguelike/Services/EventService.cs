@@ -47,7 +47,6 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Services
             try
             {
                 player.BuyHealthPotion();
-                HandleEventOutcome("You bought a health potion for 40 coins.");
             }
             catch (InvalidOperationException ex)
             {
