@@ -286,7 +286,8 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Services
             var gameState = new GameState
             {
                 PlayerCharacter = _playerCharacter,
-                Map = _map
+                Map = _map,
+                LastGeneratedItemId = ItemFactoryService.LastGeneratedItemId
             };
             var options = new JsonSerializerOptions
             {
@@ -326,6 +327,7 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Services
                     var gameState = JsonSerializer.Deserialize<GameState>(jsonString, options);
                     if (gameState != null)
                     {
+                        ItemFactoryService.LastGeneratedItemId = gameState.LastGeneratedItemId;
                         // Validate Map
                         if (gameState.Map.DiscoveredRooms == null || !gameState.Map.DiscoveredRooms.Any())
                         {

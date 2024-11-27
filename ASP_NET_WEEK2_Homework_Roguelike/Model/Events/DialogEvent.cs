@@ -8,12 +8,12 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Model.Events
     {
         private readonly EventService _eventService;
         private readonly CharacterInteractionService _interactionService;
-        private readonly GameView _gameView;
-        public DialogEvent(EventService eventService, CharacterInteractionService interactionService, GameView gameView)
+        private readonly PlayerCharacterView _playerCharacterView;
+        public DialogEvent(EventService eventService, CharacterInteractionService interactionService, PlayerCharacterView playerCharacterView)
         {
             _eventService = eventService ?? throw new ArgumentNullException(nameof(eventService));
             _interactionService = interactionService ?? throw new ArgumentNullException(nameof(interactionService));
-            _gameView = gameView ?? throw new ArgumentNullException(nameof(gameView));
+            _playerCharacterView = playerCharacterView ?? throw new ArgumentNullException(nameof(playerCharacterView));
         }
         public override void Execute(PlayerCharacter player, Room room, PlayerCharacterController controller)
         {
@@ -93,7 +93,7 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Model.Events
                         _eventService.BuyHealthPotion(player);
                         break;
                     case "s":
-                        _gameView.DisplayInventory(player);
+                        _playerCharacterView.DisplayInventory(player);
                         int? itemId = _eventService.PromptForItemIdToSell();
                         if (itemId.HasValue)
                         {

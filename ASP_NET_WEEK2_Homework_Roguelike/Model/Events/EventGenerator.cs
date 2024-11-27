@@ -25,7 +25,7 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Model.Events
             else if (roll < 75)
                 return new MonsterEvent(_eventService, _interactionService, _playerCharacterView);
             else if (roll < 85)
-                return new DialogEvent(_eventService, _interactionService, _gameView);
+                return new DialogEvent(_eventService, _interactionService, _playerCharacterView);
             else
                 return null; // no event occurs
         }
@@ -35,7 +35,7 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Model.Events
             {
                 "FindItemEvent" => new FindItemEvent(_eventService, _interactionService, _playerCharacterView),
                 "MonsterEvent" => new MonsterEvent(_eventService, _interactionService, _playerCharacterView),
-                "DialogEvent" => new DialogEvent(_eventService, _interactionService, _gameView),
+                "DialogEvent" => new DialogEvent(_eventService, _interactionService, _playerCharacterView),
                 _ => null, // no valid event
             };
         }

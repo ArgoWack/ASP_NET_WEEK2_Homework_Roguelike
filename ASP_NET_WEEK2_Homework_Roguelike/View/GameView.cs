@@ -9,11 +9,13 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.View
     {
         public void DisplayMessage(string message)
         {
-            WriteLine(message);
+            ConsoleHelper.PrintColored(message, ConsoleColor.Blue, true);
         }
         public void ShowWelcomeMessage()
         {
-            DisplayMessage("Welcome to Roguelike game \n");
+            //DisplayMessage("Welcome to Roguelike game \n");
+            ConsoleHelper.PrintColored("Welcome to Roguelike game \n", ConsoleColor.DarkCyan, true);
+
         }
         public void ShowDescription()
         {
@@ -21,90 +23,69 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.View
                                  "\n Q - Save & Quit" +
                                  "\n E - Opens Inventory" +
                                  "\n A/W/S/D - movement";
-            DisplayMessage(description + "\n");
-        }
-        public void DisplayInventory(PlayerCharacter player)
-        {
-            WriteLine("\nHere is your inventory:");
-
-            if (!player.Inventory.Any())
-            {
-                WriteLine("Your inventory is empty.");
-                return;
-            }
-            foreach (var item in player.Inventory)
-            {
-                if (item is HealthPotion potion)
-                {
-                    WriteLine($"Item: {potion.Name} | ID: {potion.ID} | Quantity: {potion.Quantity} | Max Stack Size: {potion.MaxStackSize} | Healing: {potion.HealingAmount} | Weight: {potion.Weight * potion.Quantity}| Value: {item.MoneyWorth} coins");
-                }
-                else
-                {
-                    WriteLine($"Item: {item.Name} | ID: {item.ID} | Defense: {item.Defense} | Attack: {item.Attack} | Weight: {item.Weight} | Value: {item.MoneyWorth} coins");
-                }
-            }
+            ConsoleHelper.PrintColored(description + "\n", ConsoleColor.Cyan, true);
         }
         public char PromptForInventoryChoice()
         {
-            DisplayMessage(" \n Write:  \ne. Use some item \nd. Discard some item  \nl. Leave inventory");
+            ConsoleHelper.PrintColored(" \n Write:  \ne. Use some item \nd. Discard some item  \nl. Leave inventory", ConsoleColor.DarkYellow, true);
             char.TryParse(ReadLine(), out char choice);
             return choice;
         }
         public int? PromptForItemId(string action)
         {
-            DisplayMessage($" \n Write ID of the item you'd like to {action}:");
+            ConsoleHelper.PrintColored($" \n Write ID of the item you'd like to {action}:", ConsoleColor.Yellow, true);
             if (int.TryParse(ReadLine(), out int id))
             {
                 return id;
             }
             else
             {
-                DisplayMessage("Invalid ID.");
+                ConsoleHelper.PrintColored("Invalid ID.", ConsoleColor.DarkRed, true);
                 return null;
             }
         }
         public string PromptForCharacterName()
         {
-            DisplayMessage("\n Write Character Name");
+            ConsoleHelper.PrintColored("\n Write Character Name", ConsoleColor.Yellow, true);
             return ReadLine();
         }
         public int PromptForSaveFileSelection(string[] saveFiles)
         {
-            DisplayMessage("\n Available saved games:");
+            ConsoleHelper.PrintColored("\n Available saved games:", ConsoleColor.Yellow, true);
             for (int i = 0; i < saveFiles.Length; i++)
             {
                 var fileName = System.IO.Path.GetFileNameWithoutExtension(saveFiles[i]);
                 var characterName = fileName.Replace("_savefile", "");
-                DisplayMessage($"{i + 1}. {characterName}");
+                ConsoleHelper.PrintColored($"{i + 1}. {characterName}", ConsoleColor.DarkYellow, true);
             }
-            DisplayMessage("\n Enter the number of the character you want to load:");
+            ConsoleHelper.PrintColored("\n Enter the number of the character you want to load:", ConsoleColor.Yellow, true);
             if (int.TryParse(ReadLine(), out int selectedIndex))
             {
                 return selectedIndex;
             }
             else
             {
-                ShowError("Invalid input. Returning to main menu.");
+                ConsoleHelper.PrintColored("Invalid input. Returning to main menu.", ConsoleColor.DarkRed, true);
                 return -1;
             }
         }
         public void ShowError(string message)
         {
-            DisplayMessage($"Error: {message}");
+            ConsoleHelper.PrintColored($"Error: {message}", ConsoleColor.DarkRed, true);
         }
         public string PromptForItemPickup()
         {
-            DisplayMessage("Would you like to take it? (y/n)");
+            ConsoleHelper.PrintColored("Would you like to take it? (y/n)", ConsoleColor.Yellow, true);
             return ReadLine().ToLower();
         }
         public string GetMerchantOptions()
         {
-            DisplayMessage("Write: \nb - Buy health potion for 40 coins \ns - Sell an item \nl - Leave");
+            ConsoleHelper.PrintColored("Write: \nb - Buy health potion for 40 coins \ns - Sell an item \nl - Leave", ConsoleColor.DarkYellow, true);
             return ReadLine().ToLower();
         }
         public int? PromptForItemIdToSell()
         {
-            DisplayMessage("Enter the ID of the item you want to sell:");
+            ConsoleHelper.PrintColored("Enter the ID of the item you want to sell:", ConsoleColor.Yellow, true);
             if (int.TryParse(ReadLine(), out int itemId))
             {
                 return itemId;
@@ -113,23 +94,22 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.View
         }
         public string GetMonsterOptions()
         {
-            DisplayMessage("\nChoose an action: \nf - Fight \nh - Heal \nl - Leave/Flee");
+            ConsoleHelper.PrintColored("\nChoose an action: \nf - Fight \nh - Heal \nl - Leave/Flee", ConsoleColor.DarkYellow, true);
             return ReadLine().ToLower();
         }
         public ConsoleKeyInfo DisplayMenuAndGetChoice<T>(string menuKind, string prompt, MenuActionService menuActionService)
         {
             var menu = menuActionService.GetMenuActionsByMenuName(menuKind);
-            DisplayMessage(prompt);
-
+            ConsoleHelper.PrintColored(prompt, ConsoleColor.Yellow, true);
             foreach (var action in menu)
             {
                 if (typeof(T) == typeof(int))
                 {
-                    DisplayMessage($"{action.Id}. {action.Name}");
+                    ConsoleHelper.PrintColored($"{action.Id}. {action.Name}", ConsoleColor.DarkYellow, true);
                 }
                 else if (typeof(T) == typeof(char))
                 {
-                    DisplayMessage($"{(char)action.Id}. {action.Name}");
+                    ConsoleHelper.PrintColored($"{(char)action.Id}. {action.Name}", ConsoleColor.DarkYellow, true);
                 }
             }
 
@@ -137,11 +117,12 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.View
         }
         public void ShowEndGameMessage()
         {
-            DisplayMessage("Thank you for playing! The game has ended.");
+            ConsoleHelper.PrintColored("Thank you for playing! The game has ended.", ConsoleColor.Cyan, true);
         }
         public void ShowMessage(string message)
         {
             DisplayMessage(message);
+
         }
     }
 }

@@ -154,23 +154,14 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Model
             {
                 return;
             }
-            
-            /*
-            _baseAttack = _statsService.CalculateAttack(this);
-            _baseDefense = _statsService.CalculateDefense(this);
-            Weight = _statsService.CalculateWeight(this);
-            */
-            // Calculate speed with a weight penalty
-            float weightPenalty = Math.Max(0.5f, 1.0f - (Weight / 100.0f)); // Minimum 50% speed
-            _baseSpeed = 10.0f + Level * 2; // Base speed depends on level
-            float adjustedSpeed = _baseSpeed * weightPenalty;
 
-            // Calculate derived stats
-            _baseAttack = _statsService.CalculateAttack(this) * (adjustedSpeed / 10.0f);
-            _baseDefense = _statsService.CalculateDefense(this) * (adjustedSpeed / 10.0f);
-            //Speed = adjustedSpeed;
-            Weight = _statsService.CalculateWeight(this);
+            float weightPenalty = Math.Max(0.5f, 1.0f - (Weight / 100.0f)); // minimum 50% speed
+            _baseSpeed = 10.0f + Level * 2;
+            float adjustedSpeed = (_baseSpeed + _speedModifier) * weightPenalty;
 
+            _baseAttack = (_statsService.CalculateAttack(this) + _attackModifier) * (adjustedSpeed / 10.0f);
+            _baseDefense = (_statsService.CalculateDefense(this) + _defenseModifier) * (adjustedSpeed / 10.0f);
+            Weight = _statsService.CalculateWeight(this);
         }
 
         // Inventory Management

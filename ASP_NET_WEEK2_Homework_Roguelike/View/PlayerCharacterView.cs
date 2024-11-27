@@ -21,11 +21,11 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.View
                     {
                         if (player.CurrentX == x && player.CurrentY == y)
                         {
-                            Write("P"); // Player's current position
+                            ConsoleHelper.PrintColored("P", ConsoleColor.Yellow, false); // Player's current position
                         }
                         else
                         {
-                            Write("+"); // Discovered room
+                            ConsoleHelper.PrintColored("+", ConsoleColor.DarkGreen, false); // Discovered room
                         }
                     }
                     else
@@ -35,7 +35,8 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.View
                     // Draw horizontal connections
                     if (x < maxX && map.DiscoveredRooms.TryGetValue((x, y), out Room currentRoom) && currentRoom.Exits.ContainsKey("east"))
                     {
-                        Write("-");
+
+                        ConsoleHelper.PrintColored("-", ConsoleColor.Green, false);
                     }
                     else
                     {
@@ -50,7 +51,7 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.View
                     {
                         if (map.DiscoveredRooms.TryGetValue((x, y), out Room room) && room.Exits.ContainsKey("south"))
                         {
-                            Write("|");
+                            ConsoleHelper.PrintColored("|", ConsoleColor.Green, false);
                         }
                         else
                         {
@@ -71,20 +72,37 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.View
         {
             if (player == null)
             {
-                WriteLine("Character data is unavailable.");
+                ConsoleHelper.PrintColored("Character data is unavailable.", ConsoleColor.Red);
                 return;
             }
-            WriteLine($@"
-                Character name: {player.Name}
-                Attack: {Math.Round(player.Attack)}
-                Defense: {Math.Round(player.Defense)}
-                Speed: {Math.Round(player.Speed)}
-                Weight: {player.Weight}
-                Money: {player.Money}
-                Health: {player.Health}/{player.HealthLimit}
-                Level: {player.Level}
-                Experience: {player.Experience}");
-            var equippedItems = new Dictionary<string, Item>
+
+            // Display Player Stats with Colors
+            var stats = new Dictionary<string, (object Value, ConsoleColor Color)>
+            {
+                { "Character name", (player.Name ?? "N/A", ConsoleColor.Yellow) },
+                { "Attack", (Math.Round(player.Attack), ConsoleColor.Green) },
+                { "Defense", (Math.Round(player.Defense), ConsoleColor.Blue) },
+                { "Speed", (Math.Round(player.Speed), ConsoleColor.Magenta) },
+                { "Weight", (player.Weight, ConsoleColor.Gray) },
+                { "Money", (player.Money, ConsoleColor.DarkYellow) },
+                { "Health", ($"{player.Health}/{player.HealthLimit}", ConsoleColor.Red) },
+                { "Level", (player.Level, ConsoleColor.White) },
+                { "Experience", (player.Experience, ConsoleColor.DarkCyan) }
+            };
+
+            foreach (var stat in stats)
+            {
+                ConsoleHelper.PrintColored($"{stat.Key}: ", ConsoleColor.Cyan, false);
+                ConsoleHelper.PrintColored(stat.Value.Value.ToString(), stat.Value.Color);
+            }
+
+            // Equipped Items Table Header
+            ConsoleHelper.PrintColored("\nEquipped Items:", ConsoleColor.Cyan);
+            ConsoleHelper.PrintColored($"{"Item",-22} {"ID",-8} {"Defense",-10} {"Attack",-10} {"Weight",-10} {"Value",-10} {"Description",-20}", ConsoleColor.White);
+            ConsoleHelper.PrintColored(new string('-', 92), ConsoleColor.DarkGray);
+
+            // Collect Equipped Items
+            var equippedItems = new Dictionary<string, Item?>
             {
                 { "Amulet", player.EquippedAmulet },
                 { "Armor", player.EquippedArmor },
@@ -96,74 +114,112 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.View
                 { "SwordTwoHanded", player.EquippedSwordTwoHanded },
                 { "Trousers", player.EquippedTrousers }
             };
+
+            // Display Each Equipped Item with Colors
             foreach (var equippedItem in equippedItems)
             {
                 if (equippedItem.Value != null)
                 {
-                    WriteLine($@"
-                Equipped {equippedItem.Key}: {equippedItem.Value.Name ?? "None"} 
-                  ID: {equippedItem.Value.ID}, Defense: {equippedItem.Value.Defense}, Attack: {equippedItem.Value.Attack}, Weight: {equippedItem.Value.Weight}, Money worth: {equippedItem.Value.MoneyWorth}, Description: {equippedItem.Value.Description}");
+                    // Color-coded fields for equipped items
+                    ConsoleHelper.PrintColored($"{equippedItem.Key,-22}", ConsoleColor.Cyan, false);
+                    ConsoleHelper.PrintColored($"{equippedItem.Value.ID,-13}", ConsoleColor.Yellow, false);
+                    ConsoleHelper.PrintColored($"{equippedItem.Value.Defense,-10}", ConsoleColor.Blue, false);
+                    ConsoleHelper.PrintColored($"{equippedItem.Value.Attack,-11}", ConsoleColor.Green, false);
+                    ConsoleHelper.PrintColored($"{equippedItem.Value.Weight,-11}", ConsoleColor.Gray, false);
+                    ConsoleHelper.PrintColored($"{equippedItem.Value.MoneyWorth,-12}", ConsoleColor.DarkYellow, false);
+                    ConsoleHelper.PrintColored($"{equippedItem.Value.Description ?? "N/A",-20}", ConsoleColor.Magenta);
                 }
                 else
                 {
-                    WriteLine($@"
-                Equipped {equippedItem.Key}: None");
+                    // Empty slots
+                    ConsoleHelper.PrintColored($"{equippedItem.Key,-22}", ConsoleColor.Cyan, false);
+                    ConsoleHelper.PrintColored($"{"None",-13}", ConsoleColor.Red, false);
+                    ConsoleHelper.PrintColored($"{"-",-10}", ConsoleColor.DarkGray, false);
+                    ConsoleHelper.PrintColored($"{"-",-11}", ConsoleColor.DarkGray, false);
+                    ConsoleHelper.PrintColored($"{"-",-11}", ConsoleColor.DarkGray, false);
+                    ConsoleHelper.PrintColored($"{"-",-12}", ConsoleColor.DarkGray, false);
+                    ConsoleHelper.PrintColored($"{"N/A",-20}", ConsoleColor.DarkGray);
                 }
             }
         }
         public void DisplayInventory(PlayerCharacter player)
         {
             WriteLine("\nHere is your inventory:");
+
             if (!player.Inventory.Any())
             {
+                ForegroundColor = ConsoleColor.Red;
                 WriteLine("Your inventory is empty.");
+                ResetColor();
                 return;
             }
+
+            // Define column headers and their widths
+            ForegroundColor = ConsoleColor.Cyan;
+            string header = $"{"Item",-20} {"ID",-5} {"Defense",-10} {"Attack",-10} {"Weight",-10} {"Value",-10}";
+            WriteLine(header);
+            WriteLine(new string('-', header.Length)); // Separator line
+            ResetColor();
+
             foreach (var item in player.Inventory)
             {
-               if (item is HealthPotion potion)
+                if (item is HealthPotion potion)
                 {
-                    WriteLine($"Item: {potion.Name} | ID: {potion.ID} | Quantity: {potion.Quantity}/{potion.MaxStackSize} | Healing: {potion.HealingAmount} | Weight: {potion.Weight * potion.Quantity}| Value: {item.MoneyWorth} coins");
+                    ForegroundColor = ConsoleColor.Green; // Special items (potions)
+                    Write($"{potion.Name,-20} ");
+                    ResetColor();
+
+                    Write($"{potion.ID,-8} ");
+                    Write($"{"-",-9} {"-",-10} {potion.Weight * potion.Quantity,-10} {potion.MoneyWorth,-10} ");
+
+                    ForegroundColor = ConsoleColor.DarkYellow; // Highlight potion attributes
+                    WriteLine($"Quantity: {potion.Quantity}/{potion.MaxStackSize} Healing: {potion.HealingAmount}");
+                    ResetColor();
                 }
                 else
                 {
-                    WriteLine($"Item: {item.Name} | ID: {item.ID} | Defense: {item.Defense} | Attack: {item.Attack} | Weight: {item.Weight} | Value: {item.MoneyWorth} coins");
+                    ForegroundColor = ConsoleColor.Yellow; // Normal items
+                    Write($"{item.Name,-20} ");
+                    ResetColor();
+
+                    Write($"{item.ID,-8} ");
+                    Write($"{item.Defense,-9} {item.Attack,-10} {item.Weight,-10} {item.MoneyWorth,-10}");
+                    WriteLine();
                 }
             }
         }
-        
         public void ShowEquipItemSuccess(string itemName)
         {
-            WriteLine($"You have equipped {itemName}.");
+            ConsoleHelper.PrintColored($"You have equipped {itemName}.", ConsoleColor.Yellow, true);
         }
 
         public void ShowDiscardItemSuccess(string itemName)
         {
-            WriteLine($"You have discarded {itemName}.");
+            ConsoleHelper.PrintColored($"You have discarded {itemName}.", ConsoleColor.Yellow, true);
         }
         public void ShowPlayerMovement(string direction, int currentX, int currentY)
         {
-            WriteLine($"\nMoved {direction}. Current position: ({currentX}, {currentY})\n");
+            ConsoleHelper.PrintColored($"\nMoved {direction}. Current position: ({currentX}, {currentY})\n", ConsoleColor.Yellow, true);
         }
         public void ShowEventEncounter(string eventType)
         {
-            WriteLine($"You encounter a {eventType}!");
+            ConsoleHelper.PrintColored($"You encounter a {eventType}!", ConsoleColor.Yellow, true);
         }
         public void ShowEventOutcome(string outcome)
         {
-            WriteLine(outcome);
+            ConsoleHelper.PrintColored(outcome, ConsoleColor.Yellow, true);
         }
         public void ShowError(string message)
         {
-            WriteLine($"Error: {message}");
+            ConsoleHelper.PrintColored($"Error: {message}", ConsoleColor.Red, true);
         }
         public void RelayMessage(string message)
         {
-            WriteLine($"{message}");
+            ConsoleHelper.PrintColored($"{message}", ConsoleColor.Yellow, true);
         }
         public void ShowItemGenerated(string message)
         {
-            WriteLine($"Item Generated: {message}");
+            ConsoleHelper.PrintColored($"Item Generated: {message}", ConsoleColor.Yellow, true);
         }
     }
 }
