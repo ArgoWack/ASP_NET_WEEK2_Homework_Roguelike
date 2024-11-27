@@ -137,15 +137,6 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Model
 
             UpdateStats(); // Recalculate stats
         }
-        // Movement
-        public void MovePlayer(string direction, Map map, MapService mapService)
-        {
-            int playerX = _currentX;
-            int playerY = _currentY;
-            mapService.MovePlayer(map, ref playerX, ref playerY, direction);
-            _currentX = playerX;
-            _currentY = playerY;
-        }
 
         // Stats Updates
         public void UpdateStats()
@@ -224,6 +215,7 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Model
             Health = Math.Min(Health + amount, HealthLimit);
             int healedAmount = Health - previousHealth;
             _eventService.HandleEventOutcome($"You healed for: {healedAmount} health points. Current Health: {Health}/{HealthLimit}.");
+            OutputTotalHealthPotions();
         }
 
         // Experience and Leveling
@@ -287,6 +279,21 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.Model
             Money -= 40;
             ReceiveHealthPotion();
             UpdateStats();
+        }
+        public void OutputTotalHealthPotions()
+        {
+            // Sum the quantities of all HealthPotion items in the inventory
+            int totalHealthPotions = Inventory.OfType<HealthPotion>().Sum(p => p.Quantity);
+
+            // Check if there are no HealthPotion stacks
+            if (totalHealthPotions == 0)
+            {
+                _view.RelayMessage("You don't have any Health Potions.");
+            }
+            else
+            {
+                _view.RelayMessage($"You have: {totalHealthPotions} HealthPotions left");
+            }
         }
     }
 }

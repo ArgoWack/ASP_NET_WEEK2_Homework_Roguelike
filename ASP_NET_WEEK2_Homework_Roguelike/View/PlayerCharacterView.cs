@@ -192,7 +192,6 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.View
         {
             ConsoleHelper.PrintColored($"You have equipped {itemName}.", ConsoleColor.Yellow, true);
         }
-
         public void ShowDiscardItemSuccess(string itemName)
         {
             ConsoleHelper.PrintColored($"You have discarded {itemName}.", ConsoleColor.Yellow, true);
@@ -204,10 +203,6 @@ namespace ASP_NET_WEEK2_Homework_Roguelike.View
         public void ShowEventEncounter(string eventType)
         {
             ConsoleHelper.PrintColored($"You encounter a {eventType}!", ConsoleColor.Yellow, true);
-        }
-        public void ShowEventOutcome(string outcome)
-        {
-            ConsoleHelper.PrintColored(outcome, ConsoleColor.Yellow, true);
         }
         public void ShowError(string message)
         {
