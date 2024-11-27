@@ -1,8 +1,8 @@
-﻿using ASP_NET_WEEK2_Homework_Roguelike.Model;
-using ASP_NET_WEEK2_Homework_Roguelike.Model.Items;
+﻿using ASP_NET_WEEK3_Homework_Roguelike.Model;
+using ASP_NET_WEEK3_Homework_Roguelike.Model.Items;
 using static System.Console;
 
-namespace ASP_NET_WEEK2_Homework_Roguelike.View
+namespace ASP_NET_WEEK3_Homework_Roguelike.View
 {
     public class PlayerCharacterView
     {

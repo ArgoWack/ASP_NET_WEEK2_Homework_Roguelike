@@ -1,9 +1,9 @@
-﻿using ASP_NET_WEEK2_Homework_Roguelike.View;
-using ASP_NET_WEEK2_Homework_Roguelike.Model;
-using ASP_NET_WEEK2_Homework_Roguelike.Model.Events;
-using ASP_NET_WEEK2_Homework_Roguelike.Services;
+﻿using ASP_NET_WEEK3_Homework_Roguelike.View;
+using ASP_NET_WEEK3_Homework_Roguelike.Model;
+using ASP_NET_WEEK3_Homework_Roguelike.Model.Events;
+using ASP_NET_WEEK3_Homework_Roguelike.Services;
 
-namespace ASP_NET_WEEK2_Homework_Roguelike.Controller
+namespace ASP_NET_WEEK3_Homework_Roguelike.Controller
 {
     public class PlayerCharacterController
     {

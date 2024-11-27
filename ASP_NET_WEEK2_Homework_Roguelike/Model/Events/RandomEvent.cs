@@ -1,6 +1,6 @@
-﻿using ASP_NET_WEEK2_Homework_Roguelike.Controller;
+﻿using ASP_NET_WEEK3_Homework_Roguelike.Controller;
 
-namespace ASP_NET_WEEK2_Homework_Roguelike.Model.Events
+namespace ASP_NET_WEEK3_Homework_Roguelike.Model.Events
 {
     public abstract class RandomEvent
     {

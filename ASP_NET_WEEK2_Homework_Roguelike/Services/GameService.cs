@@ -1,15 +1,15 @@
-﻿using ASP_NET_WEEK2_Homework_Roguelike.Controller;
-using ASP_NET_WEEK2_Homework_Roguelike.Model;
-using ASP_NET_WEEK2_Homework_Roguelike.View;
+﻿using ASP_NET_WEEK3_Homework_Roguelike.Controller;
+using ASP_NET_WEEK3_Homework_Roguelike.Model;
+using ASP_NET_WEEK3_Homework_Roguelike.View;
 using static System.Console;
-using ASP_NET_WEEK2_Homework_Roguelike.Model.Events;
+using ASP_NET_WEEK3_Homework_Roguelike.Model.Events;
 using System.Text.Json.Serialization;
 using System.Text.Json;
-using ASP_NET_WEEK2_Homework_Roguelike.Converters;
-using ASP_NET_WEEK2_Homework_Roguelike.Model.Items;
+using ASP_NET_WEEK3_Homework_Roguelike.Converters;
+using ASP_NET_WEEK3_Homework_Roguelike.Model.Items;
 using System.Numerics;
 
-namespace ASP_NET_WEEK2_Homework_Roguelike.Services
+namespace ASP_NET_WEEK3_Homework_Roguelike.Services
 {
     public class GameService
     {

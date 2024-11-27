@@ -1,8 +1,8 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
-using ASP_NET_WEEK2_Homework_Roguelike.Model;
+using ASP_NET_WEEK3_Homework_Roguelike.Model;
 
-namespace ASP_NET_WEEK2_Homework_Roguelike.Converters
+namespace ASP_NET_WEEK3_Homework_Roguelike.Converters
 {
     public class MapConverter : JsonConverter<Map>
     {

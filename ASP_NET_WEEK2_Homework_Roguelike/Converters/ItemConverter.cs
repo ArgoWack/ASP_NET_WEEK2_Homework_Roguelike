@@ -1,8 +1,8 @@
 ﻿using System.Text.Json.Serialization;
 using System.Text.Json;
-using ASP_NET_WEEK2_Homework_Roguelike.Model.Items;
+using ASP_NET_WEEK3_Homework_Roguelike.Model.Items;
 
-namespace ASP_NET_WEEK2_Homework_Roguelike.Converters
+namespace ASP_NET_WEEK3_Homework_Roguelike.Converters
 {
     public class ItemConverter : JsonConverter<Item>
     {

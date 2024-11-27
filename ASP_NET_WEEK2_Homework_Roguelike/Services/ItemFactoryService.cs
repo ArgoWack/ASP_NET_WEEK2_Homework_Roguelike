@@ -1,8 +1,8 @@
 ﻿using System.Reflection;
-using ASP_NET_WEEK2_Homework_Roguelike.Model.Items;
-using ASP_NET_WEEK2_Homework_Roguelike.View;
+using ASP_NET_WEEK3_Homework_Roguelike.Model.Items;
+using ASP_NET_WEEK3_Homework_Roguelike.View;
 
-namespace ASP_NET_WEEK2_Homework_Roguelike.Services
+namespace ASP_NET_WEEK3_Homework_Roguelike.Services
 {
     public static class ItemFactoryService
     {

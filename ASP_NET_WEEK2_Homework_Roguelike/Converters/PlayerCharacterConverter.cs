@@ -1,12 +1,12 @@
-﻿using ASP_NET_WEEK2_Homework_Roguelike.Model.Items;
-using ASP_NET_WEEK2_Homework_Roguelike.Model;
+﻿using ASP_NET_WEEK3_Homework_Roguelike.Model.Items;
+using ASP_NET_WEEK3_Homework_Roguelike.Model;
 using System.Text.Json.Serialization;
 using System.Text.Json;
-using ASP_NET_WEEK2_Homework_Roguelike.Services;
-using ASP_NET_WEEK2_Homework_Roguelike.View;
+using ASP_NET_WEEK3_Homework_Roguelike.Services;
+using ASP_NET_WEEK3_Homework_Roguelike.View;
 
 
-namespace ASP_NET_WEEK2_Homework_Roguelike.Converters
+namespace ASP_NET_WEEK3_Homework_Roguelike.Converters
 {
     public class PlayerCharacterConverter : JsonConverter<PlayerCharacter>
     {

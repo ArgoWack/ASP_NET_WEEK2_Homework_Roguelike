@@ -3,19 +3,19 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
-namespace ASP_NET_WEEK2_Homework_Roguelike.View
+using static System.Console;
+namespace ASP_NET_WEEK3_Homework_Roguelike.View
 {
     public static class ConsoleHelper
     {
         public static void PrintColored(string text, ConsoleColor color, bool newLine = true)
         {
-            Console.ForegroundColor = color;
+            ForegroundColor = color;
             if (newLine)
-                Console.WriteLine(text);
+                WriteLine(text);
             else
-                Console.Write(text);
-            Console.ResetColor();
+                Write(text);
+            ResetColor();
         }
     }
 }

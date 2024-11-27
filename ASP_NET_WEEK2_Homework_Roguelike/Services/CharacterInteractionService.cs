@@ -1,6 +1,6 @@
-﻿using ASP_NET_WEEK2_Homework_Roguelike.Model;
+﻿using ASP_NET_WEEK3_Homework_Roguelike.Model;
 
-namespace ASP_NET_WEEK2_Homework_Roguelike.Services
+namespace ASP_NET_WEEK3_Homework_Roguelike.Services
 {
     public class CharacterInteractionService
     {

@@ -1,8 +1,8 @@
-﻿using ASP_NET_WEEK2_Homework_Roguelike.Services;
-using ASP_NET_WEEK2_Homework_Roguelike.Controller;
-using ASP_NET_WEEK2_Homework_Roguelike.View;
+﻿using ASP_NET_WEEK3_Homework_Roguelike.Services;
+using ASP_NET_WEEK3_Homework_Roguelike.Controller;
+using ASP_NET_WEEK3_Homework_Roguelike.View;
 
-namespace ASP_NET_WEEK2_Homework_Roguelike.Model.Events
+namespace ASP_NET_WEEK3_Homework_Roguelike.Model.Events
 {
     public class DialogEvent : RandomEvent
     {
