@@ -1,7 +1,6 @@
 ﻿using ASP_NET_WEEK3_Homework_Roguelike.Services;
 using ASP_NET_WEEK3_Homework_Roguelike.Model.Items;
 using ASP_NET_WEEK3_Homework_Roguelike.View;
-using System.Text.Json.Serialization;
 
 namespace ASP_NET_WEEK3_Homework_Roguelike.Model
 {
@@ -9,7 +8,9 @@ namespace ASP_NET_WEEK3_Homework_Roguelike.Model
     {
         public PlayerCharacter()
         {
+            Console.WriteLine("PlayerCharacter constructor called.");
             Inventory = new List<Item>();
+            EquippedItems = new Dictionary<ItemType, Item>();
         }
 
         private CharacterStatsService _statsService;
@@ -62,16 +63,11 @@ namespace ASP_NET_WEEK3_Homework_Roguelike.Model
             }
         }
         // Equipped Items
-        public Helmet EquippedHelmet { get; set; }
-        public Armor EquippedArmor { get; set; }
-        public Shield EquippedShield { get; set; }
-        public Gloves EquippedGloves { get; set; }
-        public Trousers EquippedTrousers { get; set; }
-        public Boots EquippedBoots { get; set; }
-        public Amulet EquippedAmulet { get; set; }
-        public SwordOneHanded EquippedSwordOneHanded { get; set; }
-        public SwordTwoHanded EquippedSwordTwoHanded { get; set; }
-
+        public Dictionary<ItemType, Item> EquippedItems { get; private set; }
+        public void EnsureInitialized()
+        {
+            EquippedItems ??= new Dictionary<ItemType, Item>();
+        }
         // Derived Stats
         public int HealthLimit => 100 + Level * 10;
         public float Speed
@@ -131,9 +127,7 @@ namespace ASP_NET_WEEK3_Homework_Roguelike.Model
 
             // Initialize default properties if needed
             Inventory ??= new List<Item>();
-            EquippedHelmet ??= null;
-            EquippedArmor ??= null;
-            EquippedShield ??= null;
+            EquippedItems ??= new Dictionary<ItemType, Item>();
 
             UpdateStats(); // Recalculate stats
         }
@@ -161,7 +155,7 @@ namespace ASP_NET_WEEK3_Homework_Roguelike.Model
             _inventoryService.EquipItem(this, itemId);
             UpdateStats();
         }
-        public void UnequipItem(Type itemType)
+        public void UnequipItem(ItemType itemType)
         {
             _inventoryService.UnequipItem(this, itemType);
             UpdateStats();
@@ -173,18 +167,24 @@ namespace ASP_NET_WEEK3_Homework_Roguelike.Model
         }
         public void ReceiveHealthPotion(int quantity = 1)
         {
+            // checkes if there are existing potions that can be stacked
             var existingPotion = _inventory.OfType<HealthPotion>().FirstOrDefault(p => p.Quantity < p.MaxStackSize);
             if (existingPotion != null)
             {
+                // adds as much as possible to the existing stack
                 int addable = Math.Min(existingPotion.MaxStackSize - existingPotion.Quantity, quantity);
                 existingPotion.Quantity += addable;
                 quantity -= addable;
             }
+
+            // generates new potions for the remaining quantity
             while (quantity > 0)
             {
-                var newPotion = ItemFactoryService.GenerateItem(typeof(HealthPotion), _view) as HealthPotion;
-                if (newPotion == null) throw new InvalidOperationException("Failed to generate HealthPotion.");
+                var newPotion = ItemFactoryService.GenerateItem(ItemType.HealthPotion, _view) as HealthPotion;
+                if (newPotion == null)
+                    throw new InvalidOperationException("Failed to generate HealthPotion.");
 
+                // assigns quantity to the new potion up to its max stack size
                 newPotion.Quantity = Math.Min(newPotion.MaxStackSize, quantity);
                 _inventory.Add(newPotion);
                 quantity -= newPotion.Quantity;

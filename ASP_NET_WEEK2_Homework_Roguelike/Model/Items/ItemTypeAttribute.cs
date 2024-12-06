@@ -1,5 +1,4 @@
-﻿
-namespace ASP_NET_WEEK3_Homework_Roguelike.Model.Items
+﻿namespace ASP_NET_WEEK3_Homework_Roguelike.Model.Items
 {
     [AttributeUsage(AttributeTargets.Class)]
     public class ItemTypeAttribute : Attribute

@@ -5,9 +5,7 @@ using static System.Console;
 using ASP_NET_WEEK3_Homework_Roguelike.Model.Events;
 using System.Text.Json.Serialization;
 using System.Text.Json;
-using ASP_NET_WEEK3_Homework_Roguelike.Converters;
 using ASP_NET_WEEK3_Homework_Roguelike.Model.Items;
-using System.Numerics;
 
 namespace ASP_NET_WEEK3_Homework_Roguelike.Services
 {
@@ -166,7 +164,6 @@ namespace ASP_NET_WEEK3_Homework_Roguelike.Services
                         _gameView.ShowError("Failed to load game state.");
                         return;
                     }
-
                     _playerCharacter = gameState.PlayerCharacter;
                     _map = gameState.Map;
 
@@ -283,18 +280,26 @@ namespace ASP_NET_WEEK3_Homework_Roguelike.Services
         public void SaveGame()
         {
             string sanitizedFileName = $"{_playerCharacter.Name}_savefile.json".Replace(" ", "_").Replace(":", "_").Replace("/", "_");
+
             var gameState = new GameState
             {
                 PlayerCharacter = _playerCharacter,
                 Map = _map,
                 LastGeneratedItemId = ItemFactoryService.LastGeneratedItemId
             };
+
             var options = new JsonSerializerOptions
             {
                 WriteIndented = true,
                 ReferenceHandler = ReferenceHandler.Preserve,
-                Converters = { new Converters.ItemConverter(), new Converters.MapConverter() }
+                Converters =
+                {
+                    new ItemConverter(),
+                    new MapConverter(),
+                    new PlayerCharacterConverter()
+                }
             };
+
             try
             {
                 string jsonString = JsonSerializer.Serialize(gameState, options);
@@ -309,6 +314,7 @@ namespace ASP_NET_WEEK3_Homework_Roguelike.Services
         public static GameState? LoadGame(string characterName, GameView gameView)
         {
             string sanitizedFileName = $"{characterName}_savefile.json".Replace(" ", "_").Replace(":", "_").Replace("/", "_");
+
             if (File.Exists(sanitizedFileName))
             {
                 try
@@ -319,38 +325,17 @@ namespace ASP_NET_WEEK3_Homework_Roguelike.Services
                         ReferenceHandler = ReferenceHandler.Preserve,
                         Converters =
                 {
-                    new PlayerCharacterConverter(),
+                    new ItemConverter(),
                     new MapConverter(),
-                    new ItemConverter()
+                    new PlayerCharacterConverter()
                 }
                     };
+
                     var gameState = JsonSerializer.Deserialize<GameState>(jsonString, options);
                     if (gameState != null)
                     {
                         ItemFactoryService.LastGeneratedItemId = gameState.LastGeneratedItemId;
-                        // Validate Map
-                        if (gameState.Map.DiscoveredRooms == null || !gameState.Map.DiscoveredRooms.Any())
-                        {
-                            gameState.Map.DiscoveredRooms = new Dictionary<(int, int), Room>
-                    {
-                        { (0, 0), new Room { X = 0, Y = 0, IsExplored = true, Exits = new Dictionary<string, Room>() } }
-                    };
-                        }
-                        // Initialize services for the PlayerCharacter
-                        var statsService = new CharacterStatsService();
-                        gameState.PlayerCharacter.InitializeServices(
-                            statsService,
-                            new InventoryService(),
-                            new EventService(null, gameView),
-                            new PlayerCharacterView()
-                        );
-                        gameState.PlayerCharacter.UpdateStats();
-
                         return gameState;
-                    }
-                    else
-                    {
-                        gameView.ShowError("Failed to load game: Game state is null.");
                     }
                 }
                 catch (Exception ex)
@@ -364,6 +349,5 @@ namespace ASP_NET_WEEK3_Homework_Roguelike.Services
             }
             return null;
         }
-
     }
 }

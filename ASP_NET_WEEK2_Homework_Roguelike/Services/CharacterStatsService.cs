@@ -8,69 +8,66 @@ namespace ASP_NET_WEEK3_Homework_Roguelike.Services
         public float CalculateAttack(PlayerCharacter player)
         {
             if (player == null)
-                throw new ArgumentNullException(nameof(player));
+                throw new ArgumentNullException(nameof(player), "Player cannot be null.");
 
             float totalAttack = 0;
 
-            // Collect all equipped items
-            var equippedItems = new List<Item>
+            if (player.EquippedItems != null)
             {
-                player.EquippedHelmet,
-                player.EquippedArmor,
-                player.EquippedShield,
-                player.EquippedGloves,
-                player.EquippedTrousers,
-                player.EquippedBoots,
-                player.EquippedAmulet,
-                player.EquippedSwordOneHanded,
-                player.EquippedSwordTwoHanded
-            };
-
-            // Calculate total attack from equipped items
-            foreach (var item in equippedItems)
-            {
-                if (item != null)
-                    totalAttack += item.Attack;
+                foreach (var item in player.EquippedItems.Values)
+                {
+                    if (item != null)
+                    {
+                        totalAttack += item.Attack;
+                    }
+                }
             }
             return totalAttack;
         }
         public float CalculateDefense(PlayerCharacter player)
         {
             if (player == null)
-                throw new ArgumentNullException(nameof(player));
+                throw new ArgumentNullException(nameof(player), "Player cannot be null.");
 
             float totalDefense = 0;
 
-            // Collect all equipped items
-            var equippedItems = new List<Item>
+            if (player.EquippedItems != null)
             {
-                player.EquippedHelmet,
-                player.EquippedArmor,
-                player.EquippedShield,
-                player.EquippedGloves,
-                player.EquippedTrousers,
-                player.EquippedBoots,
-                player.EquippedAmulet,
-                player.EquippedSwordOneHanded,
-                player.EquippedSwordTwoHanded
-            };
-
-            // Calculate total defense from equipped items
-            foreach (var item in equippedItems)
-            {
-                if (item != null)
-                    totalDefense += item.Defense;
+                foreach (var item in player.EquippedItems.Values)
+                {
+                    if (item != null)
+                    {
+                        totalDefense += item.Defense;
+                    }
+                }
             }
             return totalDefense;
         }
         public int CalculateWeight(PlayerCharacter player)
         {
             if (player == null)
-                throw new ArgumentNullException(nameof(player));
+                throw new ArgumentNullException(nameof(player), "Player cannot be null.");
 
-            return player.Inventory.Sum(item => item is HealthPotion potion
-                ? potion.Weight * potion.Quantity
-                : item.Weight);
+            int totalWeight = 0;
+
+            // Calculate weight from inventory items
+            if (player.Inventory != null)
+            {
+                totalWeight += player.Inventory.Sum(item =>
+                    item is HealthPotion potion
+                        ? potion.Weight * potion.Quantity // multiplies weight by quantity for stackable items
+                        : item?.Weight ?? 0 // Safely handle null items
+                );
+            }
+
+            // Calculate weight from equipped items
+            if (player.EquippedItems != null)
+            {
+                totalWeight += player.EquippedItems.Values
+                    .Where(item => item != null) // Filter out null items
+                    .Sum(item => item.Weight);
+            }
+            return totalWeight;
         }
     }
 }

@@ -2,135 +2,159 @@
 using ASP_NET_WEEK3_Homework_Roguelike.Model;
 using System.Text.Json.Serialization;
 using System.Text.Json;
-using ASP_NET_WEEK3_Homework_Roguelike.Services;
-using ASP_NET_WEEK3_Homework_Roguelike.View;
-
-
-namespace ASP_NET_WEEK3_Homework_Roguelike.Converters
+public class PlayerCharacterConverter : JsonConverter<PlayerCharacter>
 {
-    public class PlayerCharacterConverter : JsonConverter<PlayerCharacter>
+    public override PlayerCharacter Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
-        public override PlayerCharacter? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        if (reader.TokenType != JsonTokenType.StartObject)
+            throw new JsonException("Expected StartObject token");
+
+        var playerCharacter = new PlayerCharacter();
+
+        while (reader.Read())
         {
-            var jsonDocument = JsonDocument.ParseValue(ref reader);
-            var jsonObject = jsonDocument.RootElement;
+            if (reader.TokenType == JsonTokenType.EndObject)
+                return playerCharacter;
 
-            var playerCharacter = new PlayerCharacter
+            if (reader.TokenType != JsonTokenType.PropertyName)
+                throw new JsonException("Expected PropertyName token");
+
+            string propertyName = reader.GetString();
+            reader.Read();
+
+            switch (propertyName)
             {
-                Name = jsonObject.GetProperty("Name").GetString(),
-                Health = jsonObject.GetProperty("Health").GetInt32(),
-                Level = jsonObject.GetProperty("Level").GetInt32(),
-                CurrentX = jsonObject.GetProperty("CurrentX").GetInt32(),
-                CurrentY = jsonObject.GetProperty("CurrentY").GetInt32(),
-                Money = jsonObject.GetProperty("Money").GetInt32(),
-                Experience = jsonObject.GetProperty("Experience").GetInt32(),
-            };
+                case "Name":
+                    playerCharacter.Name = reader.GetString();
+                    break;
 
-            // Deserialize stat modifiers
-            if (jsonObject.TryGetProperty("SpeedModifier", out var speedModifierElement))
-                playerCharacter.ModifySpeed(speedModifierElement.GetSingle());
+                case "Health":
+                    playerCharacter.Health = reader.GetInt32();
+                    break;
 
-            if (jsonObject.TryGetProperty("AttackModifier", out var attackModifierElement))
-                playerCharacter.ModifyAttack(attackModifierElement.GetSingle());
+                case "Level":
+                    playerCharacter.Level = reader.GetInt32();
+                    break;
 
-            if (jsonObject.TryGetProperty("DefenseModifier", out var defenseModifierElement))
-                playerCharacter.ModifyDefense(defenseModifierElement.GetSingle());
+                case "CurrentX":
+                    playerCharacter.CurrentX = reader.GetInt32();
+                    break;
 
-            // Deserialize inventory
-            if (jsonObject.TryGetProperty("Inventory", out var inventoryElement))
-            {
-                playerCharacter.Inventory = JsonSerializer.Deserialize<List<Item>>(inventoryElement.GetRawText(), options) ?? new List<Item>();
+                case "CurrentY":
+                    playerCharacter.CurrentY = reader.GetInt32();
+                    break;
+
+                case "Money":
+                    playerCharacter.Money = reader.GetInt32();
+                    break;
+
+                case "Experience":
+                    playerCharacter.Experience = reader.GetInt32();
+                    break;
+
+                case "Inventory":
+                    playerCharacter.Inventory = JsonSerializer.Deserialize<List<Item>>(ref reader, options);
+                    break;
+
+                case "EquippedItems":
+                    var equippedItems = JsonSerializer.Deserialize<Dictionary<string, Item>>(ref reader, options);
+                    if (equippedItems != null)
+                    {
+                        foreach (var kvp in equippedItems)
+                        {
+                            if (Enum.TryParse(typeof(ItemType), kvp.Key, out var parsedType))
+                            {
+                                playerCharacter.EquippedItems[(ItemType)parsedType] = kvp.Value;
+                            }
+                            else
+                            {
+                                throw new JsonException($"Invalid ItemType: {kvp.Key}");
+                            }
+                        }
+                    }
+                    break;
+
+                default:
+                    reader.Skip();
+                    break;
             }
-
-            // Deserialize equipped items
-            playerCharacter.EquippedHelmet = DeserializeEquippedItem<Helmet>(jsonObject, "EquippedHelmet", options);
-            playerCharacter.EquippedArmor = DeserializeEquippedItem<Armor>(jsonObject, "EquippedArmor", options);
-            playerCharacter.EquippedShield = DeserializeEquippedItem<Shield>(jsonObject, "EquippedShield", options);
-            playerCharacter.EquippedGloves = DeserializeEquippedItem<Gloves>(jsonObject, "EquippedGloves", options);
-            playerCharacter.EquippedTrousers = DeserializeEquippedItem<Trousers>(jsonObject, "EquippedTrousers", options);
-            playerCharacter.EquippedBoots = DeserializeEquippedItem<Boots>(jsonObject, "EquippedBoots", options);
-            playerCharacter.EquippedAmulet = DeserializeEquippedItem<Amulet>(jsonObject, "EquippedAmulet", options);
-            playerCharacter.EquippedSwordOneHanded = DeserializeEquippedItem<SwordOneHanded>(jsonObject, "EquippedSwordOneHanded", options);
-            playerCharacter.EquippedSwordTwoHanded = DeserializeEquippedItem<SwordTwoHanded>(jsonObject, "EquippedSwordTwoHanded", options);
-
-            // Deserialize map
-            if (jsonObject.TryGetProperty("CurrentMap", out var mapElement))
-            {
-                try
-                {
-                    playerCharacter.CurrentMap = JsonSerializer.Deserialize<Map>(mapElement.GetRawText(), options);
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Failed to deserialize map: {ex.Message}");
-                    playerCharacter.CurrentMap = new Map(); // Fallback to an empty map
-                }
-            }
-            return playerCharacter;
         }
-
-        private T? DeserializeEquippedItem<T>(JsonElement jsonObject, string propertyName, JsonSerializerOptions options) where T : Item
+        throw new JsonException("Unexpected end of JSON");
+    }
+    public override void Write(Utf8JsonWriter writer, PlayerCharacter value, JsonSerializerOptions options)
+    {
+        if (value == null)
         {
-            if (jsonObject.TryGetProperty(propertyName, out var propertyElement) && propertyElement.ValueKind != JsonValueKind.Null)
+            throw new ArgumentNullException(nameof(value), "PlayerCharacter cannot be null.");
+        }
+        writer.WriteStartObject();
+
+        // Write basic properties
+        writer.WriteString("Name", value.Name);
+        writer.WriteNumber("Health", value.Health);
+        writer.WriteNumber("Level", value.Level);
+        writer.WriteNumber("CurrentX", value.CurrentX);
+        writer.WriteNumber("CurrentY", value.CurrentY);
+        writer.WriteNumber("Money", value.Money);
+        writer.WriteNumber("Experience", value.Experience);
+
+        // Write Inventory
+        writer.WritePropertyName("Inventory");
+        writer.WriteStartArray();
+        if (value.Inventory != null)
+        {
+            foreach (var item in value.Inventory)
             {
-                try
+                writer.WriteStartObject();
+                writer.WriteString("ItemType", item.Type.ToString());
+                writer.WriteNumber("ID", item.ID);
+                writer.WriteString("Name", item.Name);
+                writer.WriteNumber("Weight", item.Weight);
+                writer.WriteNumber("Defense", item.Defense);
+                writer.WriteNumber("Attack", item.Attack);
+                writer.WriteNumber("MoneyWorth", item.MoneyWorth);
+                writer.WriteNumber("Quantity", item.Quantity);
+
+                // Specific to HealthPotion
+                if (item is HealthPotion potion)
                 {
-                    var item = JsonSerializer.Deserialize<T>(propertyElement.GetRawText(), options);
-                    return item;
+                    writer.WriteNumber("HealingAmount", potion.HealingAmount);
+                    writer.WriteNumber("MaxStackSize", potion.MaxStackSize);
                 }
-                catch (Exception ex)
+                writer.WriteEndObject();
+            }
+        }
+        writer.WriteEndArray();
+
+        // Write EquippedItems
+        writer.WritePropertyName("EquippedItems");
+        writer.WriteStartObject();
+        if (value.EquippedItems != null)
+        {
+            foreach (var kvp in value.EquippedItems)
+            {
+                writer.WritePropertyName(kvp.Key.ToString());
+                if (kvp.Value != null)
                 {
-                    Console.WriteLine($"Failed to deserialize {propertyName}: {ex.Message}");
+                    writer.WriteStartObject();
+                    writer.WriteString("ItemType", kvp.Value.Type.ToString());
+                    writer.WriteNumber("ID", kvp.Value.ID);
+                    writer.WriteString("Name", kvp.Value.Name);
+                    writer.WriteNumber("Weight", kvp.Value.Weight);
+                    writer.WriteNumber("Defense", kvp.Value.Defense);
+                    writer.WriteNumber("Attack", kvp.Value.Attack);
+                    writer.WriteNumber("MoneyWorth", kvp.Value.MoneyWorth);
+                    writer.WriteNumber("Quantity", kvp.Value.Quantity);
+                    writer.WriteEndObject();
+                }
+                else
+                {
+                    writer.WriteNullValue();
                 }
             }
-            return null;
         }
-
-        public override void Write(Utf8JsonWriter writer, PlayerCharacter value, JsonSerializerOptions options)
-        {
-            writer.WriteStartObject();
-
-            // Serialize basic properties
-            writer.WriteString("Name", value.Name);
-            writer.WriteNumber("Health", value.Health);
-            writer.WriteNumber("Level", value.Level);
-            writer.WriteNumber("CurrentX", value.CurrentX);
-            writer.WriteNumber("CurrentY", value.CurrentY);
-            writer.WriteNumber("Money", value.Money);
-            writer.WriteNumber("Experience", value.Experience);
-
-            // Serialize stat modifiers
-            writer.WriteNumber("SpeedModifier", value.SpeedModifier);
-            writer.WriteNumber("AttackModifier", value.AttackModifier);
-            writer.WriteNumber("DefenseModifier", value.DefenseModifier);
-
-            // Serialize inventory
-            writer.WritePropertyName("Inventory");
-            JsonSerializer.Serialize(writer, value.Inventory, new JsonSerializerOptions
-            {
-                Converters = { new ItemConverter() }
-            });
-
-            // Serialize equipped items
-            writer.WritePropertyName("EquippedHelmet");
-            JsonSerializer.Serialize(writer, value.EquippedHelmet, options);
-
-            writer.WritePropertyName("EquippedArmor");
-            JsonSerializer.Serialize(writer, value.EquippedArmor, options);
-
-            writer.WritePropertyName("EquippedShield");
-            JsonSerializer.Serialize(writer, value.EquippedShield, options);
-
-            writer.WritePropertyName("EquippedAmulet");
-            JsonSerializer.Serialize(writer, value.EquippedAmulet, options);
-
-            writer.WritePropertyName("EquippedSwordOneHanded");
-            JsonSerializer.Serialize(writer, value.EquippedSwordOneHanded, options);
-
-            writer.WritePropertyName("EquippedSwordTwoHanded");
-            JsonSerializer.Serialize(writer, value.EquippedSwordTwoHanded, options);
-
-            writer.WriteEndObject();
-        }
+        // End object cycles (there are 2 nested)
+        writer.WriteEndObject();
+        writer.WriteEndObject();
     }
 }

@@ -76,7 +76,7 @@ namespace ASP_NET_WEEK3_Homework_Roguelike.View
                 return;
             }
 
-            // Display Player Stats with Colors
+            // Display Player Stats
             var stats = new Dictionary<string, (object Value, ConsoleColor Color)>
             {
                 { "Character name", (player.Name ?? "N/A", ConsoleColor.Yellow) },
@@ -96,43 +96,35 @@ namespace ASP_NET_WEEK3_Homework_Roguelike.View
                 ConsoleHelper.PrintColored(stat.Value.Value.ToString(), stat.Value.Color);
             }
 
+            // Ensure EquippedItems is initialized
+            if (player.EquippedItems == null || !player.EquippedItems.Any())
+            {
+                ConsoleHelper.PrintColored("\nNo equipped items.", ConsoleColor.DarkGray);
+                return;
+            }
+
             // Equipped Items Table Header
             ConsoleHelper.PrintColored("\nEquipped Items:", ConsoleColor.Cyan);
             ConsoleHelper.PrintColored($"{"Item",-22} {"ID",-8} {"Defense",-10} {"Attack",-10} {"Weight",-10} {"Value",-10} {"Description",-20}", ConsoleColor.White);
             ConsoleHelper.PrintColored(new string('-', 92), ConsoleColor.DarkGray);
 
-            // Collect Equipped Items
-            var equippedItems = new Dictionary<string, Item?>
+            // Display each equipped item
+            foreach (var equippedItem in player.EquippedItems)
             {
-                { "Amulet", player.EquippedAmulet },
-                { "Armor", player.EquippedArmor },
-                { "Boots", player.EquippedBoots },
-                { "Gloves", player.EquippedGloves },
-                { "Helmet", player.EquippedHelmet },
-                { "Shield", player.EquippedShield },
-                { "SwordOneHanded", player.EquippedSwordOneHanded },
-                { "SwordTwoHanded", player.EquippedSwordTwoHanded },
-                { "Trousers", player.EquippedTrousers }
-            };
-
-            // Display Each Equipped Item with Colors
-            foreach (var equippedItem in equippedItems)
-            {
-                if (equippedItem.Value != null)
+                var item = equippedItem.Value;
+                if (item != null) // Safeguard against null items
                 {
-                    // Color-coded fields for equipped items
-                    ConsoleHelper.PrintColored($"{equippedItem.Key,-22}", ConsoleColor.Cyan, false);
-                    ConsoleHelper.PrintColored($"{equippedItem.Value.ID,-13}", ConsoleColor.Yellow, false);
-                    ConsoleHelper.PrintColored($"{equippedItem.Value.Defense,-10}", ConsoleColor.Blue, false);
-                    ConsoleHelper.PrintColored($"{equippedItem.Value.Attack,-11}", ConsoleColor.Green, false);
-                    ConsoleHelper.PrintColored($"{equippedItem.Value.Weight,-11}", ConsoleColor.Gray, false);
-                    ConsoleHelper.PrintColored($"{equippedItem.Value.MoneyWorth,-12}", ConsoleColor.DarkYellow, false);
-                    ConsoleHelper.PrintColored($"{equippedItem.Value.Description ?? "N/A",-20}", ConsoleColor.Magenta);
+                    ConsoleHelper.PrintColored($"{item.Name,-23}", ConsoleColor.Cyan, false); // Use full name
+                    ConsoleHelper.PrintColored($"{item.ID,-13}", ConsoleColor.Yellow, false);
+                    ConsoleHelper.PrintColored($"{item.Defense,-10}", ConsoleColor.Blue, false);
+                    ConsoleHelper.PrintColored($"{item.Attack,-11}", ConsoleColor.Green, false);
+                    ConsoleHelper.PrintColored($"{item.Weight,-11}", ConsoleColor.Gray, false);
+                    ConsoleHelper.PrintColored($"{item.MoneyWorth,-12}", ConsoleColor.DarkYellow, false);
+                    ConsoleHelper.PrintColored($"{item.Description ?? "N/A",-20}", ConsoleColor.Magenta);
                 }
                 else
                 {
-                    // Empty slots
-                    ConsoleHelper.PrintColored($"{equippedItem.Key,-22}", ConsoleColor.Cyan, false);
+                    ConsoleHelper.PrintColored($"{equippedItem.Key,-23}", ConsoleColor.Cyan, false);
                     ConsoleHelper.PrintColored($"{"None",-13}", ConsoleColor.Red, false);
                     ConsoleHelper.PrintColored($"{"-",-10}", ConsoleColor.DarkGray, false);
                     ConsoleHelper.PrintColored($"{"-",-11}", ConsoleColor.DarkGray, false);
@@ -156,7 +148,7 @@ namespace ASP_NET_WEEK3_Homework_Roguelike.View
 
             // Define column headers and their widths
             ForegroundColor = ConsoleColor.Cyan;
-            string header = $"{"Item",-20} {"ID",-5} {"Defense",-10} {"Attack",-10} {"Weight",-10} {"Value",-10}";
+            string header = $"{"Item",-30} {"ID",-5} {"Defense",-10} {"Attack",-10} {"Weight",-10} {"Value",-10}";
             WriteLine(header);
             WriteLine(new string('-', header.Length)); // Separator line
             ResetColor();
@@ -166,7 +158,7 @@ namespace ASP_NET_WEEK3_Homework_Roguelike.View
                 if (item is HealthPotion potion)
                 {
                     ForegroundColor = ConsoleColor.Green; // Special items (potions)
-                    Write($"{potion.Name,-20} ");
+                    Write($"{potion.Name,-30} ");
                     ResetColor();
 
                     Write($"{potion.ID,-8} ");
@@ -179,7 +171,7 @@ namespace ASP_NET_WEEK3_Homework_Roguelike.View
                 else
                 {
                     ForegroundColor = ConsoleColor.Yellow; // Normal items
-                    Write($"{item.Name,-20} ");
+                    Write($"{item.Name,-30} ");
                     ResetColor();
 
                     Write($"{item.ID,-8} ");
