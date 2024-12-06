@@ -10,11 +10,11 @@
 
 1. Clone the repository:
    ```
-   git clone https://github.com/ArgoWack/ASP_NET_WEEK2_Homework_Roguelike.git
+   git clone https://[github.com/ArgoWack/Roguelike-Game.git]
    ```
 2. Navigate to the project folder and build the project:
    ```
-   cd ASP_NET_WEEK2_Homework_Roguelike
+   cd Roguelike_Game
    dotnet build
    ```
 3. Run the project:
