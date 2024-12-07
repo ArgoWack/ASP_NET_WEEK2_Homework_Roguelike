@@ -37,25 +37,32 @@ namespace ASP_NET_WEEK3_Homework_Roguelike.Controller
                 _view.ShowError("Direction cannot be empty.");
                 return;
             }
-            int currentX = _playerCharacter.CurrentX;
-            int currentY = _playerCharacter.CurrentY;
-            Room currentRoom = _mapService.GetDiscoveredRoom(_map, currentX, currentY);
-            if (currentRoom != null && currentRoom.Exits.ContainsKey(direction.ToLower()))
+            try
             {
-                _mapService.MovePlayer(_map, ref currentX, ref currentY, direction.ToLower());
-                _playerCharacter.CurrentX = currentX;
-                _playerCharacter.CurrentY = currentY;
-                _view.ShowPlayerMovement(direction, _playerCharacter.CurrentX, _playerCharacter.CurrentY);
-                Room newRoom = _mapService.GetDiscoveredRoom(_map, currentX, currentY);
-                if (newRoom?.EventStatus != "none")
+                int currentX = _playerCharacter.CurrentX;
+                int currentY = _playerCharacter.CurrentY;
+                Room currentRoom = _mapService.GetDiscoveredRoom(_map, currentX, currentY);
+                if (currentRoom != null && currentRoom.Exits.ContainsKey(direction.ToLower()))
                 {
-                    RandomEvent roomEvent = EventGenerator.GenerateEvent(newRoom.EventStatus);
-                    roomEvent?.Execute(_playerCharacter, newRoom, this);
+                    _mapService.MovePlayer(_map, ref currentX, ref currentY, direction.ToLower());
+                    _playerCharacter.CurrentX = currentX;
+                    _playerCharacter.CurrentY = currentY;
+                    _view.ShowPlayerMovement(direction, _playerCharacter.CurrentX, _playerCharacter.CurrentY);
+                    Room newRoom = _mapService.GetDiscoveredRoom(_map, currentX, currentY);
+                    if (newRoom?.EventStatus != "none")
+                    {
+                        RandomEvent roomEvent = EventGenerator.GenerateEvent(newRoom.EventStatus);
+                        roomEvent?.Execute(_playerCharacter, newRoom, this);
+                    }
+                }
+                else
+                {
+                    _view.RelayMessage("Cannot move in that direction. No valid room exists.");
                 }
             }
-            else
+            catch (Exception ex)
             {
-                _view.RelayMessage("Cannot move in that direction. No valid room exists.");
+                _view.ShowError(ex.Message);
             }
         }
         public void EquipItem(int itemId)
@@ -69,7 +76,7 @@ namespace ASP_NET_WEEK3_Homework_Roguelike.Controller
                     _view.ShowEquipItemSuccess(item.Name);
                 }
             }
-            catch (InvalidOperationException ex)
+            catch (Exception ex)
             {
                 _view.ShowError(ex.Message);
             }
@@ -85,7 +92,7 @@ namespace ASP_NET_WEEK3_Homework_Roguelike.Controller
                     _view.ShowDiscardItemSuccess(item.Name);
                 }
             }
-            catch (InvalidOperationException ex)
+            catch (Exception ex)
             {
                 _view.ShowError(ex.Message);
             }
@@ -93,19 +100,6 @@ namespace ASP_NET_WEEK3_Homework_Roguelike.Controller
         public void ShowInventory()
         {
             _view.DisplayInventory(_playerCharacter);
-        }
-        public void HandleEvent(RandomEvent randomEvent, Room room)
-        {
-            randomEvent?.Execute(_playerCharacter, room, this);
-        }
-        public void HandleEventEncounter(string eventType)
-        {
-            if (string.IsNullOrWhiteSpace(eventType))
-            {
-                _view.ShowError("Event type cannot be empty.");
-                return;
-            }
-            _view.ShowEventEncounter(eventType);
         }
     }
 }

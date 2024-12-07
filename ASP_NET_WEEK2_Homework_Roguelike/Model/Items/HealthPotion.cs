@@ -5,6 +5,5 @@
     {
         public int HealingAmount { get; set; }
         public int MaxStackSize { get; set; } // Max potions per stack
-
     }
 }

@@ -78,7 +78,6 @@ namespace ASP_NET_WEEK3_Homework_Roguelike.Model
                 return _baseSpeed * weightPenalty;
             }
         }
-
         public float Attack
         {
             get
@@ -86,7 +85,6 @@ namespace ASP_NET_WEEK3_Homework_Roguelike.Model
                 return _baseAttack * (Speed / 10.0f); // Scale attack by speed
             }
         }
-
         public float Defense
         {
             get
@@ -94,7 +92,6 @@ namespace ASP_NET_WEEK3_Homework_Roguelike.Model
                 return _baseDefense * (Speed / 10.0f); // Scale defense by speed
             }
         }
-
         public PlayerCharacter(CharacterStatsService statsService, InventoryService inventoryService, EventService eventService, PlayerCharacterView view)
         {
             _statsService = statsService ?? throw new ArgumentNullException(nameof(statsService));
@@ -167,29 +164,36 @@ namespace ASP_NET_WEEK3_Homework_Roguelike.Model
         }
         public void ReceiveHealthPotion(int quantity = 1)
         {
-            // checkes if there are existing potions that can be stacked
-            var existingPotion = _inventory.OfType<HealthPotion>().FirstOrDefault(p => p.Quantity < p.MaxStackSize);
-            if (existingPotion != null)
+            try
             {
-                // adds as much as possible to the existing stack
-                int addable = Math.Min(existingPotion.MaxStackSize - existingPotion.Quantity, quantity);
-                existingPotion.Quantity += addable;
-                quantity -= addable;
-            }
+                // checkes if there are existing potions that can be stacked
+                var existingPotion = _inventory.OfType<HealthPotion>().FirstOrDefault(p => p.Quantity < p.MaxStackSize);
+                if (existingPotion != null)
+                {
+                    // adds as much as possible to the existing stack
+                    int addable = Math.Min(existingPotion.MaxStackSize - existingPotion.Quantity, quantity);
+                    existingPotion.Quantity += addable;
+                    quantity -= addable;
+                }
 
-            // generates new potions for the remaining quantity
-            while (quantity > 0)
+                // generates new potions for the remaining quantity
+                while (quantity > 0)
+                {
+                    var newPotion = ItemFactoryService.GenerateItem(ItemType.HealthPotion, _view) as HealthPotion;
+                    if (newPotion == null)
+                        throw new InvalidOperationException("Failed to generate HealthPotion.");
+
+                    // assigns quantity to the new potion up to its max stack size
+                    newPotion.Quantity = Math.Min(newPotion.MaxStackSize, quantity);
+                    _inventory.Add(newPotion);
+                    quantity -= newPotion.Quantity;
+                }
+                Weight = _statsService.CalculateWeight(this);
+            }
+            catch (Exception ex)
             {
-                var newPotion = ItemFactoryService.GenerateItem(ItemType.HealthPotion, _view) as HealthPotion;
-                if (newPotion == null)
-                    throw new InvalidOperationException("Failed to generate HealthPotion.");
-
-                // assigns quantity to the new potion up to its max stack size
-                newPotion.Quantity = Math.Min(newPotion.MaxStackSize, quantity);
-                _inventory.Add(newPotion);
-                quantity -= newPotion.Quantity;
+                throw new Exception("Failed to ReceiveHealthPotion.", ex);
             }
-            Weight = _statsService.CalculateWeight(this);
         }
         public void HealByPotion()
         {

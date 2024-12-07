@@ -19,27 +19,38 @@ namespace ASP_NET_WEEK3_Homework_Roguelike.Model.Events
         {
             if (player == null || room == null)
                 throw new ArgumentNullException("Player or Room cannot be null.");
-            string eventType = GetRandomEventType();
-            _eventService.HandleEventOutcome($"You encounter a {eventType}");
-            switch (eventType)
+
+            try
             {
-                case "WiseTraveler":
-                    HandleWiseTraveler(player);
-                    break;
-                case "Monk":
-                    HandleMonkHealing(player);
-                    break;
-                case "Witch":
-                    HandleWitchCurse(player);
-                    break;
-                case "Merchant":
-                    ExecuteMerchantEvent(player);
-                    break;
-                default:
-                    _eventService.HandleEventOutcome("You encounter a mysterious stranger who says nothing and disappears.");
-                    break;
+                string eventType = GetRandomEventType();
+                _eventService.HandleEventOutcome($"You encounter a {eventType}");
+
+                switch (eventType)
+                {
+                    case "WiseTraveler":
+                        HandleWiseTraveler(player);
+                        break;
+                    case "Monk":
+                        HandleMonkHealing(player);
+                        break;
+                    case "Witch":
+                        HandleWitchCurse(player);
+                        break;
+                    case "Merchant":
+                        ExecuteMerchantEvent(player);
+                        break;
+                    default:
+                        throw new InvalidOperationException($"Unknown event type: {eventType}");
+                }
             }
-            room.EventStatus = "none";
+            catch (Exception ex)
+            {
+                _eventService.HandleEventOutcome($"Error during DialogEvent execution: {ex.Message}");
+            }
+            finally
+            {
+                room.EventStatus = "none"; // Ensure the event status is cleared
+            }
         }
         private void HandleWiseTraveler(PlayerCharacter player)
         {
@@ -111,7 +122,8 @@ namespace ASP_NET_WEEK3_Homework_Roguelike.Model.Events
                         _eventService.HandleEventOutcome("Invalid choice.");
                         break;
                 }
-            } while (choice != "l");
+            }
+            while (choice != "l");
         }
         private string GetRandomEventType()
         {

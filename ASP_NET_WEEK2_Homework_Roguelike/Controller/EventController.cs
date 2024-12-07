@@ -8,7 +8,6 @@ namespace ASP_NET_WEEK3_Homework_Roguelike.Controller
     {
         private readonly PlayerCharacterController _playerController;
         private readonly EventService _eventService;
-
         public EventController(PlayerCharacterController playerController, EventService eventService)
         {
             _playerController = playerController;

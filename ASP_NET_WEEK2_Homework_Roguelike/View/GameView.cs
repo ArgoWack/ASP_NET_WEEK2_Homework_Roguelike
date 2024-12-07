@@ -1,6 +1,4 @@
-﻿using ASP_NET_WEEK3_Homework_Roguelike.Model.Items;
-using ASP_NET_WEEK3_Homework_Roguelike.Model;
-using ASP_NET_WEEK3_Homework_Roguelike.Services;
+﻿using ASP_NET_WEEK3_Homework_Roguelike.Services;
 using static System.Console;
 
 namespace ASP_NET_WEEK3_Homework_Roguelike.View

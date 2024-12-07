@@ -31,45 +31,53 @@ namespace ASP_NET_WEEK3_Homework_Roguelike.Model.Events
             // Prevent double execution
             if (room.EventStatus == "handled")
                 return;
-
-            var monster = GenerateRandomMonster();
-            _eventService.HandleEventOutcome($"You encounter a {monster.Name}");
-
-            string choice;
-            do
+            try
             {
-                choice = _eventService.GetMonsterOptions();
-                switch (choice)
+                var monster = GenerateRandomMonster();
+                _eventService.HandleEventOutcome($"You encounter a {monster.Name}");
+
+                string choice;
+                do
                 {
-                    case "f":
-                        FightMonster(player, monster);
-                        break;
-                    case "h":
-                        player.HealByPotion();
-                        break;
-                    case "l":
-                        _eventService.HandleEventOutcome("You flee from the monster.");
-                        break;
-                    default:
-                        _eventService.HandleEventOutcome("Invalid choice.");
-                        break;
+                    choice = _eventService.GetMonsterOptions();
+                    switch (choice)
+                    {
+                        case "f":
+                            FightMonster(player, monster);
+                            break;
+                        case "h":
+                            player.HealByPotion();
+                            break;
+                        case "l":
+                            _eventService.HandleEventOutcome("You flee from the monster.");
+                            break;
+                        default:
+                            _eventService.HandleEventOutcome("Invalid choice.");
+                            break;
+                    }
+                } while (choice != "l" && monster.Health > 0 && player.Health > 0);
+
+                if (monster.Health <= 0)
+                {
+                    _eventService.HandleEventOutcome("You defeated the monster!");
+                    RewardPlayer(player, monster);
                 }
-            } while (choice != "l" && monster.Health > 0 && player.Health > 0);
 
-            if (monster.Health <= 0)
-            {
-                _eventService.HandleEventOutcome("You defeated the monster!");
-                RewardPlayer(player, monster);
+                if (player.Health <= 0)
+                {
+                    _eventService.HandleEventOutcome("You have been defeated by the monster...");
+                    Environment.Exit(0); // Ends the game
+                }
             }
-
-            if (player.Health <= 0)
+            catch (Exception ex)
             {
-                _eventService.HandleEventOutcome("You have been defeated by the monster...");
-                Environment.Exit(0); // Ends the game
+                _eventService.HandleEventOutcome($"Error during MonsterEvent: {ex.Message}");
             }
-
-            // Mark the event as handled regardless of the outcome
-            room.EventStatus = "handled";
+            finally
+            {
+                // Mark the event as handled regardless of the outcome
+                room.EventStatus = "handled"; 
+            }
         }
         private Monster GenerateRandomMonster()
         {

@@ -3,7 +3,6 @@ using ASP_NET_WEEK3_Homework_Roguelike.Model;
 using ASP_NET_WEEK3_Homework_Roguelike.View;
 using static System.Console;
 using ASP_NET_WEEK3_Homework_Roguelike.Model.Events;
-using System.Text.Json.Serialization;
 using System.Text.Json;
 using ASP_NET_WEEK3_Homework_Roguelike.Model.Items;
 
@@ -29,38 +28,45 @@ namespace ASP_NET_WEEK3_Homework_Roguelike.Services
         }
         public void StartGame()
         {
-            // Step 1: Initializes essential services
-            var statsService = new CharacterStatsService();
-            var inventoryService = new InventoryService();
-            var playerCharacterView = new PlayerCharacterView();
-            _gameView = new GameView();
+            try
+            {
+                // Step 1: Initializes essential services
+                var statsService = new CharacterStatsService();
+                var inventoryService = new InventoryService();
+                var playerCharacterView = new PlayerCharacterView();
+                _gameView = new GameView();
 
-            // Step 2: Initializes EventService (requires PlayerCharacterController, so deferred)
-            _eventService = new EventService(null, _gameView); // Temporarily pass null for the controller
+                // Step 2: Initializes EventService (requires PlayerCharacterController, so deferred)
+                _eventService = new EventService(null, _gameView); // Temporarily pass null for the controller
 
-            // Step 3: Initializes PlayerCharacter with required dependencies
-            _playerCharacter = new PlayerCharacter(statsService, inventoryService, _eventService, playerCharacterView);
+                // Step 3: Initializes PlayerCharacter with required dependencies
+                _playerCharacter = new PlayerCharacter(statsService, inventoryService, _eventService, playerCharacterView);
 
-            // Step 4: Initializes map and MapService
-            _map = new Map();
-            _mapService = new MapService(_eventService);
+                // Step 4: Initializes map and MapService
+                _map = new Map();
+                _mapService = new MapService(_eventService);
 
-            // Step 5: Initializes PlayerCharacterController 
-            _playerController = new PlayerCharacterController(_playerCharacter, _map, _mapService);
+                // Step 5: Initializes PlayerCharacterController 
+                _playerController = new PlayerCharacterController(_playerCharacter, _map, _mapService);
 
-            // Step 6: Links EventService to PlayerCharacterController
-            _eventService.SetPlayerController(_playerController);
+                // Step 6: Links EventService to PlayerCharacterController
+                _eventService.SetPlayerController(_playerController);
 
-            // Step 7: Initializes additional services and controllers
-            _characterInteractionService = new CharacterInteractionService(_eventService);
-            _eventController = new EventController(_playerController, _eventService);
+                // Step 7: Initializes additional services and controllers
+                _characterInteractionService = new CharacterInteractionService(_eventService);
+                _eventController = new EventController(_playerController, _eventService);
 
-            // Step 8: Initialize EventGenerator
-            EventGenerator.Initialize(_eventService, _characterInteractionService, _gameView, playerCharacterView);
+                // Step 8: Initialize EventGenerator
+                EventGenerator.Initialize(_eventService, _characterInteractionService, _gameView, playerCharacterView);
 
-            // Step 9: Starts the game by showing the welcome message and main menu
-            _gameView.ShowWelcomeMessage();
-            ShowMainMenu();
+                // Step 9: Starts the game by showing the welcome message and main menu
+                _gameView.ShowWelcomeMessage();
+                ShowMainMenu();
+            }
+            catch (Exception ex)
+            {
+                _gameView.ShowError($"An error occurred during game initialization: {ex.Message}");
+            }
         }
         private void ShowMainMenu()
         {
@@ -144,51 +150,57 @@ namespace ASP_NET_WEEK3_Homework_Roguelike.Services
         }
         public void ContinueGame()
         {
-            var saveFiles = Directory.GetFiles(Directory.GetCurrentDirectory(), "*_savefile.json");
-            if (saveFiles.Length == 0)
+            try
             {
-                _gameView.ShowError("No saved games found.");
-                return;
-            }
-
-            int selectedIndex = _gameView.PromptForSaveFileSelection(saveFiles);
-            if (selectedIndex > 0 && selectedIndex <= saveFiles.Length)
-            {
-                var selectedFile = saveFiles[selectedIndex - 1];
-                var characterName = Path.GetFileNameWithoutExtension(selectedFile).Replace("_savefile", "");
-                try
+                var saveFiles = Directory.GetFiles(Directory.GetCurrentDirectory(), "*_savefile.json");
+                if (saveFiles.Length == 0)
                 {
-                    var gameState = LoadGame(characterName, _gameView);
-                    if (gameState == null)
+                    _gameView.ShowError("No saved games found.");
+                    return;
+                }
+                int selectedIndex = _gameView.PromptForSaveFileSelection(saveFiles);
+                if (selectedIndex > 0 && selectedIndex <= saveFiles.Length)
+                {
+                    var selectedFile = saveFiles[selectedIndex - 1];
+                    var characterName = Path.GetFileNameWithoutExtension(selectedFile).Replace("_savefile", "");
+                    try
                     {
-                        _gameView.ShowError("Failed to load game state.");
-                        return;
+                        var gameState = LoadGame(characterName, _gameView);
+                        if (gameState == null)
+                        {
+                            _gameView.ShowError("Failed to load game state.");
+                            return;
+                        }
+                        _playerCharacter = gameState.PlayerCharacter;
+                        _map = gameState.Map;
+
+                        // Initializes services for the loaded PlayerCharacter
+                        _playerCharacter.InitializeServices(
+                            new CharacterStatsService(),
+                            new InventoryService(),
+                            _eventService,
+                            new PlayerCharacterView()
+                        );
+
+                        // Recalculate stats after loading
+                        _playerCharacter.UpdateStats();
+
+                        _playerController = new PlayerCharacterController(_playerCharacter, _map, _mapService);
+                        _inGame = true;
                     }
-                    _playerCharacter = gameState.PlayerCharacter;
-                    _map = gameState.Map;
-
-                    // Initializes services for the loaded PlayerCharacter
-                    _playerCharacter.InitializeServices(
-                        new CharacterStatsService(),
-                        new InventoryService(),
-                        _eventService,
-                        new PlayerCharacterView()
-                    );
-
-                    // Recalculate stats after loading
-                    _playerCharacter.UpdateStats();
-
-                    _playerController = new PlayerCharacterController(_playerCharacter, _map, _mapService);
-                    _inGame = true;
+                    catch (Exception ex)
+                    {
+                        _gameView.ShowError($"Error loading save: {ex.Message}");
+                    }
                 }
-                catch (Exception ex)
+                else
                 {
-                    _gameView.ShowError($"Error loading save: {ex.Message}");
+                    _gameView.ShowError("Invalid selection. Returning to main menu.");
                 }
             }
-            else
+            catch (Exception ex)
             {
-                _gameView.ShowError("Invalid selection. Returning to main menu.");
+                _gameView.ShowError($"An error occurred during loading of game: {ex.Message}");
             }
         }
         private void QuitGame()
@@ -198,33 +210,42 @@ namespace ASP_NET_WEEK3_Homework_Roguelike.Services
         }
         private void MovePlayer(string direction)
         {
-            _playerController.MovePlayer(direction);
-            var currentRoom = _mapService.GetDiscoveredRoom(_map, _playerCharacter.CurrentX, _playerCharacter.CurrentY);
-            if (currentRoom != null)
+            try
             {
-                // skips the "no new events" message if the event status was just handled
-                if (currentRoom.EventStatus == "handled")
+                _playerController.MovePlayer(direction);
+                var currentRoom = _mapService.GetDiscoveredRoom(_map, _playerCharacter.CurrentX, _playerCharacter.CurrentY);
+                if (currentRoom != null)
                 {
-                    return;
-                }
+                    // skips the "no new events" message if the event status was just handled
+                    if (currentRoom.EventStatus == "handled")
+                    {
+                        return;
+                    }
 
-                if (currentRoom.EventStatus != "handled")
-                {
-                    _eventController.ExecuteEvent(currentRoom);
+                    if (currentRoom.EventStatus != "handled")
+                    {
+                        _eventController.ExecuteEvent(currentRoom);
+                    }
+                    else
+                    {
+                        _gameView.ShowMessage("This room has no new events.");
+                    }
                 }
                 else
                 {
-                    _gameView.ShowMessage("This room has no new events.");
+                    _gameView.ShowMessage("Cannot move in that direction. No valid room exists.");
                 }
             }
-            else
+            catch (Exception ex)
             {
-                _gameView.ShowMessage("Cannot move in that direction. No valid room exists.");
+                _gameView.ShowError($"An error occurred during attempt of movement: {ex.Message}");
             }
         }
         private void HandleInventory()
         {
-            char choice;
+            try
+            {
+                char choice;
             do
             {
                 _playerController.ShowInventory();
@@ -254,7 +275,13 @@ namespace ASP_NET_WEEK3_Homework_Roguelike.Services
                         _playerController.DiscardItem(id.Value);
                     }
                 }
-            } while (choice != 'l');
+            } 
+                while (choice != 'l');
+            }
+            catch (Exception ex)
+            {
+                _gameView.ShowError($"Unexpected error handling inventory: {ex.Message}");
+            }
         }
         private static void InitializeMenuActions(MenuActionService actionService)
         {
@@ -287,19 +314,16 @@ namespace ASP_NET_WEEK3_Homework_Roguelike.Services
                 Map = _map,
                 LastGeneratedItemId = ItemFactoryService.LastGeneratedItemId
             };
-
             var options = new JsonSerializerOptions
             {
                 WriteIndented = true,
-                ReferenceHandler = ReferenceHandler.Preserve,
                 Converters =
                 {
-                    new ItemConverter(),
                     new MapConverter(),
+                    new ItemConverter(),
                     new PlayerCharacterConverter()
                 }
             };
-
             try
             {
                 string jsonString = JsonSerializer.Serialize(gameState, options);
@@ -322,15 +346,13 @@ namespace ASP_NET_WEEK3_Homework_Roguelike.Services
                     string jsonString = File.ReadAllText(sanitizedFileName);
                     var options = new JsonSerializerOptions
                     {
-                        ReferenceHandler = ReferenceHandler.Preserve,
                         Converters =
-                {
-                    new ItemConverter(),
-                    new MapConverter(),
-                    new PlayerCharacterConverter()
-                }
+                        {
+                            new MapConverter(),
+                            new ItemConverter(),
+                            new PlayerCharacterConverter()
+                        }
                     };
-
                     var gameState = JsonSerializer.Deserialize<GameState>(jsonString, options);
                     if (gameState != null)
                     {

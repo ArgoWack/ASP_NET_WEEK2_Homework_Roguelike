@@ -49,7 +49,7 @@ namespace ASP_NET_WEEK3_Homework_Roguelike.Services
                 player.BuyHealthPotion();
                 HandleEventOutcome($"You bought a health potion for 40 coins. Current money: {player.Money} coins.");
             }
-            catch (InvalidOperationException ex)
+            catch (Exception ex)
             {
                 HandleEventOutcome(ex.Message);
             }
@@ -69,7 +69,7 @@ namespace ASP_NET_WEEK3_Homework_Roguelike.Services
 
                 HandleEventOutcome($"You sold {item.Name} for {earned} coins. Current Wealth: {player.Money} coins.");
             }
-            catch (InvalidOperationException ex)
+            catch (Exception ex)
             {
                 HandleEventOutcome(ex.Message);
             }

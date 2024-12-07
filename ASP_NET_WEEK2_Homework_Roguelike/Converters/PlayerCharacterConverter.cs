@@ -6,80 +6,87 @@ public class PlayerCharacterConverter : JsonConverter<PlayerCharacter>
 {
     public override PlayerCharacter Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
-        if (reader.TokenType != JsonTokenType.StartObject)
-            throw new JsonException("Expected StartObject token");
-
-        var playerCharacter = new PlayerCharacter();
-
-        while (reader.Read())
+        try
         {
-            if (reader.TokenType == JsonTokenType.EndObject)
-                return playerCharacter;
+            if (reader.TokenType != JsonTokenType.StartObject)
+                throw new JsonException("Expected StartObject token");
 
-            if (reader.TokenType != JsonTokenType.PropertyName)
-                throw new JsonException("Expected PropertyName token");
+            var playerCharacter = new PlayerCharacter();
 
-            string propertyName = reader.GetString();
-            reader.Read();
-
-            switch (propertyName)
+            while (reader.Read())
             {
-                case "Name":
-                    playerCharacter.Name = reader.GetString();
-                    break;
+                if (reader.TokenType == JsonTokenType.EndObject)
+                    return playerCharacter;
 
-                case "Health":
-                    playerCharacter.Health = reader.GetInt32();
-                    break;
+                if (reader.TokenType != JsonTokenType.PropertyName)
+                    throw new JsonException("Expected PropertyName token");
 
-                case "Level":
-                    playerCharacter.Level = reader.GetInt32();
-                    break;
+                string propertyName = reader.GetString();
+                reader.Read();
 
-                case "CurrentX":
-                    playerCharacter.CurrentX = reader.GetInt32();
-                    break;
+                switch (propertyName)
+                {
+                    case "Name":
+                        playerCharacter.Name = reader.GetString();
+                        break;
 
-                case "CurrentY":
-                    playerCharacter.CurrentY = reader.GetInt32();
-                    break;
+                    case "Health":
+                        playerCharacter.Health = reader.GetInt32();
+                        break;
 
-                case "Money":
-                    playerCharacter.Money = reader.GetInt32();
-                    break;
+                    case "Level":
+                        playerCharacter.Level = reader.GetInt32();
+                        break;
 
-                case "Experience":
-                    playerCharacter.Experience = reader.GetInt32();
-                    break;
+                    case "CurrentX":
+                        playerCharacter.CurrentX = reader.GetInt32();
+                        break;
 
-                case "Inventory":
-                    playerCharacter.Inventory = JsonSerializer.Deserialize<List<Item>>(ref reader, options);
-                    break;
+                    case "CurrentY":
+                        playerCharacter.CurrentY = reader.GetInt32();
+                        break;
 
-                case "EquippedItems":
-                    var equippedItems = JsonSerializer.Deserialize<Dictionary<string, Item>>(ref reader, options);
-                    if (equippedItems != null)
-                    {
-                        foreach (var kvp in equippedItems)
+                    case "Money":
+                        playerCharacter.Money = reader.GetInt32();
+                        break;
+
+                    case "Experience":
+                        playerCharacter.Experience = reader.GetInt32();
+                        break;
+
+                    case "Inventory":
+                        playerCharacter.Inventory = JsonSerializer.Deserialize<List<Item>>(ref reader, options);
+                        break;
+
+                    case "EquippedItems":
+                        var equippedItems = JsonSerializer.Deserialize<Dictionary<string, Item>>(ref reader, options);
+                        if (equippedItems != null)
                         {
-                            if (Enum.TryParse(typeof(ItemType), kvp.Key, out var parsedType))
+                            foreach (var kvp in equippedItems)
                             {
-                                playerCharacter.EquippedItems[(ItemType)parsedType] = kvp.Value;
-                            }
-                            else
-                            {
-                                throw new JsonException($"Invalid ItemType: {kvp.Key}");
+                                if (Enum.TryParse(typeof(ItemType), kvp.Key, out var parsedType))
+                                {
+                                    playerCharacter.EquippedItems[(ItemType)parsedType] = kvp.Value;
+                                }
+                                else
+                                {
+                                    throw new JsonException($"Invalid ItemType: {kvp.Key}");
+                                }
                             }
                         }
-                    }
-                    break;
+                        break;
 
-                default:
-                    reader.Skip();
-                    break;
+                    default:
+                        reader.Skip();
+                        break;
+                }
             }
+            throw new JsonException("Unexpected end of JSON");
         }
-        throw new JsonException("Unexpected end of JSON");
+        catch (Exception ex)
+        {
+            throw new Exception("Failed to deserialize PlayerCharacter from JSON.", ex);
+        }
     }
     public override void Write(Utf8JsonWriter writer, PlayerCharacter value, JsonSerializerOptions options)
     {
@@ -87,7 +94,9 @@ public class PlayerCharacterConverter : JsonConverter<PlayerCharacter>
         {
             throw new ArgumentNullException(nameof(value), "PlayerCharacter cannot be null.");
         }
-        writer.WriteStartObject();
+        try
+        {
+            writer.WriteStartObject();
 
         // Write basic properties
         writer.WriteString("Name", value.Name);
@@ -156,5 +165,10 @@ public class PlayerCharacterConverter : JsonConverter<PlayerCharacter>
         // End object cycles (there are 2 nested)
         writer.WriteEndObject();
         writer.WriteEndObject();
+        }
+        catch (Exception ex)
+        {
+            throw new Exception("Failed to serialize PlayerCharacter to JSON.", ex);
+        }
     }
 }

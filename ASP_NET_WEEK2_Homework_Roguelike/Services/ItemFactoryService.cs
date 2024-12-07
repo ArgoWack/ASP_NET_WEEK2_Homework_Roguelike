@@ -1,5 +1,4 @@
-﻿using System.Reflection;
-using ASP_NET_WEEK3_Homework_Roguelike.Model.Items;
+﻿using ASP_NET_WEEK3_Homework_Roguelike.Model.Items;
 using ASP_NET_WEEK3_Homework_Roguelike.View;
 
 namespace ASP_NET_WEEK3_Homework_Roguelike.Services
@@ -16,7 +15,6 @@ namespace ASP_NET_WEEK3_Homework_Roguelike.Services
             Great,
             Legendary
         }
-
         private static readonly Random _random = new Random();
         public static int LastGeneratedItemId { get; set; } = 0;
 
@@ -86,7 +84,6 @@ namespace ASP_NET_WEEK3_Homework_Roguelike.Services
                 return null;
             }
         }
-
         private static void AssignRandomStats(Item item, ItemBaseStats baseStats, ref double percentage)
         {
             foreach (var property in typeof(ItemBaseStats).GetProperties())
@@ -104,7 +101,6 @@ namespace ASP_NET_WEEK3_Homework_Roguelike.Services
                 }
             }
         }
-
         private static int GenerateRandomStat(int baseValue, out double percentage)
         {
             var variation = baseValue * 0.25;
@@ -112,13 +108,11 @@ namespace ASP_NET_WEEK3_Homework_Roguelike.Services
             percentage = offset / baseValue;
             return baseValue + (int)offset;
         }
-
         private static void AssignItemName(Item item, double percentage)
         {
             var quality = GetQuality(percentage);
             item.Name = $"{quality} {item.Type}";
         }
-
         public static ItemQuality GetQuality(double percentage)
         {
             if (percentage <= -0.20) return ItemQuality.Shitty;

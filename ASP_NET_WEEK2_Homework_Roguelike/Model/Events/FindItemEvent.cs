@@ -19,35 +19,46 @@ namespace ASP_NET_WEEK3_Homework_Roguelike.Model.Events
         {
             if (player == null || room == null)
                 throw new ArgumentNullException("Player or Room cannot be null.");
-            if (new Random().Next(100) < 34) // 34% chance to find health potions
+
+            try
             {
-                int potionCount = new Random().Next(1, 5);
-                player.ReceiveHealthPotion(potionCount);
-                _eventService.HandleEventOutcome($"You have found {potionCount} Health Potions.");
-            }
-            else
-            {
-                var item = ItemFactoryService.GenerateRandomItem(_view);
-                if (item != null)
+                if (new Random().Next(100) < 34) // 34% chance to find health potions
                 {
-                    _eventService.HandleEventOutcome($"You have found an item: {item.Name}.");
-                    string choice = _eventService.PromptForItemPickup();
-                    if (choice.ToLower() == "y")
-                    {
-                        player.Inventory.Add(item);
-                        _eventService.HandleEventOutcome($"You have taken the item: {item.Name}.");
-                    }
-                    else
-                    {
-                        _eventService.HandleEventOutcome($"You left the item: {item.Name}.");
-                    }
+                    int potionCount = new Random().Next(1, 5);
+                    player.ReceiveHealthPotion(potionCount);
+                    _eventService.HandleEventOutcome($"You have found {potionCount} Health Potions.");
                 }
                 else
                 {
-                    _eventService.HandleEventOutcome("No valid item was generated.");
+                    var item = ItemFactoryService.GenerateRandomItem(_view);
+                    if (item != null)
+                    {
+                        _eventService.HandleEventOutcome($"You have found an item: {item.Name}.");
+                        string choice = _eventService.PromptForItemPickup();
+                        if (choice.ToLower() == "y")
+                        {
+                            player.Inventory.Add(item);
+                            _eventService.HandleEventOutcome($"You have taken the item: {item.Name}.");
+                        }
+                        else
+                        {
+                            _eventService.HandleEventOutcome($"You left the item: {item.Name}.");
+                        }
+                    }
+                    else
+                    {
+                        _eventService.HandleEventOutcome("No valid item was generated.");
+                    }
                 }
             }
-            room.EventStatus = "none";
+            catch (Exception ex)
+            {
+                _eventService.HandleEventOutcome($"Error during FindItemEvent: {ex.Message}");
+            }
+            finally
+            {
+                room.EventStatus = "none";
+            }
         }
     }
 }
