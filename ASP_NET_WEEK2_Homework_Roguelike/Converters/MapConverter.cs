@@ -1,7 +1,9 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
+using ASP_NET_WEEK3_Homework_Roguelike.Converters;
 using ASP_NET_WEEK3_Homework_Roguelike.Model;
-public class MapConverter : JsonConverter<Map>
+using ASP_NET_WEEK3_Homework_Roguelike.Model.Items;
+public class MapConverter : JsonConverter<Map>, IConverter<Map>
 {
     public override Map Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {

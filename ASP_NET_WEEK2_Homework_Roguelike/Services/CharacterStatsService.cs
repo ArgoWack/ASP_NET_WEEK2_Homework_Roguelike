@@ -3,7 +3,7 @@ using ASP_NET_WEEK3_Homework_Roguelike.Model.Items;
 
 namespace ASP_NET_WEEK3_Homework_Roguelike.Services
 {
-    public class CharacterStatsService
+    public class CharacterStatsService: ICharacterStatsService
     {
         public float CalculateAttack(PlayerCharacter player)
         {

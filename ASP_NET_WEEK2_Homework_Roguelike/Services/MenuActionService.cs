@@ -2,7 +2,7 @@
 
 namespace ASP_NET_WEEK3_Homework_Roguelike.Services
 {
-    public class MenuActionService
+    public class MenuActionService: IMenuActionService
     {
         private List<MenuAction> menuActions;
         public MenuActionService()

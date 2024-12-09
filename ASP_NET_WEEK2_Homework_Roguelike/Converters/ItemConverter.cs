@@ -1,7 +1,8 @@
-﻿using ASP_NET_WEEK3_Homework_Roguelike.Model.Items;
+﻿using ASP_NET_WEEK3_Homework_Roguelike.Converters;
+using ASP_NET_WEEK3_Homework_Roguelike.Model.Items;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-public class ItemConverter : JsonConverter<Item>
+public class ItemConverter : JsonConverter<Item>, IConverter<Item>
 {
     public override Item Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {

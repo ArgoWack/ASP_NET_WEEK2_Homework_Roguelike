@@ -2,7 +2,8 @@
 using ASP_NET_WEEK3_Homework_Roguelike.Model;
 using System.Text.Json.Serialization;
 using System.Text.Json;
-public class PlayerCharacterConverter : JsonConverter<PlayerCharacter>
+using ASP_NET_WEEK3_Homework_Roguelike.Converters;
+public class PlayerCharacterConverter : JsonConverter<PlayerCharacter>,IConverter<PlayerCharacter>
 {
     public override PlayerCharacter Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {

@@ -4,7 +4,7 @@ using ASP_NET_WEEK3_Homework_Roguelike.View;
 
 namespace ASP_NET_WEEK3_Homework_Roguelike.Model
 {
-    public class PlayerCharacter
+    public class PlayerCharacter: IPlayerCharacter
     {
         public PlayerCharacter()
         {

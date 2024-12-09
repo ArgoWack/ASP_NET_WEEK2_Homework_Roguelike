@@ -4,7 +4,7 @@ using ASP_NET_WEEK3_Homework_Roguelike.View;
 
 namespace ASP_NET_WEEK3_Homework_Roguelike.Services
 {
-    public class EventService
+    public class EventService: IEventService
     {
         private PlayerCharacterController _playerController;
         private readonly GameView _gameView;

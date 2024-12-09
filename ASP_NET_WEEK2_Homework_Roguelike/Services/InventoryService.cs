@@ -4,7 +4,7 @@ using System.Reflection;
 
 namespace ASP_NET_WEEK3_Homework_Roguelike.Services
 {
-    public class InventoryService
+    public class InventoryService: IInventoryService
     {
         public void EquipItem(PlayerCharacter player, int itemId)
         {

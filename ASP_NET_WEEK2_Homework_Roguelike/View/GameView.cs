@@ -3,7 +3,7 @@ using static System.Console;
 
 namespace ASP_NET_WEEK3_Homework_Roguelike.View
 {
-    public class GameView
+    public class GameView: IGameView
     {
         public void DisplayMessage(string message)
         {

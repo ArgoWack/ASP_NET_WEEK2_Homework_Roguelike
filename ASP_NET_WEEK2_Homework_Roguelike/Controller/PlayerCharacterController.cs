@@ -5,7 +5,7 @@ using ASP_NET_WEEK3_Homework_Roguelike.Services;
 
 namespace ASP_NET_WEEK3_Homework_Roguelike.Controller
 {
-    public class PlayerCharacterController
+    public class PlayerCharacterController: IPlayerCharacterController
     {
         private readonly PlayerCharacter _playerCharacter;
         private readonly PlayerCharacterView _view;

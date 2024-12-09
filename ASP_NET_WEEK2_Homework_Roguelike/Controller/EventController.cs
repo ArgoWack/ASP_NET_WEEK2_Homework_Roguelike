@@ -4,38 +4,40 @@ using ASP_NET_WEEK3_Homework_Roguelike.Services;
 
 namespace ASP_NET_WEEK3_Homework_Roguelike.Controller
 {
-    public class EventController
+    public class EventController : IEventController
     {
-        private readonly PlayerCharacterController _playerController;
-        private readonly EventService _eventService;
-        public EventController(PlayerCharacterController playerController, EventService eventService)
+        private readonly IPlayerCharacterController _playerController;
+        private readonly IEventService _eventService;
+
+        public EventController(IPlayerCharacterController playerController, IEventService eventService)
         {
-            _playerController = playerController;
-            _eventService = eventService;
+            _playerController = playerController ?? throw new ArgumentNullException(nameof(playerController));
+            _eventService = eventService ?? throw new ArgumentNullException(nameof(eventService));
         }
+
         public void ExecuteEvent(Room room)
         {
-            if (room == null || room.EventStatus == "none") return;
+            if (room == null || string.IsNullOrEmpty(room.EventStatus) || room.EventStatus == "none")
+                return;
 
-            // generates the event based on the room's EventStatus and execute it
             var randomEvent = EventGenerator.GenerateEvent(room.EventStatus);
-            if (randomEvent != null)
+            if (randomEvent == null)
             {
-                try
-                {
-                    randomEvent.Execute(_playerController.PlayerCharacter, room, _playerController);
-                    _eventService.HandleEventOutcome($"Event {room.EventStatus} has been handled.");
-                }
-                catch (Exception ex)
-                {
-                    _eventService.HandleEventOutcome($"An error occurred during event execution: {ex.Message}");
-                }
+                _eventService.HandleEventOutcome($"No valid event found for status: {room.EventStatus}");
+                return;
             }
-            else
+
+            try
             {
-                _eventService.HandleEventOutcome("No valid event found for this room.");
+                randomEvent.Execute(_playerController.PlayerCharacter, room, (PlayerCharacterController)_playerController);
+                _eventService.HandleEventOutcome($"Event '{room.EventStatus}' executed successfully.");
             }
-            room.EventStatus = "none"; // clears event status after handling
+            catch (Exception ex)
+            {
+                _eventService.HandleEventOutcome($"Error during event execution: {ex.Message}");
+            }
+
+            room.EventStatus = "none";
         }
     }
 }

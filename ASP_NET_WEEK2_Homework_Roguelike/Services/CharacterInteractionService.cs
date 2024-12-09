@@ -2,7 +2,7 @@
 
 namespace ASP_NET_WEEK3_Homework_Roguelike.Services
 {
-    public class CharacterInteractionService
+    public class CharacterInteractionService: ICharacterInteractionService
     {
         private readonly EventService _eventService;
         public CharacterInteractionService(EventService eventService)
